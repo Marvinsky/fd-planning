@@ -1,0 +1,2 @@
+Peak memory: 3512 KB
+caught signal 2 -- exiting
