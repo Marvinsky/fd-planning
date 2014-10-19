@@ -1,0 +1,243 @@
+.obj/closed_list.1.o: closed_list.cc
+.obj/combining_evaluator.1.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.1.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.1.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.1.o: rng.cc rng.h
+.obj/search_node_info.1.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.1.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.1.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.1.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.1.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.1.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.1.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.1.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.1.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.1.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.1.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.1.debug.o: closed_list.cc
+.obj/combining_evaluator.1.debug.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.1.debug.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.1.debug.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.1.debug.o: rng.cc rng.h
+.obj/search_node_info.1.debug.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.1.debug.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.1.debug.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.1.debug.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.1.debug.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.1.debug.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.1.debug.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.1.debug.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.1.debug.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.1.debug.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.1.debug.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.1.profile.o: closed_list.cc
+.obj/combining_evaluator.1.profile.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.1.profile.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.1.profile.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.1.profile.o: rng.cc rng.h
+.obj/search_node_info.1.profile.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.1.profile.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.1.profile.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.1.profile.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.1.profile.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.1.profile.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.1.profile.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.1.profile.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.1.profile.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.1.profile.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.1.profile.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.2.o: closed_list.cc
+.obj/combining_evaluator.2.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.2.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.2.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.2.o: rng.cc rng.h
+.obj/search_node_info.2.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.2.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.2.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.2.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.2.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.2.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.2.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.2.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.2.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.2.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.2.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.2.debug.o: closed_list.cc
+.obj/combining_evaluator.2.debug.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.2.debug.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.2.debug.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.2.debug.o: rng.cc rng.h
+.obj/search_node_info.2.debug.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.2.debug.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.2.debug.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.2.debug.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.2.debug.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.2.debug.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.2.debug.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.2.debug.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.2.debug.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.2.debug.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.2.debug.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.2.profile.o: closed_list.cc
+.obj/combining_evaluator.2.profile.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.2.profile.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.2.profile.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.2.profile.o: rng.cc rng.h
+.obj/search_node_info.2.profile.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.2.profile.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.2.profile.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.2.profile.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.2.profile.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.2.profile.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.2.profile.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.2.profile.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.2.profile.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.2.profile.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.2.profile.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.4.o: closed_list.cc
+.obj/combining_evaluator.4.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.4.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.4.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.4.o: rng.cc rng.h
+.obj/search_node_info.4.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.4.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.4.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.4.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.4.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.4.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.4.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.4.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.4.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.4.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.4.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.4.debug.o: closed_list.cc
+.obj/combining_evaluator.4.debug.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.4.debug.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.4.debug.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.4.debug.o: rng.cc rng.h
+.obj/search_node_info.4.debug.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.4.debug.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.4.debug.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.4.debug.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.4.debug.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.4.debug.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.4.debug.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.4.debug.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.4.debug.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.4.debug.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.4.debug.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h
+.obj/closed_list.4.profile.o: closed_list.cc
+.obj/combining_evaluator.4.profile.o: combining_evaluator.cc combining_evaluator.h \
+ scalar_evaluator.h evaluator.h
+.obj/exact_timer.4.profile.o: exact_timer.cc exact_timer.h
+.obj/memory_tracking_allocator.4.profile.o: memory_tracking_allocator.cc \
+ memory_tracking_allocator.h
+.obj/rng.4.profile.o: rng.cc rng.h
+.obj/search_node_info.4.profile.o: search_node_info.cc search_node_info.h state.h \
+ state_var_t.h
+.obj/timer.4.profile.o: timer.cc timer.h
+.obj/open_lists/alternation_open_list.4.profile.o: open_lists/alternation_open_list.cc
+.obj/open_lists/open_list_buckets.4.profile.o: open_lists/open_list_buckets.cc
+.obj/open_lists/pareto_open_list.4.profile.o: open_lists/pareto_open_list.cc
+.obj/open_lists/standard_scalar_open_list.4.profile.o: open_lists/standard_scalar_open_list.cc
+.obj/open_lists/tiebreaking_open_list.4.profile.o: open_lists/tiebreaking_open_list.cc
+.obj/merge_and_shrink/shrink_bucket_based.4.profile.o: merge_and_shrink/shrink_bucket_based.cc \
+ merge_and_shrink/shrink_bucket_based.h \
+ merge_and_shrink/shrink_strategy.h merge_and_shrink/abstraction.h \
+ merge_and_shrink/../operator_cost.h
+.obj/learning/classifier.4.profile.o: learning/classifier.cc learning/classifier.h \
+ learning/../state.h learning/../state_var_t.h \
+ learning/feature_extractor.h
+.obj/learning/composite_feature_extractor.4.profile.o: learning/composite_feature_extractor.cc \
+ learning/composite_feature_extractor.h learning/feature_extractor.h \
+ learning/../state.h learning/../state_var_t.h
+.obj/learning/feature_extractor.4.profile.o: learning/feature_extractor.cc \
+ learning/feature_extractor.h learning/state_vars_feature_extractor.h

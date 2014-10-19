@@ -1,0 +1,172 @@
+ipc_2011_TIDYBOT_2	147.81	4.41126e-05
+ipc_2011_WOODWORKING_5	274.09	2.80235e-05
+ipc_2011_WOODWORKING_7	326.16	2.88583e-05
+ipc_2011_WOODWORKING_16	296.97	7.21646e-05
+ipc_2011_TIDYBOT_5	105.85	0.000370637
+ipc_2011_TIDYBOT_8	107.91	0.000361334
+ipc_2011_TIDYBOT_10	160.92	0.000983886
+ipc_2011_TIDYBOT_9	131.29	0.000227735
+ipc_2011_TIDYBOT_11	155.96	0.000350598
+ipc_2011_TIDYBOT_14	190.68	0.00119114
+ipc_2011_TIDYBOT_13	141.72	0.00088532
+ipc_2011_SCANALYZER_12	388.18	2.10481e-06
+ipc_2011_TIDYBOT_12	164.56	0.000928679
+ipc_2011_SCANALYZER_13	669.16	1.79006e-06
+ipc_2011_PEGSOL_9	483.83	3.84692e-06
+ipc_2011_SCANALYZER_14	768.13	1.55019e-06
+ipc_2011_PEGSOL_13	474.41	3.0868e-06
+ipc_2011_PEGSOL_16	407.52	3.49938e-06
+ipc_2011_PEGSOL_18	395.18	4.06266e-06
+ipc_2011_PEGSOL_19	401.9	3.45084e-06
+ipc_2011_PARKING_1	715.74	7.38369e-06
+ipc_2011_PARKING_5	825.76	1.11534e-05
+ipc_2011_PARKING_3	1017.63	1.01222e-05
+ipc_2011_OPENSTACKS_3	140.83	1.68809e-06
+ipc_2011_OPENSTACKS_9	191.78	2.36033e-06
+ipc_2011_OPENSTACKS_6	161.17	2.04988e-06
+ipc_2011_PARKING_7	1091.95	1.52381e-05
+ipc_2011_OPENSTACKS_8	187.39	2.11013e-06
+ipc_2011_PARKING_8	1171.19	1.44253e-05
+ipc_2011_FLOORTILE_3	270.64	5.96611e-06
+ipc_2011_FLOORTILE_4	272.28	6.09702e-06
+ipc_2011_FLOORTILE_5	298.75	8.58693e-06
+ipc_2011_PARKING_10	1096.99	1.46095e-05
+ipc_2011_FLOORTILE_6	315.86	8.82034e-06
+ipc_2011_ELEVATORS_7	252.12	1.61505e-06
+ipc_2011_ELEVATORS_9	296.21	1.27013e-06
+ipc_2011_ELEVATORS_15	255.98	1.96337e-06
+ipc_2011_ELEVATORS_17	231.4	1.71055e-06
+ipc_2011_SOKOBAN_5	175.75	1.04422e-06
+ipc_2011_SOKOBAN_11	189.21	9.88486e-07
+ipc_2011_SOKOBAN_16	182.11	1.08389e-06
+ipc_2011_SOKOBAN_13	213.61	9.97876e-07
+ipc_2011_FLOORTILE_7	311.84	9.30193e-06
+ipc_2011_SOKOBAN_17	232.61	9.52366e-07
+ipc_2011_SOKOBAN_20	260.42	1.01019e-06
+ipc_2011_SOKOBAN_18	392.56	1.44905e-06
+ipc_2011_BARMAN_2	194.42	3.59293e-06
+ipc_2011_TRANSPORT_17	264.83	1.5704e-06
+ipc_2011_BARMAN_1	182.11	3.76209e-06
+ipc_2011_SOKOBAN_6	95.25	1.31387e-06
+ipc_2011_SOKOBAN_9	129.66	1.10845e-06
+ipc_2011_ELEVATORS_20	246.35	1.6199e-06
+ipc_2011_BARMAN_3	197.36	3.70255e-06
+ipc_2011_BARMAN_4	205.28	3.74822e-06
+ipc_2011_OPENSTACKS_12	163.82	2.78673e-06
+ipc_2011_OPENSTACKS_10	213.62	3.46037e-06
+ipc_2011_OPENSTACKS_13	181.5	2.77362e-06
+ipc_2011_OPENSTACKS_11	164	2.45453e-06
+ipc_2011_OPENSTACKS_15	230.03	2.90712e-06
+ipc_2011_OPENSTACKS_16	326.92	3.16721e-06
+sas_plan	277.04	3.67945e-06
+sas_plan	283.08	4.36877e-06
+sas_plan	294.14	3.52721e-06
+sas_plansas_plan	111.06	8.08044e-06
+sas_plansas_plan	288.12	4.1355e-06
+sas_plansas_plan	341.78	4.42371e-06	3.32846e-06
+sas_plansas_plan	284.54	4.08464e-06	3.14063e-06
+sas_plansas_plan	281.12	3.7778e-06	3.18326e-06
+sas_plansas_plan	139.6	1.70831e-05	2.47538e-06
+sas_plansas_plan	139.28	1.60515e-05	2.8178e-06
+sas_plansas_plan	140.78	1.56167e-05	2.57298e-06
+sas_plansas_plan	160.96	1.56009e-05	2.60146e-06
+sas_plansas_plan	162.24	1.92077e-05	2.55931e-06
+sas_plansas_plan	161.32	1.63654e-05	2.63042e-06
+sas_plansas_plan	200.72	1.48726e-05	2.54813e-06
+sas_plansas_plan	188.74	6.20374e-06	1.19016e-06
+sas_plansas_plan	259.6	1.24699e-06	9.24391e-07
+sas_plansas_plan	261.34	1.53496e-06	9.3123e-07
+sas_plansas_plan	349.3	2.71571e-06	2.54418e-06
+sas_plansas_plan	348.94	2.88e-06	2.57448e-06
+sas_plansas_plan	216.36	1.23408e-06	9.30626e-07
+sas_plansas_plan	199.88	2.99382e-06	2.52535e-06
+sas_plansas_plan	481.16	1.34033e-06	9.57749e-07
+sas_plansas_plan	255.82	1.2671e-06	9.3933e-07
+sas_plansas_plan	1.24	2.50159e-06	2.50159e-06
+sas_plansas_plan	1.24	2.59098e-06	2.52205e-06
+sas_plansas_plan	1.24	2.60409e-06	2.53152e-06
+sas_plansas_plan	1.24	2.70384e-06	2.54092e-06
+sas_plansas_plan	1.24	2.71614e-06	2.53948e-06
+sas_plansas_plan	1.24	2.61987e-06	2.5203e-06
+sas_plansas_plan	1.24	2.49355e-06	2.49355e-06
+sas_plansas_plan	1.24	2.69225e-06	2.53108e-06
+sas_plansas_plan	1.24	2.66564e-06	2.50985e-06
+sas_plansas_plan	1.24	2.66674e-06	2.49989e-06
+sas_plansas_plan	1.24	2.78936e-06	2.60334e-06
+sas_plansas_plan	1.24	2.67555e-06	2.49764e-06
+sas_plansas_plan	1.24	2.69582e-06	2.5227e-06
+sas_plansas_plan	1.24	2.7136e-06	2.55185e-06
+sas_plansas_plan	1.24	2.69458e-06	2.52853e-06
+sas_plansas_plan	1.24	2.67665e-06	2.58242e-06
+sas_plansas_plan	1.24	2.49357e-06	2.49357e-06
+sas_plansas_plan	1.28	2.57983e-06	2.50295e-06
+sas_plansas_plan	26.12	2.53468e-06	2.49047e-06
+sas_plansas_plan	88.82	2.64592e-06	2.54443e-06
+sas_plansas_plan	121.24	2.62631e-06	2.52451e-06
+sas_plansas_plan	121.3	2.62937e-06	2.52116e-06
+sas_plansas_plan	241.3	2.77084e-06	2.50399e-06
+sas_plansas_plan	241.3	2.78456e-06	2.51806e-06
+sas_plansas_plan	121.66	2.77259e-06	2.47956e-06
+sas_plansas_plan	121.6	2.87772e-06	2.55862e-06
+sas_plansas_plan	100.32	2.77741e-06	2.52284e-06
+sas_plansas_plan	188.58	2.80032e-06	2.53236e-06
+sas_plansas_plan	951.46	2.65803e-06	2.55705e-06
+sas_plansas_plan	187.76	2.77367e-06	2.50275e-06
+sas_plansas_plan	95.44	2.63728e-06	2.51849e-06
+sas_plansas_plan	95.58	2.72014e-06	2.60058e-06
+sas_plansas_plan	94.5	2.60716e-06	2.49243e-06
+sas_plansas_plan	94.72	2.62399e-06	2.50113e-06
+sas_plansas_plan	113.62	2.52874e-06	2.52874e-06
+sas_plansas_plan	96.86	2.74432e-06	2.65327e-06
+sas_plansas_plan	172.68	6.23785e-06	8.19671e-07
+sas_plansas_plan	169.46	8.79254e-06	7.85213e-07
+sas_plansas_plan	160.02	5.74566e-06	7.68247e-07
+sas_plansas_plan	168.1	5.4239e-06	7.5902e-07
+sas_plansas_plan	170.36	5.91808e-06	7.8106e-07
+sas_plansas_plan	172.56	5.7268e-06	8.07441e-07
+sas_plansas_plan	176.5	9.79269e-07	7.72409e-07
+sas_plansas_plan	892.28	4.24762e-05	4.23316e-05
+sas_plansas_plan	1029.44	6.63039e-05	6.62296e-05
+sas_plansas_plan	123.98	0.00010839	0.000108303
+sas_plansas_plan	180.72	1.09462e-06	7.82919e-07
+sas_plansas_plan	175.92	1.061e-06	7.6664e-07
+sas_plansas_plan	181.22	1.10597e-06	8.09874e-07
+sas_plansas_plan	180.1	1.09168e-06	7.92783e-07
+sas_plansas_plan	178.96	1.04599e-06	7.48321e-07
+sas_plansas_plan	180.98	8.82584e-07	7.81485e-07
+sas_plansas_plan	166.42	8.37441e-07	7.44478e-07
+sas_plansas_plan	178.42	8.47433e-07	7.58378e-07
+sas_plansas_plan	352.92	2.62802e-06	2.58174e-06
+sas_plansas_plan	178.98	1.0519e-06	7.64552e-07
+sas_plansas_plan	179.14	1.03116e-06	7.62021e-07
+sas_plansas_plan	179.94	8.346e-07	7.47508e-07
+sas_plansas_plan	179.46	1.05764e-06	7.58281e-07
+sas_plansas_plan	352.28	2.54904e-06	2.49709e-06
+sas_plansas_plan	351.84	2.54678e-06	2.49692e-06
+sas_plansas_plan	131.96	9.8016e-07	7.48875e-07
+sas_plansas_plan	311.74	1.17303e-06	1.00097e-06
+sas_plansas_plan	299.5	1.21462e-06	1.03951e-06
+sas_plansas_plan	324.72	1.25822e-06	1.08585e-06
+sas_plansas_plan	312.92	1.19765e-06	1.03844e-06
+sas_plansas_plan	314.48	1.23828e-06	1.02025e-06
+sas_plansas_plan	316.74	1.20478e-06	1.03647e-06
+sas_plansas_plan	306.9	1.28127e-06	1.12012e-06
+sas_plansas_plan	314.22	1.21305e-06	1.03124e-06
+sas_plansas_plan	314.02	1.15595e-06	1.00169e-06
+sas_plansas_plan	312.02	1.17844e-06	1.00077e-06
+sas_plansas_plan	306.96	1.34061e-06	1.02778e-06
+sas_plansas_plan	318.04	1.79584e-06	1.03434e-06
+sas_plansas_plan	323.18	2.66333e-06	2.59165e-06
+sas_plansas_plan	256.4	2.62617e-06	2.55061e-06
+sas_plansas_plan	282.04	2.72186e-06	2.65507e-06
+sas_plansas_plan	96.66	0.000156087	0.000156031
+sas_plansas_plan	937.36	6.15951e-05	6.15457e-05
+sas_plansas_plan	54.34	3.1769e-06	2.83503e-06
+sas_plansas_plan	185.94	1.6108e-06	1.30984e-06
+sas_plansas_plan	148.56	1.55906e-06	1.28844e-06
+sas_plansas_plan	148.32	1.51491e-06	1.21934e-06
+sas_plansas_plan	148.84	2.35762e-06	1.2201e-06
+sas_plansas_plan	498.86	2.14401e-06	1.56642e-06
+sas_plansas_plan	138.84	0.000174153	0.000165207
+sas_plansas_plan	131.74	0.000284612	0.000284495
+sas_plan

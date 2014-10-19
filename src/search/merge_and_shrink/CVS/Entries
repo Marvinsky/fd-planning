@@ -1,0 +1,19 @@
+/merge_and_shrink_heuristic.cc/1.3/Fri Feb 14 09:56:54 2014//
+/merge_and_shrink_heuristic.h/1.4/Fri Feb 14 09:56:54 2014//
+/shrink_bisimulation.cc/1.2/Fri Feb 14 09:56:54 2014//
+/variable_order_finder.cc/1.2/Fri Feb 14 09:56:54 2014//
+/abstraction.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/abstraction.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/label_reducer.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/label_reducer.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_bisimulation.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_bucket_based.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_bucket_based.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_fh.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_fh.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_random.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_random.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_strategy.cc/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/shrink_strategy.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+/variable_order_finder.h/1.1.1.1/Fri Feb 14 09:56:54 2014//
+D

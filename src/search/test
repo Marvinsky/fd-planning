@@ -1,0 +1,194 @@
+Simplifying transitions... done!
+calling parse_astar
+SAMPLING_PHASE
+calling parse_astar
+SAMPLING_PHASE
+Conducting best first search with reopening closed nodes, (real) bound = 2147483647
+first_sample set to true
+node gen_and_exp_cost:7.02045e-06
+active heuristics size:1
+f = 0 [1 evaluated, 0 expanded, t=1.04s,generated_states:0],random_comb_index:-1
+F_bound:,0,Peak memory=,45.8633
+Best heuristic value: 0 [g=0, 1 evaluated, 0 expanded, t=1.04s]
+h[,0,] time_cost is,1.1e-07
+h[,0,] is:,heur is not named,measured time cost:2.90548e-07
+node_time_adjusted_reval based on the min of half second node_gen and the most expensive heuristic or 1000 nodes:1000
+f = 1 [13 evaluated, 1 expanded, t=1.15s,generated_states:12],random_comb_index:-1
+F_bound:,1,Peak memory=,45.8633
+F_bound:1,Peak memory=45.8633,nodes:13,Nodes mem_space:0.507812
+F:1F_bound:1F_boundary_time:0.11,Hoff Potential Range:11,leaves_to_sample:5
+new F_bound:1chosen_Hoff_Roots_size:0 out of 11
+f = 2 [73 evaluated, 13 expanded, t=1.15s,generated_states:116],random_comb_index:-1
+F_bound:,2,Peak memory=,45.8633
+F_bound:2,Peak memory=45.8633,nodes:73,Nodes mem_space:2.85156
+F:2F_bound:2F_boundary_time:0,Hoff Potential Range:29,leaves_to_sample:5
+new F_bound:2chosen_Hoff_Roots_size:0 out of 29
+f = 11 [73 evaluated, 43 expanded, t=1.15s,generated_states:176],random_comb_index:-1
+F_bound:,11,Peak memory=,45.8633
+F_bound:11,Peak memory=45.8633,nodes:73,Nodes mem_space:2.85156
+F:11F_bound:11F_boundary_time:0,Hoff Potential Range:29,leaves_to_sample:5
+new F_bound:11chosen_Hoff_Roots_size:0 out of 29
+f = 12 [298 evaluated, 73 expanded, t=1.15s,generated_states:416],random_comb_index:-1
+F_bound:,12,Peak memory=,45.8633
+F_bound:12,Peak memory=45.8633,nodes:298,Nodes mem_space:11.6406
+F:12F_bound:12F_boundary_time:0,Hoff Potential Range:224,leaves_to_sample:5
+new F_bound:12chosen_Hoff_Roots_size:0 out of 224
+f = 13 [838 evaluated, 298 expanded, t=1.16s,generated_states:1676],random_comb_index:-1
+F_bound:,13,Peak memory=,45.8633
+F_bound:13,Peak memory=45.8633,nodes:838,Nodes mem_space:32.7344
+F:13F_bound:13F_boundary_time:0.01,Hoff Potential Range:509,leaves_to_sample:5
+new F_bound:13chosen_Hoff_Roots_size:0 out of 509
+f = 14 [1951 evaluated, 808 expanded, t=1.19s,generated_states:4196],random_comb_index:-1
+F_bound:,14,Peak memory=,45.8633
+F_bound:14,Peak memory=45.8633,nodes:1951,Nodes mem_space:76.2109
+F:14F_bound:14F_boundary_time:0.03,Hoff Potential Range:692,leaves_to_sample:6
+new F_bound:14chosen_Hoff_Roots_size:0 out of 692
+f = 15 [3277 evaluated, 1501 expanded, t=1.21s,generated_states:7562],random_comb_index:-1
+F_bound:,15,Peak memory=,45.8633
+F_bound:15,Peak memory=45.8633,nodes:3277,Nodes mem_space:128.008
+F:15F_bound:15F_boundary_time:0.02,Hoff Potential Range:605,leaves_to_sample:6
+new F_bound:15chosen_Hoff_Roots_size:0 out of 605
+f = 22 [3277 evaluated, 2107 expanded, t=1.22s,generated_states:8798],random_comb_index:-1
+F_bound:,22,Peak memory=,45.8633
+F_bound:22,Peak memory=45.8633,nodes:3277,Nodes mem_space:128.008
+F:22F_bound:22F_boundary_time:0.01,Hoff Potential Range:29,leaves_to_sample:5
+new F_bound:22chosen_Hoff_Roots_size:0 out of 29
+f = 23 [3472 evaluated, 2137 expanded, t=1.22s,generated_states:9038],random_comb_index:-1
+F_bound:,23,Peak memory=,45.8633
+F_bound:23,Peak memory=45.8633,nodes:3472,Nodes mem_space:135.625
+F:23F_bound:23F_boundary_time:0,Hoff Potential Range:614,leaves_to_sample:6
+new F_bound:23chosen_Hoff_Roots_size:0 out of 614
+f = 24 [6727 evaluated, 2752 expanded, t=1.27s,generated_states:13418],random_comb_index:-1
+F_bound:,24,Peak memory=,45.8633
+F_bound:24,Peak memory=45.8633,nodes:6727,Nodes mem_space:262.773
+F:24F_bound:24F_boundary_time:0.05,Hoff Potential Range:3944,leaves_to_sample:39
+new F_bound:24chosen_Hoff_Roots_size:0 out of 3944
+f = 25 [17860 evaluated, 6697 expanded, t=1.46s,generated_states:37388],random_comb_index:-1
+F_bound:,25,Peak memory=,45.8633
+F_bound:25,Peak memory=45.8633,nodes:17860,Nodes mem_space:697.656
+F:25F_bound:25F_boundary_time:0.19,Hoff Potential Range:10412,leaves_to_sample:104
+new F_bound:25chosen_Hoff_Roots_size:0 out of 10412
+f = 26 [32659 evaluated, 17110 expanded, t=1.84s,generated_states:85334],random_comb_index:-1
+F_bound:,26,Peak memory=,45.8633
+F_bound:26,Peak memory=45.8633,nodes:32659,Nodes mem_space:1275.74
+F:26F_bound:26F_boundary_time:0.38,Hoff Potential Range:11828,leaves_to_sample:118
+new F_bound:26chosen_Hoff_Roots_size:0 out of 11828
+f = 27 [48345 evaluated, 28939 expanded, t=2.21s,generated_states:134626],random_comb_index:-1
+F_bound:,27,Peak memory=,45.8633
+F_bound:27,Peak memory=45.8633,nodes:48345,Nodes mem_space:1888.48
+F:27F_bound:27F_boundary_time:0.37,Hoff Potential Range:8245,leaves_to_sample:82
+new F_bound:27chosen_Hoff_Roots_size:0 out of 8245
+f = 28 [59203 evaluated, 37185 expanded, t=2.3s,generated_states:168710],random_comb_index:-1
+F_bound:,28,Peak memory=,45.8633
+F_bound:28,Peak memory=45.8633,nodes:59203,Nodes mem_space:2312.62
+F:28F_bound:28F_boundary_time:0.09,Hoff Potential Range:4917,leaves_to_sample:49
+new F_bound:28chosen_Hoff_Roots_size:0 out of 4917
+f = 29 [63854 evaluated, 42103 expanded, t=2.35s,generated_states:185016],random_comb_index:-1
+F_bound:,29,Peak memory=,45.8633
+F_bound:29,Peak memory=45.8633,nodes:63854,Nodes mem_space:2494.3
+F:29F_bound:29F_boundary_time:0.05,Hoff Potential Range:4650,leaves_to_sample:46
+new F_bound:29chosen_Hoff_Roots_size:0 out of 4650
+f = 30 [78195 evaluated, 46754 expanded, t=2.42s,generated_states:217918],random_comb_index:-1
+F_bound:,30,Peak memory=,45.8633
+F_bound:30,Peak memory=45.8633,nodes:78195,Nodes mem_space:3054.49
+F:30F_bound:30F_boundary_time:0.07,Hoff Potential Range:13300,leaves_to_sample:133
+new F_bound:30chosen_Hoff_Roots_size:0 out of 13300
+f = 31 [109595 evaluated, 60055 expanded, t=2.63s,generated_states:291430],random_comb_index:-1
+F_bound:,31,Peak memory=,45.8633
+F_bound:31,Peak memory=45.8633,nodes:109595,Nodes mem_space:4281.05
+F:31F_bound:31F_boundary_time:0.21,Hoff Potential Range:26329,leaves_to_sample:263
+new F_bound:31chosen_Hoff_Roots_size:0 out of 26329
+f = 32 [160845 evaluated, 86385 expanded, t=2.95s,generated_states:418280],random_comb_index:-1
+F_bound:,32,Peak memory=,48.5664
+F_bound:32,Peak memory=48.5664,nodes:160845,Nodes mem_space:6283.01
+F:32F_bound:32F_boundary_time:0.32,Hoff Potential Range:40929,leaves_to_sample:409
+new F_bound:32chosen_Hoff_Roots_size:0 out of 40929
+f = 33 [223915 evaluated, 127315 expanded, t=4.6s,generated_states:601140],random_comb_index:-1
+F_bound:,33,Peak memory=,59.9648
+F_bound:33,Peak memory=59.9648,nodes:223915,Nodes mem_space:8746.68
+F:33F_bound:33F_boundary_time:1.65,Hoff Potential Range:51819,leaves_to_sample:518
+new F_bound:33chosen_Hoff_Roots_size:0 out of 51819
+f = 34 [290125 evaluated, 179135 expanded, t=5.13s,generated_states:818540],random_comb_index:-1
+F_bound:,34,Peak memory=,70.4062
+F_bound:34,Peak memory=70.4062,nodes:290125,Nodes mem_space:11333
+F:34F_bound:34F_boundary_time:0.53,Hoff Potential Range:55649,leaves_to_sample:556
+new F_bound:34chosen_Hoff_Roots_size:0 out of 55649
+f = 35 [358030 evaluated, 234785 expanded, t=6.62s,generated_states:1044800],random_comb_index:-1
+F_bound:,35,Peak memory=,80.9766
+F_bound:35,Peak memory=80.9766,nodes:358030,Nodes mem_space:13985.5
+F:35F_bound:35F_boundary_time:1.49,Hoff Potential Range:58234,leaves_to_sample:582
+new F_bound:35chosen_Hoff_Roots_size:0 out of 58234
+f = 36 [437545 evaluated, 293020 expanded, t=7.97s,generated_states:1295090],random_comb_index:-1
+F_bound:,36,Peak memory=,96.4531
+F_bound:36,Peak memory=96.4531,nodes:437545,Nodes mem_space:17091.6
+F:36F_bound:36F_boundary_time:1.35,Hoff Potential Range:73394,leaves_to_sample:733
+new F_bound:36chosen_Hoff_Roots_size:0 out of 73394
+f = 37 [557570 evaluated, 366415 expanded, t=10.26s,generated_states:1646080],random_comb_index:-1
+F_bound:,37,Peak memory=,115.402
+F_bound:37,Peak memory=115.402,nodes:557570,Nodes mem_space:21780.1
+F:37F_bound:37F_boundary_time:2.29,Hoff Potential Range:109584,leaves_to_sample:1095
+new F_bound:37chosen_Hoff_Roots_size:0 out of 109584
+f = 38 [708820 evaluated, 476000 expanded, t=14.16s,generated_states:2167460],random_comb_index:-1
+F_bound:,38,Peak memory=,138.992
+F_bound:38,Peak memory=138.992,nodes:708820,Nodes mem_space:27688.3
+F:38F_bound:38F_boundary_time:3.9,Hoff Potential Range:128569,leaves_to_sample:1285
+only sampling one iteration, set first_sample to false
+SAMPLING_PHASE,F:,38,Hoff Potential Range:128569,leaves_to_sample:1285,leaf_selection_ratio:,0.00999463
+calling select_best_estimated_heuristic_subset
+Updating original hset_size from to orig_hset_size:1
+setting global_duplicate_check to true (A* duplicated nodes still apply)
+updating F_bound from0 to 38
+min_tpn:1.1e-07
+Sampling time preparations before HoF Roots:0
+Initializing HSP max heuristic...
+Simplifying 1778 unary operators... done! [1482 unary operators]
+Initializing landmark cut heuristic...
+Landmarks for node on the search frontier will be removed
+For nodes without saved parent landmarks the parent node will not be reevaluated
+Using no memory limit
+Finishing early strong_heur_checks at Hoff_Root:74,current_sampling_timer:0.12s,F_boundary_time:3.9
+F_bound:38,winning_h(0):60
+HoF roots:1257,overall_winning_h:0,winning times:60
+Hoff_admit_thress=1,last_heur:0
+Hoff_strong_heur_thress=0.5
+real_heur_pos[0]:0
+added h(,0,):as a strong heur,winning 60 at new pos:,0
+F_bound:38,starting node_time_adjusted_reval:68390
+Updating hset_size from1to hset_size:1
+hset_size reduce from 1 to:1
+deleting all previously visited nodes
+Sampling time preparations before HoF Roots:0.12
+Finishing sampling early at HoF root:2,current_sampling_time:2.64,f_boundary_time:3.9
+F_bound:38,overall_sampled_gen_nodes:,9,overall_nodes_culled:,7
+Starting calculate_heuristics_to_degree 1
+Here is the list of h_counters:
+	Level:0
+	Level:1
+h_counter[1][0]:2
+prev_best_h_comb:F_bound:,38,strong_heurs(real_pos):,0,
+1	heuristics, degree 1, Combinations:1
+calling print_final_size_counters
+Time[0] per node:4.250000e-06
+	 working on level0
+Calculate final size counters
+finished Resetting h_comb_map and h_comb map2
+h_comb_map1&2 sizes:1,1
+size of degree_visited:2best heuristic never expanded any Chosen HoF Root, can not trust measurement, Setting best heuristic subset for F_bound,38,is maximization of all strong_heur:,0-
+finished calculate_heuristics_to_degree
+chosen heur:1
+F_bound:38,chosen_heuristic:selected_heur(0) is:heur is not named
+heuristics,size:1
+h_counter reseted to size:1
+reseted earliest_depth_h_culled to INT_MAX/2 for 1remaining heuristics
+nodes.size:2
+nodes revisited=2
+F_bound:0,Credit Assignment sampling Time:8.600000e-01
+finished calling select_best_estimated_heuristic_subset
+sampling time until now:3.620000e+00
+new F_bound:38chosen_Hoff_Roots_size:1257 out of 128569
+terminate called after throwing an instance of 'std::length_error'
+  what():  vector::_M_fill_insert
+Peak memory: 4337396 KB
+VmRSS memory: 125664 KB
+VmHWM memory: 4317140 KB
+caught signal 6 -- exiting

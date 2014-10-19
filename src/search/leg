@@ -1,0 +1,11 @@
+Simplifying transitions... done!
+SOLVING_PHASE
+registered:astar
+calling parse_astar
+registered:pdb_lp
+SOLVING_PHASE
+registered:astar
+calling parse_astar
+registered:pdb_lp
+Found 1486 SGA patterns.
+Found 1486 interesting patterns.
