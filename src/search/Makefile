@@ -26,6 +26,7 @@ HEADERS = \
           domain_transition_graph.h \
           ss_search.h \
           eager_search.h \
+	  eager_search_kre.h \
           Tree.h \
           enforced_hill_climbing_search.h \
           exact_timer.h \
