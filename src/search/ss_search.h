@@ -20,11 +20,22 @@
 #include "../randomc/mersenne.cpp"
 
 #include <map>
+#include <locale>
+
 
 class Heuristic;
 class Operator;
 class ScalarEvaluator;
 class Options;
+
+template<class charT, charT sep>
+class punct_facet: public std::numpunct<charT> {
+protected:
+	charT do_decimal_point() const {
+		return sep;
+	}
+};
+
 
 class SSSearch : public SearchEngine {
 	//search behavior parameters

@@ -63,6 +63,10 @@ void SSSearch::initialize() {
 	cout<<" __________________________________________"<<endl;
 	cout<<"|  initialize() - ss_search.cc             |"<<endl;
 	cout<<" __________________________________________"<<endl;
+	//use basic_ios::imbue
+	std::cout.imbue(std::locale(std::cout.getloc(), new punct_facet<char, ','>));
+
+
 	cout << "Conducting best first search"
          << (reopen_closed_nodes ? " with" : " without")
          << " reopening closed nodes, (real) bound = " << bound
@@ -363,7 +367,7 @@ int SSSearch::step() {
     //root node added to the queue
     queue.insert(pair<Type, SearchNode>(object, node));
     int k = 0; 
-    int depth = 20;
+    int depth = 32;
 
     vector<int> sumw;
     while(!queue.empty()) {
@@ -452,7 +456,7 @@ int SSSearch::step() {
 	     cout<<"succ_h = "<<succ_h<<endl;
              //int succ_h = heuristics[0]->get_value();
 	     int succ_g = succ_node.get_real_g();
-	     cout<<"succ_g = "<<succ_g<<endl;
+	     //cout<<"succ_g = "<<succ_g<<endl;
 	     //do pruning
 	     if (succ_h + succ_g + 1 <= depth) {
 		succ_node.open(succ_h, nodecp, op);
