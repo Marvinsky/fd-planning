@@ -1,1 +1,2 @@
-#This file pretends to show the main information about the fast-downward
+This file pretends to show the advances for the implementation of the algorithms that measure the
+size of the tree.
