@@ -54,6 +54,8 @@ void EagerSearchKRE::initialize() {
          << endl;
     cout<<"first_sample set to true"<<endl;
     first_sample=true;
+    cout<<"first_time set to false"<<endl;
+    first_time=false;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
     if (use_multi_path_dependence)
@@ -341,16 +343,6 @@ int EagerSearchKRE::step() {
     }
     SearchNode node = n.first;
 
-
-    //have to determinate the level.
-    //int last_level = search_progress.return_lastjump_f_value();
-    //cout<<" a que nivel pertence este nodo, nivel = "<<last_level<<endl; 
-
-
-
-
-
-
   //Every 2 secs aprox we check if we have done search for too long without selecting a subset
   //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
   //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
@@ -370,30 +362,31 @@ int EagerSearchKRE::step() {
 
     State s = node.get_state();
 	
-   
+  
     if (check_goal_and_set_plan(s)){
-
       cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
       problem_was_solved=true;
-
       if(Current_RIDA_Phase==SOLVING_PHASE){
 	output_problem_results();
-	
       }
      //have to determinate the level.
-     //int last_level = search_progress.return_lastjump_f_value();
-     //int kre_level = last_level + 1;
-     //int k = 0;
-     //cout<<"last_level = "<<last_level<<endl;    
-     /*
-     do {
-	++k;
-	return IN_PROGRESS;
-     } while ( last_level != 13  );
-
-      cout<< "k = "<<k<<endl;*/
-      return SOLVED;
+     int last_level = search_progress.return_lastjump_f_value();
+     nivel = last_level;
+     first_time = true;
+     return IN_PROGRESS;
     }
+
+
+    if (first_time) {	
+        int last_level = search_progress.return_lastjump_f_value();
+	if (nivel == last_level) {
+	    return IN_PROGRESS;
+	} else {
+	    return SOLVED;
+	}
+    }
+
+
 
     vector<const Operator *> applicable_ops;
     set<const Operator *> preferred_ops;
@@ -539,7 +532,7 @@ int EagerSearchKRE::step() {
                 reward_progress();
             }
         } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
-            // We found a new cheapest path to an open or closed state.
+            	// We found a new cheapest path to an open or closed state.
 		//if(Current_RIDA_Phase==SOLVING_PHASE){
 		//  cout<<"Need to reopen node"<<endl;fflush(stdout);
 		//}
@@ -901,8 +894,8 @@ static SearchEngine *_parse(OptionParser &parser) {
     return engine;
 }
 
-static SearchEngine *_parse_astar(OptionParser &parser) {
-  cout<<"calling parse_astar"<<endl;
+static SearchEngine *_parse_astarkre(OptionParser &parser) {
+  cout<<"calling parse_astarkre"<<endl;
     parser.add_option<ScalarEvaluator *>("eval");
     parser.add_option<bool>("pathmax", false,
                             "use pathmax correction");
@@ -987,5 +980,5 @@ static SearchEngine *_parse_greedy(OptionParser &parser) {
 }
 
 static Plugin<SearchEngine> _plugin("eager", _parse);
-static Plugin<SearchEngine> _plugin_astar("astarkre", _parse_astar);
+static Plugin<SearchEngine> _plugin_astarkre("astarkre", _parse_astarkre);
 static Plugin<SearchEngine> _plugin_greedy("eager_greedy", _parse_greedy);

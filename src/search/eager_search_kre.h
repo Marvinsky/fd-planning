@@ -29,6 +29,9 @@ class EagerSearchKRE : public SearchEngine {
     OpenList<state_var_t *> *open_list;
     ScalarEvaluator *f_evaluator;
     bool first_sample;
+    bool first_time;
+    int nivel;
+
 	    
 protected:
     int step();
