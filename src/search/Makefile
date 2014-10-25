@@ -24,7 +24,7 @@ HEADERS = \
           closed_list.h \
           combining_evaluator.h \
           domain_transition_graph.h \
-          ss_search.h \
+	  ss_search.h \
           eager_search.h \
 	  eager_search_kre.h \
           Tree.h \

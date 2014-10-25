@@ -1,4 +1,4 @@
-	#ifndef type_h
+#ifndef type_h
 #define type_h
 
 
@@ -37,10 +37,10 @@ public:
 	int getRandom() {return random;}
 	void setRandom(int r) {this->random = r;}
 
-	static int lookahead;
+        //static int lookahead;
 };
 
-int Type::lookahead = 0;
+//int Type::lookahead = 0;
 
 /*Type::Type(int parent, long heuristic) {
 	this->p = parent;
