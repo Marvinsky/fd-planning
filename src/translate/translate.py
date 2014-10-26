@@ -644,14 +644,21 @@ def parse_args():
     argparser.add_argument(
         "file", help="file to name of output")
     argparser.add_argument(
+	"soloDominio", help="only domain name")
+    argparser.add_argument(
+        "soloProblema", help="only problem name")    
+    argparser.add_argument(
+	"heuristic", help="heuristic name to find a directory")
+    argparser.add_argument(
         "--relaxed", dest="generate_relaxed_task", action="store_true",
         help="output relaxed task (no delete effects)")
     return argparser.parse_args()
+    
 
 
 def main():
     args = parse_args()
-    
+     
     
     timer = timers.Timer()
     with timers.timing("Parsing", True):
@@ -676,7 +683,22 @@ def main():
             print(args.file, file=output_file)
             sas_task.output(output_file)
     print("Done! %s" % timer)
+   
+    tarefa = args.soloProblema
+    dominio = args.soloDominio
+    heuristica = args.heuristic
+    
+    fileName = "/home/marvin/fd/src/translate/arquivos/"+tarefa  
+    
 
+    saveFile = open(fileName , 'w');
+   
+    linea = dominio +"  "+tarefa +"  "+heuristica
+    print("Linea! %s" %linea)
+    saveFile.write(linea);
+    saveFile.write("\n");
+    saveFile.close()
+    
 
 if __name__ == "__main__":
     main()

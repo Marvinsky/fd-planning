@@ -14,7 +14,14 @@ using namespace std;
 
 int main(int argc, const char **argv) {
     register_event_handlers();
-
+    cout<<"Estos son los inicios de los inicios."<<endl;
+    cout<<"argv[0] = "<<argv[0]<<endl; 
+    cout<<"argv[0][0] = "<<argv[0][0]<<endl;
+    cout<<"argv[1] = "<<argv[1]<<endl;
+    cout<<"argv[2] = "<<argv[2]<<endl;
+    cout<<"argv[4] = "<<argv[4]<<endl;
+    cout<<"argv[5] = "<<argv[5]<<endl;
+    cout<<"argc = "<<argc<<endl;
     if (argc < 2) {
         cout << OptionParser::usage(argv[0]) << endl;
         exit(1);

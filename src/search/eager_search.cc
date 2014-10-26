@@ -367,6 +367,7 @@ int EagerSearch::step() {
       if(Current_RIDA_Phase==SOLVING_PHASE){
 	output_problem_results();
       }
+      cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
       return SOLVED;
     }
 
@@ -779,6 +780,7 @@ void EagerSearch::update_jump_statistic(const SearchNode &node) {
       int new_f_value = node.get_g()+node.get_h();
       //cout<<"new_f_value:"<<new_f_value<<endl;
       if(search_progress.updated_lastjump_f_value(new_f_value)){
+        vniveles.push_back(new_f_value);
 	search_progress.report_f_value(new_f_value);
 	cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(StateProxy)+sizeof(SearchNodeInfo))/1024.0<<",F_boundary_Range:"<<open_list->open_list_get_boundary_range()<<endl;
 	///cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(: public __gnu_cxx::hash_map<StateProxy,SearchNodeInfo>))/1024.0<<endl;

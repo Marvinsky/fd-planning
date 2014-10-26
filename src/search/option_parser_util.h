@@ -84,7 +84,7 @@ public:
     }
 
     Factory get(std::string k) {
-      std::cout<<"registered:"<<k<<std::endl;
+      std::cout<<"registered: "<<k<<std::endl;
         return registered[k];
     }
 

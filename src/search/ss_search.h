@@ -55,6 +55,7 @@ class SSSearch : public SearchEngine {
 	//TypeSystem *typesystem;	
 	
 	CRandomMersenne* RanGen;
+        string heuristic_name;
 
 protected:
 	int step();
@@ -77,7 +78,7 @@ protected:
 public:
 	SSSearch(const Options &opts);
 	void statistics() const;
-	
+        string getRealHeuristic(string heur);	
 	//void dump_search_space();
 	double get_total_sampling_time(){return total_sampling_timer;}
 }; 

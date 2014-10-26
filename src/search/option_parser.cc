@@ -168,11 +168,14 @@ Parse command line options
 SearchEngine *OptionParser::parse_cmd_line(
     int argc, const char **argv, bool dry_run) {
     SearchEngine *engine(0);
+    cout<<"OptionParser::parse_cmd_line"<<endl;
+ 
     for (int i = 1; i < argc; ++i) {
         string arg = string(argv[i]);
         if (arg.compare("--heuristic") == 0) {
             ++i;
             predefine_heuristic(argv[i], dry_run);
+            cout<<"HEURISTIC IN option_parser = "<<argv[i]<<endl;
         } else if (arg.compare("--landmarks") == 0) {
             ++i;
             predefine_lmgraph(argv[i], dry_run);
@@ -425,8 +428,7 @@ void OptionParser::add_enum_option(string k,
     if (!flags.mandatory && !opts.contains(k))
         return;
 
-    string name = str_to_lower(opts.get<string>(k));
-
+    string name = str_to_lower(opts.get<string>(k)); 
     //...then check if the parsed string can be treated as a number
     stringstream str_stream(name);
     int x;

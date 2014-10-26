@@ -45,6 +45,8 @@ protected:
     // TODO: in the long term this
     // should disappear into the open list
 
+    vector<int> vniveles;
+    
     virtual void initialize();
     void sample_frontier_now(int next_f_boundary);
     void output_problem_results();
