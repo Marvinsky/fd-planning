@@ -98,7 +98,8 @@ void SearchProgress::print_f_line() const {
    
     cout<<"fnivel: "<<lastjump_f_value<<endl;
     cout<<"nodesGeneratedByLevel: "<<generated_states-prev_generated_states<<endl;
-    cout << " time0: "<<g_timer()<<endl;
+    cout<<" time0: "<<g_timer()<<endl;
+    cout<<"nodesGeneratedToTheLevel: "<<generated_states<<endl;
     //print_time_line();
     cout << "f: " << lastjump_f_value
          << " [";

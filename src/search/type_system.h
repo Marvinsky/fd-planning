@@ -3,7 +3,6 @@
 
 #include "type.h"
 #include "search_space.h"
-//#include "abstract_pk_heuristic.h"
 
 #include <map>
 
@@ -14,8 +13,6 @@ private:
 	//AbstractPKHeuristic *hf;
 public:
 	TypeSystem();
-	//TypeSystem(AbstractPKHeuristic *hf);
-	//~TypeSystem();
 	Type getType(SearchNode &node, long level);
 
 };
@@ -23,15 +20,6 @@ public:
 TypeSystem::TypeSystem() {
 
 }
-
-//TypeSystem::TypeSystem(AbstractPKHeuristic *hf) {
-//	this->hf = hf;
-//}
-
-//TypeSystem::~TypeSystem() {
-//	delete hf;
-	//}
-
 
 Type TypeSystem::getType(SearchNode &node, long level) {
 	long h = node.get_h();

@@ -359,38 +359,8 @@ int SSSearch::step() {
     cout<<" ____________________________"<<endl;
     cout<<"|       step process         |"<<endl;
     cout<<" ____________________________"<<endl;
-    /*
-    //fetch nex node, now just have to call the initial node.
-    SearchNode node = search_space.get_node(*g_initial_state);    //n.first; 
-
-    cout<<"heuristic del nodo intial ="<<heuristics[0]->get_value()<<endl;
-    node.open_initial(heuristics[0]->get_value());
-
-    map<Type, SearchNode> queue;
-    //include type system
-    TypeSystem ts;
-    //long levelInicial = 1;
-    Type object = ts.getType(node, 1); 
-    //Type object(-1, node.get_h());
-    cout<<"valor heuristico del node = "<<node.get_h()<<endl;
-    cout<<"valor heuristico del objeto Type  = "<<object.getH()<<endl; 
-    
-    //set w = 1
-    node.setW(1);
-    //root node added to the queue
-    queue.insert(pair<Type, SearchNode>(object, node));
-    */
-
-
-
-
-
-    
-    ifstream astar;
-    //string path = "/home/marvin/fd/src/translate/arquivos/";
-
+  
     string path;
-    //string heur_name =  heuristic_name.substr(9, 6);
      
     char input[] = "/home/marvin/fd/src/translate/arquivos/";  
     DIR *dir;
@@ -426,46 +396,6 @@ int SSSearch::step() {
     fileT>>heuristica;
  
 
- /*
-    cout<<"domain = "<<dominio<<endl;
-    //validate if the domain is unique
-    bool uniqueDomain = false;
-    int d_1 = dominio.size();
-    //if the domain is unique(domain.pddl)  their size is 12
-    string d0 = dominio.substr((d_1-11), d_1);
-    cout<<"d0 = "<<d0<<endl;
-    if (d0 == "domain.pddl") {
-	cout<<"The domain is unique"<<endl;
-        uniqueDomain = true;
-    } else {
-	cout<<"The domain is not unique"<<endl;
-    }
- 
-    cout<<"Unique domain = "<<uniqueDomain<<endl;
-    if (uniqueDomain) {
-    	//remove benchmarks
-    	string d1 = dominio.substr(11, (d_1-11));
-    	cout<<"d1 = "<<d1<<endl; 
-    	//remove domain.pddl
-    	int d_2 = d1.size();
-    	int d_3 = d_2 - 12;
-    	dominioFixed = d1.substr(0, d_3);
-    	cout<<"d2 = "<<dominioFixed<<endl; 
-
-    	cout<<"task = "<<tarefa<<endl;
-    	int t_1 = 11 + dominioFixed.size() + 1;
-    	int t_2 = tarefa.size();
-    	tarefaFixed = tarefa.substr(t_1, t_2);
-    	cout<<"t1 = "<<tarefaFixed<<endl;
-    	cout<<"heuristic = "<<heuristica<<endl;
-	if (dominioFixed == "blocks") {
-
-	}
-    } else {
-	//TODO
-    }
-    */
-
     //Here are create the output to write the new report.
     //create the pasta
     string pastaReporteSS = "mkdir /home/marvin/marvin/testss/"+heuristica+"/report/"+dominio;
@@ -475,14 +405,10 @@ int SSSearch::step() {
 	cout<<"the directory "<<dominio<<" was created"<<endl;
     }
 
-
     string arquivoRSS =  "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/"+tarefa;
 
     ofstream outputfile;
     outputfile.open(arquivoRSS.c_str(), ios::out);
-
-
-
 
     //Here we are in the test directory and not the testss directory. 
     string rutaR = "/home/marvin/marvin/test/"+heuristica+"/report/"+dominio+"/"+tarefa;
@@ -506,21 +432,22 @@ int SSSearch::step() {
     cout<<"#nodes = "<<str<<endl;
     fileR>>str;
     cout<<"time = "<<str<<endl;
-    outputfile<<"\tf\t\t#nodes\t\ttime\t\tSumByDepth\n";
+    fileR>>str;
+    cout<<"#nodes2 = "<<str<<endl;
+    outputfile<<"\tf\t#nodes_by_level\ttime(s)\t#nodes_to_the_level\tsum_By_Depth\n";
      
     //Initialize niveles
     float** niveles = new float*[totalniveles];
 
     for (int i = 0; i < totalniveles; i++) {
-	niveles[i] = new float[3];
+	niveles[i] = new float[4];
     }
    
-
     vector<Nivel> v_niveles;
     vector<int> v_nivel;
    
     for (int i = 0; i < totalniveles; i++) {
-	for (int j = 0; j < 3; j++) {
+	for (int j = 0; j < 4; j++) {
              fileR>>niveles[i][j];	     
 	}
     }
@@ -531,20 +458,23 @@ int SSSearch::step() {
         //v_niveles.insert(v_niveles.begin() + i, nivel);
     }
    
-   //To collect the total of nodes by depth (Stratified Sampling)
-   vector<long> sumByDepth;
+    //To collect the total of nodes by depth (Stratified Sampling)
+    vector<long> sumByDepth;
 
- 
+    for (int i = 0; i < v_nivel.size(); i++) {
+        cout<<v_nivel.at(i)<<endl;
+    }
+
     cout<<"List of levels: "<<endl;
     for (std::vector<int>::size_type w = 0; w != v_nivel.size(); w++) {
 	cout<<"depth = "<<v_nivel.at(w)<<endl;
     int depth = v_nivel.at(w);
 
     //Initialize the same queue.
-    //fetch nex node, now just have to call the initial node.
+    //fetch next node, now just have to call the initial node.
     SearchNode node = search_space.get_node(*g_initial_state);    //n.first; 
 
-    cout<<"heuristic del nodo intial ="<<heuristics[0]->get_value()<<endl;
+    cout<<"heuristic value of te initial node based on the heuristic vector = "<<heuristics[0]->get_value()<<endl;
     node.open_initial(heuristics[0]->get_value());
 
     map<Type, SearchNode> queue;
@@ -552,15 +482,14 @@ int SSSearch::step() {
     TypeSystem ts;
     //long levelInicial = 1;
     Type object = ts.getType(node, 1); 
-    //Type object(-1, node.get_h());
-    cout<<"valor heuristico del node = "<<node.get_h()<<endl;
-    cout<<"valor heuristico del objeto Type  = "<<object.getH()<<endl; 
+  
+    cout<<"heuristic value of the initial node based on the node = "<<node.get_h()<<endl;
+    cout<<"heuristic value of the object Type  = "<<object.getH()<<endl; 
     
     //set w = 1
     node.setW(1);
     //root node added to the queue
     queue.insert(pair<Type, SearchNode>(object, node));
-
 
 
     int k = 0;
@@ -576,13 +505,6 @@ int SSSearch::step() {
 
         int g = out.getLevel(); //level del type
 	int w = nodecp.getW();  //level del node
-	/*
-	cout<<" ______________# chamada = "<<k<<"_______________"<<endl;
-	cout<<"|      level  = "<<g<<"                          |"<<endl;
-	cout<<"|          h  = "<<out.getH()<<"                 |"<<endl;
-	cout<<"|          w  = "<<w<<"                          |"<<endl;
-	cout<<" ________________________________________________"<<endl;*/
-
 
   	//Every 2 secs aprox we check if we have done search for too long without selecting a subset
   	//Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
@@ -603,31 +525,7 @@ int SSSearch::step() {
 
 	State newState = nodecp.get_state();
 
-	//verificar si llegamos al objetivo
-	/*
-	if (check_goal_and_set_plan(newState)) {
-            cout<<"true true true goal set plan"<<endl;
-      	    cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
-      	    problem_was_solved=true;
-	    cout<<"line 392"<<endl;	
-      	    if(Current_RIDA_Phase==SOLVING_PHASE){
-               output_problem_results();
-      	    }
-	    
- 	    //prediction
-    	    long total = 0;
-    	    for (int i = 0; i < sumw.size(); i++) {
-         	total += sumw.at(i);
-    	    }
-	    cout<<"??????????????????????????????????????????"<<endl;
-    	    cout<<" _________________________________________"<<endl;
-   	    cout<<"| Found a Solution! # of nodes expanded by ss = "<<total<<" |"<<endl;
-    	    cout<<" _________________________________________"<<endl;
-	    
-      	    return SOLVED;
-    	}
-        */	
-       //obtener los op
+        //obtener los op
 	vector<const Operator *> applicable_ops;
     	set<const Operator *> preferred_ops;
 
@@ -641,22 +539,54 @@ int SSSearch::step() {
 	     	    
 	     const Operator *op = applicable_ops[i];
 	     State succ_state(newState, *op);
-	     search_progress.inc_generated();	     
+	     //search_progress.inc_generated();	     
 
 	     SearchNode succ_node = search_space.get_node(succ_state);
-	     //calcular el valor heuristico del succ_node 
+	     //calcular el valor heuristico del succ_node
+	     //cout<<"heuristics[0]->get_heur_name() = "<<heuristics[0]->get_heur_name()<<endl; 
 	     heuristics[0]->evaluate(succ_state); 
-	     int succ_h = heuristics[0]->get_heuristic();	
-	    		
-	     //cout<<"succ_h = "<<succ_h<<endl;
-             //int succ_h = heuristics[0]->get_value();
+	     int succ_h = heuristics[0]->get_heuristic();
+             /*
+             //new implementation
+             if (succ_node.is_new()) {
+		//int succ_h2 = 0;
+                bool dead_end = false;
+                for (size_t m = 0; m < heuristics.size(); m++) {
+		     heuristics[m]->evaluate(succ_state);
+                     dead_end = heuristics[m]->is_dead_end();
+                     if (dead_end) {
+			if (Current_RIDA_Phase==SOLVING_PHASE) {
+		            break;
+			} else {
+			    succ_h=INT_MAX/2;
+			}
+		     }
+   		     succ_h = max(succ_h, heuristics[m]->get_heuristic());
+		}
+                cout<<"succ_h = "<<succ_h<<endl;
+	     }
+
+	     //calculate heuristic value
+             if ((node.get_h() - get_adjusted_cost(*op)) > succ_h) {
+		succ_h = node.get_h() - get_adjusted_cost(*op);
+	     }
+
+             */
+	     succ_node.open(succ_h, nodecp, op);
+
+	
+	     int succ_h2 = succ_node.get_h();		
+	     
+             cout<<"succ_h2 = "<<succ_h2<<endl;
+             //int succ_h2_value = heuristics[0]->get_value();
+             //cout<<"succ_h2_value = "<<heuristics[0]->get_value()<<endl;
 	     int succ_g = succ_node.get_real_g();
-	     //cout<<"succ_g = "<<succ_g<<endl;
+	     cout<<"succ_g = "<<succ_g<<endl;
 	     //do pruning
-	     if (succ_h + succ_g <= depth) {
-		succ_node.open(succ_h, nodecp, op);
-	     	TypeSystem ts;
-	     	Type type =  ts.getType(succ_node, g);
+	     if (succ_h2 + succ_g <= depth) {
+		//succ_node.open(succ_h, nodecp, op);
+	     	TypeSystem ts2;
+		Type type =  ts2.getType(succ_node, g);
              	type.setLevel(g + 1);
 	     	succ_node.setW(w);
 		
@@ -682,7 +612,7 @@ int SSSearch::step() {
 		    int  rand_100 = RanGen->IRandom(0, 99);
 		    double a = (double)rand_100/100;
 		    if (a < prob) {
-		       cout<<" a is less than the probability."<<endl;
+		       cout<<" (double)rand_100/100 is less than (double)w/(wa + w)."<<endl;
 		       succ_node.setW(wa + w);
 		       //queue.erase(o2);
 	               queue.insert(pair<Type, SearchNode>(type, succ_node)); 
@@ -714,7 +644,7 @@ int SSSearch::step() {
     }
 
     for (int i = 0; i < totalniveles; i++) {
-	 outputfile<<"\t"<<niveles[i][0]<<"\t\t"<<niveles[i][1]<<"\t\t"<<niveles[i][2]<<"\t\t"<<sumByDepth.at(i)<<"\n";
+	 outputfile<<"\t"<<niveles[i][0]<<"\t"<<niveles[i][1]<<"\t\t"<<niveles[i][2]<<"\t\t"<<niveles[i][3]<<"\t\t"<<sumByDepth.at(i)<<"\n";
     }
     outputfile.close(); 
 
