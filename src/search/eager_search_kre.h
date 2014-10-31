@@ -31,7 +31,7 @@ class EagerSearchKRE : public SearchEngine {
     bool first_sample;
     bool first_time;
     int nivel;
-
+    int count_last_nodes_gerados;
 	    
 protected:
     int step();
@@ -47,6 +47,8 @@ protected:
     vector<Heuristic *> estimate_heuristics;
     // TODO: in the long term this
     // should disappear into the open list
+
+    vector<int> vniveles;
 
     virtual void initialize();
     void sample_frontier_now(int next_f_boundary);

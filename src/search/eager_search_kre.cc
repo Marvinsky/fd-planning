@@ -54,8 +54,9 @@ void EagerSearchKRE::initialize() {
          << endl;
     cout<<"first_sample set to true"<<endl;
     first_sample=true;
-    cout<<"first_time set to false"<<endl;
+    cout<<"first_time set to false and count_last_nodes_gerados to zero."<<endl;
     first_time=false;
+    count_last_nodes_gerados = 0;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
     if (use_multi_path_dependence)
@@ -380,8 +381,12 @@ int EagerSearchKRE::step() {
     if (first_time) {	
         int last_level = search_progress.return_lastjump_f_value();
 	if (nivel == last_level) {
+	    //Add the increment here because in the statistic the last one is added.
+	    count_last_nodes_gerados = count_last_nodes_gerados + 1;
 	    return IN_PROGRESS;
 	} else {
+            cout<<"totalniveles: "<<vniveles.size() + 1<<endl;		
+            cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
 	    return SOLVED;
 	}
     }
@@ -751,8 +756,23 @@ void EagerSearchKRE::update_jump_statistic(const SearchNode &node) {
       cout<<"new_f_value:"<<new_f_value<<endl;
       int last_level = search_progress.return_lastjump_f_value();
       cout<<" a que nivel pertence este nodo, nivel = "<<last_level<<endl; 
-     
+      
+      /*
+      bool entrance = true;
+      if (first_time) {
+	if (nivel == last_level) {
+	    entrance = true;
+            count_last_nodes_gerados = count_last_nodes_gerados + 1;
+	} else {
+	    entrance = false;
+	}
+      }
+      */ 
+
+      //cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
+
       if(search_progress.updated_lastjump_f_value(new_f_value)){
+	vniveles.push_back(new_f_value);
 	cout<<"______________________________________________________"<<endl;
 	cout<<"Generate report_f_value passing "<<new_f_value<<endl;
 	search_progress.report_f_value(new_f_value);

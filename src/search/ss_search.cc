@@ -493,7 +493,7 @@ int SSSearch::step() {
 
 
     int k = 0;
-    vector<int> sumw;
+    vector<int> sumw;  //Generated Nodes
     while(!queue.empty()) {
 	//tira o menor de acordo com o sistema de tipos
 	Type out = queue.begin()->first;
@@ -530,11 +530,8 @@ int SSSearch::step() {
     	set<const Operator *> preferred_ops;
 
     	g_successor_generator->generate_applicable_ops(newState, applicable_ops);
-        //cout<<" ____________________________________"<<endl;	
-	//cout<<"|  applicable_ops.size() = "<<applicable_ops.size()<<"        |"<<endl;
-	//cout<<" ____________________________________"<<endl;
-
-
+      
+        
 	for (int i = 0; i < applicable_ops.size(); i++) {
 	     	    
 	     const Operator *op = applicable_ops[i];
@@ -546,32 +543,7 @@ int SSSearch::step() {
 	     //cout<<"heuristics[0]->get_heur_name() = "<<heuristics[0]->get_heur_name()<<endl; 
 	     heuristics[0]->evaluate(succ_state); 
 	     int succ_h = heuristics[0]->get_heuristic();
-             /*
-             //new implementation
-             if (succ_node.is_new()) {
-		//int succ_h2 = 0;
-                bool dead_end = false;
-                for (size_t m = 0; m < heuristics.size(); m++) {
-		     heuristics[m]->evaluate(succ_state);
-                     dead_end = heuristics[m]->is_dead_end();
-                     if (dead_end) {
-			if (Current_RIDA_Phase==SOLVING_PHASE) {
-		            break;
-			} else {
-			    succ_h=INT_MAX/2;
-			}
-		     }
-   		     succ_h = max(succ_h, heuristics[m]->get_heuristic());
-		}
-                cout<<"succ_h = "<<succ_h<<endl;
-	     }
-
-	     //calculate heuristic value
-             if ((node.get_h() - get_adjusted_cost(*op)) > succ_h) {
-		succ_h = node.get_h() - get_adjusted_cost(*op);
-	     }
-
-             */
+            
 	     succ_node.open(succ_h, nodecp, op);
 
 	
@@ -590,17 +562,8 @@ int SSSearch::step() {
              	type.setLevel(g + 1);
 	     	succ_node.setW(w);
 		
-             	/*cout<<"valor heuristico del succ_node en el for = "<<succ_node.get_h()<<endl;
-    	     	cout<<"valor heuristico del type en el for = "<<type.getH()<<endl; 
-	   
-	     	cout<<" ___# chamada interna para el nodo= "<<i<<"______"<<endl;
-	     	cout<<"|      level  = "<<g<<"                          |"<<endl;
-	     	cout<<"|          h  = "<<type.getH()<<"                |"<<endl;
-	     	cout<<"|          w  = "<<w<<"                          |"<<endl;
-	     	cout<<" ________________________________________________"<<endl;*/
 
-	     	map<Type, SearchNode>::iterator queueIt = queue.find(type);
-	 
+        	map<Type, SearchNode>::iterator queueIt = queue.find(type);
 	     	//cout<<"expression = "<<expression<<endl;
 	     	if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
 		  //the type already exists in the queue
@@ -628,12 +591,13 @@ int SSSearch::step() {
     } //end while
     cout<<"counter k = "<<k<<endl;
 
-    //prediction
+    //prediction generated nodes
     long total = 0;
     for (int i = 0; i < sumw.size(); i++) {
          total += sumw.at(i);
     }
     sumByDepth.insert(sumByDepth.begin() + w, total);
+
     //sumw.clear();
     cout<<" _____________________________________________________________________"<<endl;
     cout<<"|   # of nodes expanded by ss at level "<<v_nivel.at(w)<<" is :     "<<total<<"                |"<<endl;
