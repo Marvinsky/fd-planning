@@ -61,7 +61,7 @@ protected:
 	int step();
 	pair<SearchNode, bool> fetch_next_node();
 	//bool check_goal(const SearchNode &node);
-	void update_jump_statistic(const SearchNode &node);
+	//void update_jump_statistic(const SearchNode &node);
 	//void print_heuristic_values(const vector<int> &values) const;	
 	void reward_progress();
 
@@ -73,7 +73,7 @@ protected:
 	//should disappear into the open list
 	
 	virtual void initialize();
-	void sample_frontier_now(int next_f_boundary);
+	//void sample_frontier_now(int next_f_boundary);
 	void output_problem_results();
 public:
 	SSSearch(const Options &opts);
