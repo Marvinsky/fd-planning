@@ -44,9 +44,15 @@ void SearchProgress::report_f_value(int f) {
 	cout<<"lastjump reopened states = "<<lastjump_reopened_states<<endl;
 	cout<<"generated_states - lastjump_generated_states = "<<generated_states - lastjump_generated_states<<endl;
 
+        int expanded_by_level = expanded_states - lastjump_expanded_states;
 
-        print_f_line();  
-	gen_to_eval_ratio=double(generated_states-lastjump_generated_states)/double(evaluated_states-lastjump_evaluated_states);
+	cout<<"expanded states - lastjump expanded states = "<<expanded_by_level<<endl;
+	nodes_expanded_by_level.insert(pair<int, int>(f, expanded_by_level));
+        
+        print_f_line();
+
+	gen_to_exp_ratio=double(generated_states-lastjump_generated_states)/double(expanded_states-lastjump_expanded_states);
+	cout<<"gen_to_exp_ratio: "<<gen_to_exp_ratio<<endl;
         lastjump_expanded_states = expanded_states;
         lastjump_reopened_states = reopened_states;
         lastjump_evaluated_states = evaluated_states;
@@ -98,6 +104,8 @@ void SearchProgress::print_f_line() const {
    
     cout<<"fnivel: "<<lastjump_f_value<<endl;
     cout<<"nodesGeneratedByLevel: "<<generated_states-prev_generated_states<<endl;
+    nodes_generated_by_level.insert(pair<int, int>(lastjump_f_value, prev_generated_states)); 
+
     cout<<" time0: "<<g_timer()<<endl;
     cout<<"nodesGeneratedToTheLevel: "<<generated_states<<endl;
     //print_time_line();

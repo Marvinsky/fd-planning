@@ -113,6 +113,9 @@ extern double overall_original_pdbs_time;
 extern double sampling_thresshold;
 extern double sampling_time_limit;//with respect to previous F-boundary
 extern double gen_to_eval_ratio;
+extern double gen_to_exp_ratio;
+extern map<int,int> nodes_expanded_by_level;
+extern map<int,int> nodes_generated_by_level;
 extern bool evaluate_randomization;
 extern bool adding_found_lower_depth;
 extern long RANDOM_CAP;//100000 heur combined to 15 degrees

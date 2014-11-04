@@ -54,6 +54,7 @@ void EagerSearch::initialize() {
          << endl;
     cout<<"first_sample set to true"<<endl;
     first_sample=true;
+
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
     if (use_multi_path_dependence)
@@ -335,40 +336,42 @@ int EagerSearch::step() {
     }
     SearchNode node = n.first;
 
-  //Every 2 secs aprox we check if we have done search for too long without selecting a subset
-  //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
-  //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
-  if(Current_RIDA_Phase==SAMPLING_PHASE){
-    if(search_progress.get_generated()%node_time_adjusted_reval==0){
-      if(search_timer()>200.0){
-	cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
-	if(gen_to_eval_ratio==0){
-	  cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
-	  gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
-	  cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
-	  }
-	sample_frontier_now(node.get_g()+node.get_h());
-      }
+    //Every 2 secs aprox we check if we have done search for too long without selecting a subset
+    //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
+    //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
+    if(Current_RIDA_Phase==SAMPLING_PHASE){
+       if(search_progress.get_generated()%node_time_adjusted_reval==0){
+	  cout<<"search_timer() = "<<search_timer()<<endl;
+	  if(search_timer()>200.0){
+	     cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
+	     if(gen_to_eval_ratio==0){
+	        cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
+	        gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
+	        cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
+	     }
+	     sample_frontier_now(node.get_g()+node.get_h());
+          } 
+       }
     }
-  }
+  
 
     State s = node.get_state();
 	
     //    if(Current_RIDA_Phase==SOLVING_PHASE){
-    //  cout<<"fetched state"<<endl;s.dump_pddl();fflush(stdout);
-    //}
+    //       cout<<"fetched state"<<endl;s.dump_pddl();fflush(stdout);
+    //    }
     if (check_goal_and_set_plan(s)){
-      //if(Current_RIDA_Phase==SOLVING_PHASE){
-      //cout<<"Solution found!"<<endl;fflush(stdout);
-    //}
-      cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
-      problem_was_solved=true;
+        //if(Current_RIDA_Phase==SOLVING_PHASE){
+        //cout<<"Solution found!"<<endl;fflush(stdout);
+        //}
+        cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
+        problem_was_solved=true;
 
-      if(Current_RIDA_Phase==SOLVING_PHASE){
-	output_problem_results();
-      }
-      cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
-      return SOLVED;
+        if(Current_RIDA_Phase==SOLVING_PHASE){
+	   output_problem_results();
+        }
+        cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
+        return SOLVED;
     }
 
     vector<const Operator *> applicable_ops;
@@ -377,93 +380,94 @@ int EagerSearch::step() {
     g_successor_generator->generate_applicable_ops(s, applicable_ops);
     /*  int new_f_value = node.get_g()+node.get_h();
     if(new_f_value>3){
-      cout<<"Finished with f = 2"<<endl;exit(0);
+      cout<<"Finished with f = 2"<<endl;
+      exit(0);
     }
     cout<<"new_f_value:"<<new_f_value<<",S:";s.inline_dump();cout<<"added "<<applicable_ops.size()<<endl;*/
-        //if(Current_RIDA_Phase==SOLVING_PHASE){
-      //cout<<"applicable ops:"<<applicable_ops.size()<<endl;fflush(stdout);
+    //if(Current_RIDA_Phase==SOLVING_PHASE){
+    //cout<<"applicable ops:"<<applicable_ops.size()<<endl;fflush(stdout);
     //}
     // This evaluates the expanded state (again) to get preferred ops
     for (int i = 0; i < preferred_operator_heuristics.size(); i++) {
-      /*  if(Current_RIDA_Phase==SOLVING_PHASE){
-      cout<<"Getting pref Ops"<<endl;fflush(stdout);
-    }*/
-        Heuristic *h = preferred_operator_heuristics[i];
-        h->evaluate(s);
-        if (!h->is_dead_end()) {
-            // In an alternation search with unreliable heuristics, it is
-            // possible that this heuristic considers the state a dead end.
-            vector<const Operator *> preferred;
-            h->get_preferred_operators(preferred);
-            preferred_ops.insert(preferred.begin(), preferred.end());
-        }
+         /*  if(Current_RIDA_Phase==SOLVING_PHASE){
+                cout<<"Getting pref Ops"<<endl;fflush(stdout);
+         }*/
+         Heuristic *h = preferred_operator_heuristics[i];
+         h->evaluate(s);
+         if (!h->is_dead_end()) {
+             // In an alternation search with unreliable heuristics, it is
+             // possible that this heuristic considers the state a dead end.
+             vector<const Operator *> preferred;
+             h->get_preferred_operators(preferred);
+             preferred_ops.insert(preferred.begin(), preferred.end());
+         }
     }
     search_progress.inc_evaluations(preferred_operator_heuristics.size());
 
     for (int i = 0; i < applicable_ops.size(); i++) {
-      /*  if(Current_RIDA_Phase==SOLVING_PHASE){
-      cout<<"Working on op:"<<i<<endl;fflush(stdout);
-    }*/
-        // HACK: should call this whenever memory is about to run out
-      if(incremental_memory_limit){  
-	for (int j = 0; j < heuristics.size(); j++) {
-	      Heuristic *h = heuristics[j];
-	      h->free_up_memory(search_space);
-		 /*   if(Current_RIDA_Phase==SOLVING_PHASE){
-		cout<<"memory freed"<<endl;fflush(stdout);
-	      }*/
-	  }
-	}
-        const Operator *op = applicable_ops[i];
+         /*if(Current_RIDA_Phase==SOLVING_PHASE){
+              cout<<"Working on op:"<<i<<endl;fflush(stdout);
+         }*/
+         // HACK: should call this whenever memory is about to run out
+         if(incremental_memory_limit){  
+	    for(int j = 0; j < heuristics.size(); j++) {
+	         Heuristic *h = heuristics[j];
+	         h->free_up_memory(search_space);
+		 /*if(Current_RIDA_Phase==SOLVING_PHASE){
+		      cout<<"memory freed"<<endl;fflush(stdout);
+	         }*/
+	    }
+	 }
+         const Operator *op = applicable_ops[i];
+         //Jump to the next iteration
+         if((node.get_real_g() + op->get_cost()) >= bound)
+             continue;
 
-        if ((node.get_real_g() + op->get_cost()) >= bound)
-            continue;
-
-        State succ_state(s, *op);
+         State succ_state(s, *op);
       
-	 /*  if(Current_RIDA_Phase==SOLVING_PHASE){
-	  cout<<"succ state["<<i<<"]:"<<endl;succ_state.dump_pddl();fflush(stdout);
-	}*/
-        search_progress.inc_generated();
-        //bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
+	 /*if(Current_RIDA_Phase==SOLVING_PHASE){
+	      cout<<"succ state["<<i<<"]:"<<endl;succ_state.dump_pddl();fflush(stdout);
+	 }*/
+         search_progress.inc_generated();
+         //bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
 
-        SearchNode succ_node = search_space.get_node(succ_state);
-	    /*  if(Current_RIDA_Phase==SOLVING_PHASE){
+         SearchNode succ_node = search_space.get_node(succ_state);
+	 /*if(Current_RIDA_Phase==SOLVING_PHASE){
 	      cout<<"got succ state "<<endl;fflush(stdout);
-	    }*/
+	 }*/
 
-        // Previously encountered dead end. Don't re-evaluate.
-        if (succ_node.is_dead_end()){
-	      //if(Current_RIDA_Phase==SOLVING_PHASE){
-	      //cout<<"node is dead end"<<endl;fflush(stdout);
-	    //}
-            continue;
-	}
+         // Previously encountered dead end. Don't re-evaluate.
+         if (succ_node.is_dead_end()){
+	     //if(Current_RIDA_Phase==SOLVING_PHASE){
+	     //cout<<"node is dead end"<<endl;fflush(stdout);
+	     //}
+             continue;
+ 	 }
 
-        // update new path
-        if (use_multi_path_dependence || succ_node.is_new()) {
-            bool h_is_dirty = false;
-            for (size_t i = 0; i < heuristics.size(); ++i) {
-	    /*  if(Current_RIDA_Phase==SOLVING_PHASE){
-	      cout<<"checking if h["<<i<<"] is dirty"<<endl;fflush(stdout);
-	    }*/
-                /*
-                  Note that we can't break out of the loop when
-                  h_is_dirty is set to true or use short-circuit
-                  evaluation here. We must call reach_state for each
-                  heuristic for its side effects.
-                */
-                if (heuristics[i]->reach_state(s, *op, succ_node.get_state()))
+         // update new path
+         if (use_multi_path_dependence || succ_node.is_new()) {
+             bool h_is_dirty = false;
+             for(size_t i = 0; i < heuristics.size(); ++i) {
+	     /*if(Current_RIDA_Phase==SOLVING_PHASE){
+	          cout<<"checking if h["<<i<<"] is dirty"<<endl;fflush(stdout);
+	     }*/
+                 /*
+                   Note that we can't break out of the loop when
+                   h_is_dirty is set to true or use short-circuit
+                   evaluation here. We must call reach_state for each
+                   heuristic for its side effects.
+                 */
+                 if(heuristics[i]->reach_state(s, *op, succ_node.get_state()))
                     h_is_dirty = true;
-            }
-            if (h_is_dirty && use_multi_path_dependence)
+             }
+             if(h_is_dirty && use_multi_path_dependence)
                 succ_node.set_h_dirty();
-        }
-	    /*  if(Current_RIDA_Phase==SOLVING_PHASE){
+         }
+	 /*if(Current_RIDA_Phase==SOLVING_PHASE){
 	      cout<<"finished checking if h are dirty"<<endl;fflush(stdout);
-	    }*/
+	 }*/
 
-        if (succ_node.is_new()) {
+         if (succ_node.is_new()) {
             // We have not seen this state before.
             // Evaluate and create a new node.
             int succ_h=0;
@@ -471,23 +475,22 @@ int EagerSearch::step() {
             for (size_t i = 0; i < heuristics.size(); i++){
                 heuristics[i]->evaluate(succ_state);
 		dead_end=heuristics[i]->is_dead_end();
-		if(dead_end){
-		  //cout<<"State:";succ_state.inline_dump();cout<<" is a dead end according to :"<<heuristics[i]->get_heur_name()<<"so not adding to open list"<<endl;
-		  if(Current_RIDA_Phase==SOLVING_PHASE){
-		    break;
-		  }
-		  else{
-		    succ_h=INT_MAX/2;//need to keep nodes in case we need to sample for one of the heuristics which do not know that the node is a dead end
-		  }
+		if (dead_end){
+		   //cout<<"State:";succ_state.inline_dump();cout<<" is a dead end according to :"<<heuristics[i]->get_heur_name()<<"so not adding to open list"<<endl;
+		   if (Current_RIDA_Phase==SOLVING_PHASE){
+		       break;
+		   } else {
+		       succ_h=INT_MAX/2;//need to keep nodes in case we need to sample for one of the heuristics which do not know that the node is a dead end
+		   }
 		}
 		succ_h = max(succ_h,heuristics[i]->get_heuristic());
-		     // if(Current_RIDA_Phase==SOLVING_PHASE){
-		  //cout<<",h["<<i<<"]:}"<<heuristics[i]->get_heuristic();fflush(stdout);
+		// if(Current_RIDA_Phase==SOLVING_PHASE){
+		//cout<<",h["<<i<<"]:}"<<heuristics[i]->get_heuristic();fflush(stdout);
 		//}
 	    } 	
-	     // if(Current_RIDA_Phase==SOLVING_PHASE){
-	      //cout<<endl;fflush(stdout);
-	   // }
+	    //if(Current_RIDA_Phase==SOLVING_PHASE){
+	    //cout<<endl;fflush(stdout);
+	    //}
     
             succ_node.clear_h_dirty();
             search_progress.inc_evaluated_states();
@@ -500,8 +503,8 @@ int EagerSearch::step() {
             // may want to refactor this later.
             //open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
             open_list->evaluate2(node.get_g() + get_adjusted_cost(*op),succ_h);
-	    /*  if(Current_RIDA_Phase==SOLVING_PHASE){
-	      cout<<"state:";succ_state.inline_dump();cout<<",h:"<<succ_h<<",depth:"<<node.get_g() + get_adjusted_cost(*op)<<".F:"<<succ_h+node.get_g() + get_adjusted_cost(*op)<<endl;
+	    /*if(Current_RIDA_Phase==SOLVING_PHASE){
+	         cout<<"state:";succ_state.inline_dump();cout<<",h:"<<succ_h<<",depth:"<<node.get_g() + get_adjusted_cost(*op)<<".F:"<<succ_h+node.get_g() + get_adjusted_cost(*op)<<endl;
 	    }*/
             //bool dead_end = open_list->is_dead_end();
             if (dead_end) {
@@ -528,8 +531,8 @@ int EagerSearch::step() {
                 }
             }
             succ_node.open(succ_h, node, op);
-		/*  if(Current_RIDA_Phase==SOLVING_PHASE){
-		  cout<<"Node is open"<<endl;fflush(stdout);
+		/*if(Current_RIDA_Phase==SOLVING_PHASE){
+		     cout<<"Node is open"<<endl;fflush(stdout);
 		}*/
 
 	    // HACK try to maintain only met information for boundary nodes
@@ -540,13 +543,13 @@ int EagerSearch::step() {
                 }
             }
 	    open_list->insert(succ_node.get_state_buffer());
+	    //if(Current_RIDA_Phase==SOLVING_PHASE){
+	    //cout<<"Node is inserted"<<endl;fflush(stdout);
+	    //}
+            /*if (search_progress.get_generated()%node_time_adjusted_reval==0){//check memory is still within bounds
 		 //if(Current_RIDA_Phase==SOLVING_PHASE){
-		  //cout<<"Node is inserted"<<endl;fflush(stdout);
-		//}
-            /*  if(search_progress.get_generated()%node_time_adjusted_reval==0){//check memory is still within bounds
-		//if(Current_RIDA_Phase==SOLVING_PHASE){
-		//  cout<<"Checking if time or memory out"<<endl;fflush(stdout);
-		//}
+		 //  cout<<"Checking if time or memory out"<<endl;fflush(stdout);
+		 //}
               if(memory_limit<get_peak_memory_in_kb()||g_timer()>time_limit){
                 cout<<"current memory usage:"<<endl; print_peak_memory();
   
@@ -563,11 +566,11 @@ int EagerSearch::step() {
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
             }
-        } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
+         } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
             // We found a new cheapest path to an open or closed state.
-		//if(Current_RIDA_Phase==SOLVING_PHASE){
-		//  cout<<"Need to reopen node"<<endl;fflush(stdout);
-		//}
+	    //if(Current_RIDA_Phase==SOLVING_PHASE){
+	    //  cout<<"Need to reopen node"<<endl;fflush(stdout);
+	    //}
             if (reopen_closed_nodes) {
                 //TODO:CR - test if we should add a reevaluate flag and if it helps
                 // if we reopen closed nodes, do that
@@ -597,17 +600,16 @@ int EagerSearch::step() {
         }
     }
     for (size_t i = 0; i < heuristics.size(); i++) {
-		//if(Current_RIDA_Phase==SOLVING_PHASE){
-		//  cout<<"Getting Boundary information form incremental_lmcut"<<endl;fflush(stdout);
-		//}
+	//if(Current_RIDA_Phase==SOLVING_PHASE){
+	//  cout<<"Getting Boundary information form incremental_lmcut"<<endl;fflush(stdout);
+	//}
         // HACK try to maintain only met information for boundary nodes
         // only useful for incremental lmcut atm
         heuristics[i]->finished_state(s, node.get_real_g() + node.get_h(), true);
     }
-		//if(Current_RIDA_Phase==SOLVING_PHASE){
-		//  cout<<"Returning"<<endl;fflush(stdout);
-		//}
-
+	//if(Current_RIDA_Phase==SOLVING_PHASE){
+	//  cout<<"Returning"<<endl;fflush(stdout);
+	//}
     return IN_PROGRESS;
 }
 
@@ -778,10 +780,43 @@ void EagerSearch::update_jump_statistic(const SearchNode &node) {
         int new_f_value = f_evaluator->get_value();
         search_progress.report_f_value(new_f_value);*/
       int new_f_value = node.get_g()+node.get_h();
-      //cout<<"new_f_value:"<<new_f_value<<endl;
+      //cout<<"new_f_value:"<<new_f_value<<endl; 
+
       if(search_progress.updated_lastjump_f_value(new_f_value)){
-        vniveles.push_back(new_f_value);
+
+        vniveles.push_back(new_f_value); 
 	search_progress.report_f_value(new_f_value);
+
+    	map<int, int>::iterator mapIter = nodes_expanded_by_level.find(search_progress.return_lastjump_f_value()-1);//lastjump_f_value - 1, because at this point lastjump_f_value is updated and I want to get the last number of expanded nodes.
+
+	map<int, int>::iterator mapIter2 = nodes_generated_by_level.find(search_progress.return_lastjump_f_value());
+
+	bool bool_expr1 = (mapIter != nodes_expanded_by_level.end());
+	cout<<"bool_expr1 = "<<bool_expr1<<endl;
+
+	bool bool_expr2 = (mapIter2 != nodes_generated_by_level.end());
+	cout<<"bool_expr2 = "<<bool_expr2<<endl;
+
+	if (bool_expr1 && bool_expr2) {
+	   int nodesExpandedByLevel = mapIter->second;
+	   int nodesGeneratedLastLevel = mapIter2->second;
+	   cout<<"nodes expanded in the last level: "<<nodesExpandedByLevel<<endl;
+	   cout<<"nodes generated in the current level: "<<search_progress.get_generated()<<endl;
+	   cout<<"nodes generated int the last level: "<<nodesGeneratedLastLevel<<endl;
+	   if (nodesExpandedByLevel > 0) {
+	      gen_to_exp_ratio = double(search_progress.get_generated() -  nodesGeneratedLastLevel)/double(nodesExpandedByLevel);
+	      cout<<"effectiveBranchingFactor: "<<gen_to_exp_ratio<<endl;
+	   } else {
+	      cout<<"effectiveBranchingFactor: "<<0<<endl;
+	   }
+	} else {
+	   //handle error
+	   cout<<"There is no expanded nodes previous to the initial state."<<endl;
+	}
+
+    	 
+
+
 	cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(StateProxy)+sizeof(SearchNodeInfo))/1024.0<<",F_boundary_Range:"<<open_list->open_list_get_boundary_range()<<endl;
 	///cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(: public __gnu_cxx::hash_map<StateProxy,SearchNodeInfo>))/1024.0<<endl;
     //: public __gnu_cxx::hash_map<StateProxy, SearchNodeInfo> 
