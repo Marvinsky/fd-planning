@@ -12,6 +12,7 @@
 #include "search_progress.h"
 #include "Tree.h"
 #include "type.h"
+
 //#include "type_system.h"
 //#include "abstract_pk_heuristic.h"
 
@@ -81,5 +82,7 @@ public:
         string getRealHeuristic(string heur);	
 	//void dump_search_space();
 	double get_total_sampling_time(){return total_sampling_timer;}
+        int getMax_gvalue(vector<int> v_g);
+        map<int, int> getFDistribution(vector<int> v_f_value);
 }; 
 #endif
