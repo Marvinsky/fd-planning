@@ -460,187 +460,180 @@ int SSSearch::step() {
     }
    
     //To collect the total of nodes by depth (Stratified Sampling)
-    vector<long> sumByDepth;
+    //vector<long> sumByDepth;
 
     for (int i = 0; i < v_nivel.size(); i++) {
         cout<<v_nivel.at(i)<<endl;
     }
+    //Initialize the same queue.
+    //fetch next node, now just have to call the initial node.
+    SearchNode node = search_space.get_node(*g_initial_state);    //n.first; 
 
-    cout<<"List of levels: "<<endl;
-    vector<vector<int> > v_v_f_value;
-    vector<int> v_g_dist; 
-    for (std::vector<int>::size_type w = 0; w != v_nivel.size(); w++) {
-	cout<<"depth = "<<v_nivel.at(w)<<endl;
-    	int depth = v_nivel.at(w);
-
-    	//Initialize the same queue.
-    	//fetch next node, now just have to call the initial node.
-    	SearchNode node = search_space.get_node(*g_initial_state);    //n.first; 
-
-    	cout<<"heuristic value of te initial node based on the heuristic vector = "<<heuristics[0]->get_value()<<endl;
-    	node.open_initial(heuristics[0]->get_value());
-
-    	map<Type, SearchNode> queue;
-    	//include type system
-    	TypeSystem ts;
-    	//long levelInicial = 1;
-    	Type object = ts.getType(node, 1);//SearchNode, level initialized with 1 
+    cout<<"heuristic value of te initial node based on the heuristic vector = "<<heuristics[0]->get_value()<<endl;
+    node.open_initial(heuristics[0]->get_value());
+    int depth = 2*totalniveles; //2*node.get_h() : threshold
+    map<Type, SearchNode> queue;
+    //include type system
+    TypeSystem ts;
+    //long levelInicial = 1;
+    Type object = ts.getType(node, 1);//SearchNode, level initialized with 1 
   
-    	cout<<"heuristic value of the initial node based on the node = "<<node.get_h()<<endl;
-    	cout<<"heuristic value of the object Type  = "<<object.getH()<<endl; 
+    cout<<"heuristic value of the initial node based on the node = "<<node.get_h()<<endl;
+    cout<<"heuristic value of the object Type  = "<<object.getH()<<endl; 
     
-    	//set w = 1
-    	node.setW(1);
-    	//root node added to the queue
-    	queue.insert(pair<Type, SearchNode>(object, node));
+    //set w = 1
+    node.setW(1);
+    //root node added to the queue
+    queue.insert(pair<Type, SearchNode>(object, node));
 
-    	int k = 0;
-    	vector<int> sumw;  //Generated Nodes
-	vector<int> v_f_value;
-	//Initialize map of the g value.
- 	map<int, vector<int> > mapg;
-    	while(!queue.empty()) {
-		//tira o menor de acordo com o sistema de tipos
-		Type out = queue.begin()->first;
+    int k = 0;
+    vector<int> sumw;  //Generated Nodes
+    vector<int> v_f_value;
+    //Initialize map of the g value.
+    map<int, vector<int> > mapg;
+    //Initialize map for sumw
+    map<int, vector<int> > msumw;
+    while(!queue.empty()) {
+	//tira o menor de acordo com o sistema de tipos
+	Type out = queue.begin()->first;
 	
-		SearchNode nodecp = queue.begin()->second;
-        	//remover el primer nodo o todos los que pertenecen a un mismo nivel
-		sumw.insert(sumw.begin() + k, nodecp.getW());
-		queue.erase(out);
+	SearchNode nodecp = queue.begin()->second;
+        //remover el primer nodo o todos los que pertenecen a un mismo nivel
+	sumw.insert(sumw.begin() + k, nodecp.getW());
+	queue.erase(out);
 
-        	int g = out.getLevel(); //level del type
-		int w = nodecp.getW();  //level del node
+        int g = out.getLevel(); //level del type
+	int w = nodecp.getW();  //level del node
 
   	//Every 2 secs aprox we check if we have done search for too long without selecting a subset
   	//Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
   	//every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
-  		if(Current_RIDA_Phase==SAMPLING_PHASE){
-    	   	   if(search_progress.get_generated()%node_time_adjusted_reval==0){
-      	      	      if(search_timer()>200.0){
-		 	 cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
-		 	 if(gen_to_eval_ratio==0){
-	  	    	    cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
-	  	    	    gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
-	  	    	    cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
-	  	 	 }
-		 	 //sample_frontier_now(nodecp.get_g()+nodecp.get_h());
-      	      	      }
-    	   	   }
-  		}
+  	if(Current_RIDA_Phase==SAMPLING_PHASE){
+    	  if(search_progress.get_generated()%node_time_adjusted_reval==0){
+      	    if(search_timer()>200.0){
+	      cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
+	      if(gen_to_eval_ratio==0){
+	  	cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
+	  	gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
+	  	cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
+	      }
+	      //sample_frontier_now(nodecp.get_g()+nodecp.get_h());
+      	    }
+    	  }
+  	}
 
-		State newState = nodecp.get_state();
+	State newState = nodecp.get_state();
 
-        	//obtener los op
-		vector<const Operator *> applicable_ops;
-    		set<const Operator *> preferred_ops;
+        //obtener los op
+	vector<const Operator *> applicable_ops;
+    	set<const Operator *> preferred_ops;
 
-    		g_successor_generator->generate_applicable_ops(newState, applicable_ops);
+    	g_successor_generator->generate_applicable_ops(newState, applicable_ops);
      		 
-		for (int i = 0; i < applicable_ops.size(); i++) {
-	     	     const Operator *op = applicable_ops[i];
-	     	     State succ_state(newState, *op);
-	     	     //search_progress.inc_generated();	     
-	     	     SearchNode succ_node = search_space.get_node(succ_state);
-	     	     //calcular el valor heuristico del succ_node
-	     	     //cout<<"heuristics[0]->get_heur_name() = "<<heuristics[0]->get_heur_name()<<endl; 
-	     	     heuristics[0]->evaluate(succ_state); 
-	     	     int succ_h = heuristics[0]->get_heuristic();
-	    	     succ_node.open(succ_h, nodecp, op);
+	for (int i = 0; i < applicable_ops.size(); i++) {
+	    const Operator *op = applicable_ops[i];
+	    State succ_state(newState, *op);
+	    //search_progress.inc_generated();	     
+	    SearchNode succ_node = search_space.get_node(succ_state);
+	    //calcular el valor heuristico del succ_node
+	    //cout<<"heuristics[0]->get_heur_name() = "<<heuristics[0]->get_heur_name()<<endl; 
+	    heuristics[0]->evaluate(succ_state); 
+	    int succ_h = heuristics[0]->get_heuristic();
+	    succ_node.open(succ_h, nodecp, op);
 	
-	     	     int succ_h2 = succ_node.get_h();		
-             	     //cout<<"succ_h2 = "<<succ_h2<<endl;
-             	     //int succ_h2_value = heuristics[0]->get_value();
-             	     //cout<<"succ_h2_value = "<<heuristics[0]->get_value()<<endl;
-	     	     int succ_g = succ_node.get_real_g();
-	     	     //cout<<"succ_g = "<<succ_g<<endl;
+	    int succ_h2 = succ_node.get_h();		
+            //cout<<"succ_h2 = "<<succ_h2<<endl;
+            //int succ_h2_value = heuristics[0]->get_value();
+            //cout<<"succ_h2_value = "<<heuristics[0]->get_value()<<endl;
+	    int succ_g = succ_node.get_real_g();
+	    //cout<<"succ_g = "<<succ_g<<endl;
 		
-		     if (succ_h2 + succ_g <= depth) {
-			int succ_f = succ_g + succ_h2;
-		        v_f_value.push_back(succ_f);
+            if (succ_g <= depth) {
+	       int succ_f = succ_g + succ_h2;
+	       v_f_value.push_back(succ_f);
 
-			//succ_node.open(succ_h, nodecp, op);
-	     		TypeSystem ts2;
-			Type type =  ts2.getType(succ_node, g);
-             		type.setLevel(g + 1);
-	     		succ_node.setW(w);
+	       //succ_node.open(succ_h, nodecp, op);
+	       TypeSystem ts2;
+	       Type type =  ts2.getType(succ_node, g);
+               type.setLevel(g + 1);
+	       succ_node.setW(w);
 		
-        		map<Type, SearchNode>::iterator queueIt = queue.find(type);
-	     		//cout<<"expression = "<<expression<<endl;
-	     		if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
-		  	   //the type already exists in the queue
-		    	   int wa = queueIt->second.getW();
+               map<Type, SearchNode>::iterator queueIt = queue.find(type);
+	       //cout<<"expression = "<<expression<<endl;
+	       if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
+		  //the type already exists in the queue
+		  int wa = queueIt->second.getW();
 
-		    	   queueIt->second.setW(wa + w);
-                    	   double prob = (double)w/(wa +w);
-		    	   //long random_number = rand();			
-		    	   int  rand_100 = RanGen->IRandom(0, 99);
-		    	   double a = (double)rand_100/100;
-		    	   if (a < prob) {
-		              succ_node.setW(wa + w);
-	               	      queue.insert(pair<Type, SearchNode>(type, succ_node)); 
-	            	   }
-                 	}  else {
-		      	    //the type does not exists in the queue, so add it to the queue
-		       	    queue.insert(pair<Type, SearchNode>(type, succ_node)); 
-	         	} 
-	     	     } //end if pruning g + h <= depth	
-		     //} //end if prunning g == depth
-		} //end for from applicable_ops
-		k = k + 1;
-		mapg.insert(pair<int, vector<int> >(g, v_f_value));
-    	} //end while
-	cout<<"v_f_value.size() = "<<v_f_value.size()<<endl;
-        vector<int> v_g;
-        int p = 0;
-        cout<<"****************************************************************"<<endl;
-        cout<<"for depth = "<<v_nivel.at(w)<<" we print the levels and the number of levels."<<endl;
-        for (map<int, vector<int> >::iterator it = mapg.begin(); it != mapg.end(); ++it) {
-	     int g = it->first;
-	     cout<<"g = "<<g<<endl;
-	     v_g.insert(v_g.begin() + p, g);
-             vector<int> vect = it->second;
-             cout<<"f-value generated at "<<g<<" level."<<endl;
-             for (int i = 0; i< vect.size(); i++) {
-		cout<<vect.at(i)<<", ";
-	     }
-             cout<<"\n";
-             p = p + 1;
-	}
-        cout<<"p = "<<p<<endl;	
-
-	int max_g = getMax_gvalue(v_g);
-        cout<<"The f-Distribution for max_g of this iteration "<<max_g<<endl;
-	map<int, vector<int> >::iterator mapgIt = mapg.find(max_g);
-       	if (mapgIt != mapg.end()) {
-	    vector<int> v_gmax = mapgIt->second;
-	    v_v_f_value.insert(v_v_f_value.begin() + w, v_gmax);
-	    v_g_dist.insert(v_g_dist.begin() + w, max_g); 
-	    for (int i = 0; i < v_gmax.size(); i++) {
-		cout<<v_gmax.at(i)<<", ";
-	    }
-	}
-        
-	cout<<"\n****************************************************************"<<endl;	
-    	cout<<"counter k = "<<k<<endl;
-
-    	//prediction generated nodes
-    	long total = 0;
-    	for (int i = 0; i < sumw.size(); i++) {
-        	total += sumw.at(i);
-    	}
-    	sumByDepth.insert(sumByDepth.begin() + w, total);
-
-    	//sumw.clear();
-    	cout<<" _____________________________________________________________________"<<endl;
-    	cout<<"|   # of nodes expanded by ss at level "<<v_nivel.at(w)<<" is :     "<<total<<"                |"<<endl;
-    	cout<<" _____________________________________________________________________"<<endl;
-    }//end for levels
-
-    for (int i = 0; i < totalniveles; i++) {
-	 outputfile<<"\t"<<niveles[i][0]<<"\t"<<niveles[i][1]<<"\t\t"<<niveles[i][2]<<"\t\t"<<niveles[i][3]<<"\t\t"<<sumByDepth.at(i)<<"\n";
+		  queueIt->second.setW(wa + w);
+                  double prob = (double)w/(wa +w);
+		  //long random_number = rand();			
+		  int  rand_100 = RanGen->IRandom(0, 99);
+		  double a = (double)rand_100/100;
+		  if (a < prob) {
+		     succ_node.setW(wa + w);
+	             queue.insert(pair<Type, SearchNode>(type, succ_node)); 
+	          }
+               }  else {
+		  //the type does not exists in the queue, so add it to the queue
+		  queue.insert(pair<Type, SearchNode>(type, succ_node)); 
+	       } 
+	    } //end if pruning g <= depth	
+	} //end for from applicable_ops
+	k = k + 1;
+	mapg.insert(pair<int, vector<int> >(g, v_f_value));
+        msumw.insert(pair<int, vector<int> >(g, sumw));
+    } //end while
+    cout<<"v_f_value.size() = "<<v_f_value.size()<<endl;
+    vector<int> v_g;
+    int p = 0;
+    cout<<"****************************************************************"<<endl;
+    
+    for (map<int, vector<int> >::iterator it = mapg.begin(); it != mapg.end(); ++it) {
+	int g = it->first;
+	v_g.insert(v_g.begin() + p, g);
+        vector<int> vect = it->second; 
+        p = p + 1;
     }
-    outputfile.close(); 
+    cout<<"total levels = "<<p<<endl;	
+        
+    vector<int> sumByDepth;
+    int t = 0;
+    for (map<int, vector<int> >::iterator it = msumw.begin(); it != msumw.end(); ++it) {
+        vector<int> vect = it->second;
+        int sum = 0;
+        for (int r = 0; r < vect.size(); r++) {
+            sum = sum + vect.at(r);
+	}
+        sumByDepth.insert(sumByDepth.begin() + t, sum);
+        t++;
+    }
+	
+    int max_g = getMax_gvalue(v_g);
+    cout<<"The f-Distribution for max_g of this iteration "<<max_g<<endl;
+    map<int, vector<int> >::iterator mapgIt = mapg.find(max_g);
+    if (mapgIt != mapg.end()) {
+       vector<int> v_gmax = mapgIt->second; 
+       for (int i = 0; i < v_gmax.size(); i++) {
+	   cout<<v_gmax.at(i)<<", ";
+       }
+    }
+        
+    cout<<"\n****************************************************************"<<endl;	
+    cout<<"counter in te while k = "<<k<<endl;
 
+    //prediction generated nodes
+    long total = 0;
+    for (int i = 0; i < sumw.size(); i++) {
+        total += sumw.at(i);
+    }
+    cout<<"Number of expanded nodes with threshold "<<depth<<" = "<<total<<endl;
+    
+    for (int i = 0; i < totalniveles; i++) {
+        outputfile<<"\t"<<niveles[i][0]<<"\t"<<niveles[i][1]<<"\t\t"<<niveles[i][2]<<"\t\t"<<niveles[i][3]<<"\t\t"<<sumByDepth.at(i)<<"\n";
+    }
+
+    outputfile.close(); 
+    
     //Print the f-value Distribution
     string fdist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist";
     if (system(fdist.c_str())) {
@@ -655,33 +648,28 @@ int SSSearch::step() {
     outputfile2.open(arqfDist.c_str(), ios::out);
     outputfile2<<"\t\t"<<titulo<<"\n";
     outputfile2<<"\ttotalniveles: "<<totalniveles<<"\n";
+    outputfile2<<"\tthreshold: "<<depth<<"\n";
     cout<<"-----------------Print the f-Distribution of each level-----------------"<<endl;
-    for (int i = 0; i < v_v_f_value.size(); i++) {
-        int max_g = v_g_dist.at(i);
- 
-	vector<int> v_max = v_v_f_value.at(i);
-	map<int, int> m = getFDistribution(v_max);
-        outputfile2<<"\tlevel: "<<max_g<<endl;
-	for (map<int, int>::iterator it = m.begin(); it != m.end(); ++it) {
-	     int f = it->first;
-             int q = it->second;
-	     outputfile2<<"\t\tf: "<<f<<"\t\tq: "<<q<<endl;
+    for (map<int, vector<int> >::iterator it = mapg.begin(); it != mapg.end(); ++it) {
+	 int g = it->first;
+	 cout<<"g = "<<g<<endl;
+         outputfile2<<"\tlevel: "<<g<<endl; 
+         vector<int> vect = it->second;
+         map<int, int> m = getFDistribution(vect);
+         for (map<int, int>::iterator it2 = m.begin(); it2 != m.end(); ++it2) {
+             int f = it2->first;
+             int q = it2->second;
+             outputfile2<<"\t\tf: "<<f<<"\t\tq: "<<q<<endl;
 	     cout<<"f = "<<f<<" q = "<<q<<endl;
-	}
-
-	for (int j = 0; j < v_max.size(); j ++) {
-	    int k = v_max.at(j); 
-	    cout<<k<<" ";
-	}
-	cout<<"\n";
-    }
+	 }
+     }
+ 
     outputfile2.close();
-
+   
     return SOLVED;
 }
 
-
-map<int, int> SSSearch::getFDistribution(vector<int> v_f_value) {
+map<int, int> SSSearch::getFDistribution(vector<int> v_f_value) { 
 	map<int, int> m;
 	for (int i = 0; i < v_f_value.size(); i++) {
 	    int a = v_f_value.at(i);
