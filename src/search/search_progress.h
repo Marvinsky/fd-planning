@@ -34,6 +34,8 @@ private:
     std::vector<int> best_heuristic_values; // best heuristic values so far
     std::vector<int> initial_h_values; // h values of the initial state
     std::vector<Heuristic *> heuristics;
+
+    bool fetch_first_node;
 public:
     SearchProgress();
     virtual ~SearchProgress();

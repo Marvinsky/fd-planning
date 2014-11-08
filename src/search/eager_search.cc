@@ -371,7 +371,30 @@ int EagerSearch::step() {
 	   output_problem_results();
         }
         cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
-        return SOLVED;
+        
+        std::vector<int> ne; 
+        int p = 0;
+	for (map<int, int>::iterator it = nodes_expanded_by_level.begin(); it != nodes_expanded_by_level.end(); ++it) {
+            int nodesExpanded = it->second;
+            ne.insert(ne.begin() + p, nodesExpanded);
+            p++;
+	}
+        std::vector<int> ng;
+        int q = 0;
+	for (map<int, int>::iterator it = nodes_generated_by_level.begin(); it != nodes_generated_by_level.end(); ++it) {
+            int nodesGenerated = it->second;
+           
+            ng.insert(ng.begin() + q, nodesGenerated);
+            q++;
+	}
+     	
+        for (int r = 0; r < p-1; r++) {
+	    double m = (double)ng.at(r+1)/(double)ne.at(r);
+	    cout<<"effectiveBranchingFactor: "<<m<<endl;
+	}
+
+ 
+	return SOLVED;
     }
 
     vector<const Operator *> applicable_ops;
@@ -786,7 +809,7 @@ void EagerSearch::update_jump_statistic(const SearchNode &node) {
 
         vniveles.push_back(new_f_value); 
 	search_progress.report_f_value(new_f_value);
-
+        /*
     	map<int, int>::iterator mapIter = nodes_expanded_by_level.find(search_progress.return_lastjump_f_value()-1);//lastjump_f_value - 1, because at this point lastjump_f_value is updated and I want to get the last number of expanded nodes.
 
 	map<int, int>::iterator mapIter2 = nodes_generated_by_level.find(search_progress.return_lastjump_f_value());
@@ -813,7 +836,7 @@ void EagerSearch::update_jump_statistic(const SearchNode &node) {
 	   //handle error
 	   cout<<"There is no expanded nodes previous to the initial state."<<endl;
 	}
-
+	*/
     	 
 
 
