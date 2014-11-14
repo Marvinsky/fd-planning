@@ -471,7 +471,7 @@ int SSSearch::step() {
 
     cout<<"heuristic value of te initial node based on the heuristic vector = "<<heuristics[0]->get_value()<<endl;
     node.open_initial(heuristics[0]->get_value());
-    int depth = 2*totalniveles; //2*node.get_h() : threshold
+    int depth = 2*node.get_h(); //threshold
     map<Type, SearchNode> queue;
     //include type system
     TypeSystem ts;
@@ -581,6 +581,7 @@ int SSSearch::step() {
 	} //end for from applicable_ops
 	k = k + 1;
 	mapg.insert(pair<int, vector<int> >(g, v_f_value));
+        v_f_value.clear();
         msumw.insert(pair<int, vector<int> >(g, sumw));
     } //end while
     cout<<"v_f_value.size() = "<<v_f_value.size()<<endl;
@@ -652,16 +653,21 @@ int SSSearch::step() {
     cout<<"-----------------Print the f-Distribution of each level-----------------"<<endl;
     for (map<int, vector<int> >::iterator it = mapg.begin(); it != mapg.end(); ++it) {
 	 int g = it->first;
-	 cout<<"g = "<<g<<endl;
-         outputfile2<<"\tlevel: "<<g<<endl; 
+	 cout<<"g: "<<g<<endl;
+         outputfile2<<"\tg:"<<g<<endl; 
          vector<int> vect = it->second;
          map<int, int> m = getFDistribution(vect);
+         int mapsize = m.size();
+         outputfile2<<"\tsize: "<<mapsize<<"\n";
+        
          for (map<int, int>::iterator it2 = m.begin(); it2 != m.end(); ++it2) {
              int f = it2->first;
              int q = it2->second;
+        
              outputfile2<<"\t\tf: "<<f<<"\t\tq: "<<q<<endl;
-	     cout<<"f = "<<f<<" q = "<<q<<endl;
+	     cout<<"f: "<<f<<" q: "<<q<<endl;
 	 }
+	 outputfile2<<"\n\n";
      }
  
     outputfile2.close();
