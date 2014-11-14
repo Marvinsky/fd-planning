@@ -356,7 +356,11 @@ int EagerSearch::step() {
   
 
     State s = node.get_state();
-	
+    
+
+    vector<int> v_f_value;
+    int g = node.get_real_g();	
+    v_g.push_back(g);
     //    if(Current_RIDA_Phase==SOLVING_PHASE){
     //       cout<<"fetched state"<<endl;s.dump_pddl();fflush(stdout);
     //    }
@@ -393,7 +397,41 @@ int EagerSearch::step() {
 	    cout<<"effectiveBranchingFactor: "<<m<<endl;
 	}
 
- 
+	cout<<"v_f.size() = "<<v_f.size()<<endl;
+	cout<<"v_g.size() = "<<v_g.size()<<endl;
+      	
+	cout<<"totallevels: "<<mapv_f.size()<<endl;
+        vector<int> nlevel;
+        vector<int> glevel;
+     
+        int z = 0;
+	for (map<int, vector<long> >::iterator it = mapv_f.begin(); it != mapv_f.end(); ++it) {
+            //int g = it->first;
+            glevel.insert(glevel.begin() + z, it->first);
+            nlevel.insert(nlevel.begin() + z, it->second.size());
+            z++;
+	}
+        
+	vector<int> rlevel;
+	for (int i = 0; i < nlevel.size(); i++) {
+            
+	    int diff = 0;
+	    if (i == 0) {
+		diff = nlevel.at(i) - 0;
+	    } else {
+		diff = nlevel.at(i) - nlevel.at(i-1);
+	    }
+           
+	    rlevel.insert(rlevel.begin() + i, diff);
+	}
+
+	
+	for (int i = 0; i < rlevel.size(); i++) {
+	    cout<<"glevel: "<<glevel.at(i) + 1<<endl;
+            cout<<"nlevel: "<<rlevel.at(i)<<endl;
+
+	}
+
 	return SOLVED;
     }
 
@@ -455,6 +493,11 @@ int EagerSearch::step() {
          //bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
 
          SearchNode succ_node = search_space.get_node(succ_state);
+	 int succ_h = succ_node.get_h();
+         int succ_g = succ_node.get_real_g();
+         int succ_f = succ_h + succ_g;
+         v_f_value.push_back(succ_f);
+	 v_f.push_back(succ_f);
 	 /*if(Current_RIDA_Phase==SOLVING_PHASE){
 	      cout<<"got succ state "<<endl;fflush(stdout);
 	 }*/
@@ -633,6 +676,10 @@ int EagerSearch::step() {
 	//if(Current_RIDA_Phase==SOLVING_PHASE){
 	//  cout<<"Returning"<<endl;fflush(stdout);
 	//}
+    
+
+    mapv_f.insert(pair<int, vector<long> >(g, v_f));
+    //v_f.clear();
     return IN_PROGRESS;
 }
 
