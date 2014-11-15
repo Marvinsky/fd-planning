@@ -28,7 +28,10 @@ class EagerSearch : public SearchEngine {
     double total_sampling_timer;
     OpenList<state_var_t *> *open_list;
     ScalarEvaluator *f_evaluator;
-    bool first_sample; 
+    bool first_sample;
+    bool first_time;
+    int nivel;
+    int count_last_nodes_gerados; 
 protected:
     int step();
     pair<SearchNode, bool> fetch_next_node();

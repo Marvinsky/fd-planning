@@ -63,7 +63,13 @@ void SearchProgress::report_f_value(int f) {
 	   cout<<"expanded_states - lastjump_expanded_states = "<<expanded_by_level<<endl;
 
  	   nodes_expanded_by_level.insert(pair<int, int>(f, expanded_by_level));
-	   nodes_generated_by_level.insert(pair<int, int>(f, generated_by_level));         
+	   nodes_generated_by_level.insert(pair<int, int>(f, generated_by_level));      
+
+ 	   cout<<"fnivel: "<<lastjump_f_value - 1<<endl;
+    	   cout<<"nodesGeneratedByLevel: "<<generated_by_level<<endl;
+ 	   cout<<" time0: "<<g_timer()<<endl;
+    	   cout<<"nodesGeneratedToTheLevel: "<<generated_states<<endl;
+
 	}
 
 	print_f_line();
@@ -119,12 +125,12 @@ void SearchProgress::print_f_line() const {
   static long nodes_from_prev_F_bound=0;
   static bool original_common_F_bound_found=false;
    
-    cout<<"fnivel: "<<lastjump_f_value<<endl;
-    cout<<"nodesGeneratedByLevel: "<<generated_states-prev_generated_states<<endl;
+    //cout<<"fnivel: "<<lastjump_f_value<<endl;
+    //cout<<"nodesGeneratedByLevel: "<<generated_states-prev_generated_states<<endl;
     //nodes_generated_by_level.insert(pair<int, int>(lastjump_f_value, prev_generated_states)); 
 
-    cout<<" time0: "<<g_timer()<<endl;
-    cout<<"nodesGeneratedToTheLevel: "<<generated_states<<endl;
+    //cout<<" time0: "<<g_timer()<<endl;
+    //cout<<"nodesGeneratedToTheLevel: "<<generated_states<<endl;
     //print_time_line();
     cout << "f: " << lastjump_f_value
          << " [";

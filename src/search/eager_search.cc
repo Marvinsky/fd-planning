@@ -54,7 +54,9 @@ void EagerSearch::initialize() {
          << endl;
     cout<<"first_sample set to true"<<endl;
     first_sample=true;
-
+    cout<<"first_time set to false and count_last_nodes_gerados to zero."<<endl;
+    first_time =false;
+    count_last_nodes_gerados=0;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
     if (use_multi_path_dependence)
@@ -358,9 +360,8 @@ int EagerSearch::step() {
     State s = node.get_state();
     
 
-    vector<int> v_f_value;
-    int g = node.get_real_g();	
-    v_g.push_back(g);
+    //int g = node.get_real_g();	
+    //v_g.push_back(g);
     //    if(Current_RIDA_Phase==SOLVING_PHASE){
     //       cout<<"fetched state"<<endl;s.dump_pddl();fflush(stdout);
     //    }
@@ -374,7 +375,7 @@ int EagerSearch::step() {
         if(Current_RIDA_Phase==SOLVING_PHASE){
 	   output_problem_results();
         }
-        cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
+        //cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
         
         std::vector<int> ne; 
         int p = 0;
@@ -396,13 +397,13 @@ int EagerSearch::step() {
 	    double m = (double)ng.at(r+1)/(double)ne.at(r);
 	    cout<<"effectiveBranchingFactor: "<<m<<endl;
 	}
-
-	cout<<"v_f.size() = "<<v_f.size()<<endl;
-	cout<<"v_g.size() = "<<v_g.size()<<endl;
+	/*
+	//cout<<"v_f.size() = "<<v_f.size()<<endl;
+	//cout<<"v_g.size() = "<<v_g.size()<<endl;
       	
-	cout<<"totallevels: "<<mapv_f.size()<<endl;
-        vector<int> nlevel;
-        vector<int> glevel;
+	//cout<<"totallevels: "<<mapv_f.size()<<endl;
+        //vector<int> nlevel;
+        //vector<int> glevel;
      
         int z = 0;
 	for (map<int, vector<long> >::iterator it = mapv_f.begin(); it != mapv_f.end(); ++it) {
@@ -429,11 +430,30 @@ int EagerSearch::step() {
 	for (int i = 0; i < rlevel.size(); i++) {
 	    cout<<"glevel: "<<glevel.at(i) + 1<<endl;
             cout<<"nlevel: "<<rlevel.at(i)<<endl;
-
 	}
-
-	return SOLVED;
+	*/
+        cout<<"\nCount the nodes in the last level."<<endl;
+	
+	int last_level = search_progress.return_lastjump_f_value();
+	nivel = last_level;
+	first_time = true;
+	return IN_PROGRESS;
     }
+
+
+    if (first_time) {
+       int last_level = search_progress.return_lastjump_f_value();
+       if (nivel == last_level) {
+	  //Add the increment here because in the statistic the last one is added.
+          count_last_nodes_gerados = count_last_nodes_gerados + 1;
+          return IN_PROGRESS;
+       } else {
+	  cout<<"totalniveles: "<<vniveles.size()<<endl;
+          cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
+	  return SOLVED;
+       }
+    }
+
 
     vector<const Operator *> applicable_ops;
     set<const Operator *> preferred_ops;
@@ -493,11 +513,13 @@ int EagerSearch::step() {
          //bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
 
          SearchNode succ_node = search_space.get_node(succ_state);
+	 /*
 	 int succ_h = succ_node.get_h();
          int succ_g = succ_node.get_real_g();
          int succ_f = succ_h + succ_g;
-         v_f_value.push_back(succ_f);
+        
 	 v_f.push_back(succ_f);
+	 */
 	 /*if(Current_RIDA_Phase==SOLVING_PHASE){
 	      cout<<"got succ state "<<endl;fflush(stdout);
 	 }*/
@@ -678,7 +700,7 @@ int EagerSearch::step() {
 	//}
     
 
-    mapv_f.insert(pair<int, vector<long> >(g, v_f));
+    //mapv_f.insert(pair<int, vector<long> >(g, v_f));
     //v_f.clear();
     return IN_PROGRESS;
 }

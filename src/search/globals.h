@@ -117,8 +117,8 @@ extern double gen_to_exp_ratio;
 extern map<int,int> nodes_expanded_by_level;
 extern map<int,int> nodes_generated_by_level;
 extern map<int, vector<long> > mapv_f;
-extern vector<int> v_g;
-extern vector<long> v_f;
+//extern vector<int> v_g;
+//extern vector<long> v_f;
 extern bool evaluate_randomization;
 extern bool adding_found_lower_depth;
 extern long RANDOM_CAP;//100000 heur combined to 15 degrees
