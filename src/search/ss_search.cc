@@ -478,19 +478,25 @@ int SSSearch::step() {
     //long levelInicial = 1;
     Type object = ts.getType(node, 1);//SearchNode, level initialized with 1 
   
-    cout<<"heuristic value of the initial node based on the node = "<<node.get_h()<<endl;
-    cout<<"heuristic value of the object Type  = "<<object.getH()<<endl; 
-    
+    //Initialize map of the g value.
+    vector<int> f_first;
+    f_first.push_back(node.get_h() + node.get_real_g());
+
+    map<int, vector<int> > mapg;
+    mapg.insert(pair<int, vector<int> >(object.getLevel(), f_first));
+    //set level
+    object.setLevel(2);
+   
     //set w = 1
     node.setW(1);
     //root node added to the queue
     queue.insert(pair<Type, SearchNode>(object, node));
-
+    
+   
     int k = 0;
     vector<int> sumw;  //Generated Nodes
     vector<int> v_f_value;
-    //Initialize map of the g value.
-    map<int, vector<int> > mapg;
+   
     //Initialize map for sumw
     map<int, vector<int> > msumw;
     while(!queue.empty()) {
@@ -498,11 +504,14 @@ int SSSearch::step() {
 	Type out = queue.begin()->first;
 	
 	SearchNode nodecp = queue.begin()->second;
+        cout<<"Raiz:  h = "<<nodecp.get_h()<<" g = "<<nodecp.get_real_g()<<" f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
+
         //remover el primer nodo o todos los que pertenecen a un mismo nivel
 	sumw.insert(sumw.begin() + k, nodecp.getW());
 	queue.erase(out);
 
         int g = out.getLevel(); //level del type
+        cout<<"g : "<<g<<endl; 
 	int w = nodecp.getW();  //level del node
 
   	//Every 2 secs aprox we check if we have done search for too long without selecting a subset
@@ -549,6 +558,7 @@ int SSSearch::step() {
 	    //cout<<"succ_g = "<<succ_g<<endl;
 		
             if (succ_g <= depth) {
+               cout<<" child  h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
 	       int succ_f = succ_g + succ_h2;
 	       v_f_value.push_back(succ_f);
 
