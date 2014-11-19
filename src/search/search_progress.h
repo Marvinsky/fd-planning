@@ -25,6 +25,7 @@ private:
 
     // f-statistics
     int lastjump_f_value; //f value obtained in the last jump
+    int lastjump_f_value2;
     int lastjump_expanded_states; // same guy but at point where the last jump in the open list
     int lastjump_reopened_states; // occured (jump == f-value of the first node in the queue increases)
     int lastjump_evaluated_states;

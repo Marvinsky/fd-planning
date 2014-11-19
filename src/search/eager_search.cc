@@ -331,12 +331,17 @@ void EagerSearch::statistics() const {
 
 int EagerSearch::step() {
     pair<SearchNode, bool> n = fetch_next_node();
+           
+
     if (!n.second) {
       problem_was_solved=false;
       cout<<"failed to get n!"<<endl;
         return FAILED;
     }
     SearchNode node = n.first;
+    cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
+    
+
 
     //Every 2 secs aprox we check if we have done search for too long without selecting a subset
     //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
@@ -555,6 +560,7 @@ int EagerSearch::step() {
 	      cout<<"finished checking if h are dirty"<<endl;fflush(stdout);
 	 }*/
 
+
          if (succ_node.is_new()) {
             // We have not seen this state before.
             // Evaluate and create a new node.
@@ -650,7 +656,13 @@ int EagerSearch::step() {
                 return FAILED;
               }
             }*/
-	    
+	   
+
+	    cout<<"\tline 656 node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+            
+
+
+ 
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
             }
@@ -685,6 +697,9 @@ int EagerSearch::step() {
                 // the g-value and the actual path that is traced back
                 succ_node.update_parent(node, op);
             }
+
+	    cout<<"line 696 node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+            
         }
     }
     for (size_t i = 0; i < heuristics.size(); i++) {

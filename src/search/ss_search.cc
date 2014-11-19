@@ -412,7 +412,7 @@ int SSSearch::step() {
     outputfile.open(arquivoRSS.c_str(), ios::out);
 
     //Here we are in the test directory and not the testss directory. 
-    string rutaR = "/home/marvin/marvin/test/"+heuristica+"/report/"+dominio+"/"+tarefa;
+    string rutaR = "/home/marvin/marvin/test/"+heuristica+"/report2/"+dominio+"/"+tarefa;
     cout<<"rutaR = "<<rutaR.c_str()<<endl;
     ifstream fileR(rutaR.c_str());
     
@@ -485,7 +485,7 @@ int SSSearch::step() {
     map<int, vector<int> > mapg;
     mapg.insert(pair<int, vector<int> >(object.getLevel(), f_first));
     //set level
-    object.setLevel(2);
+    //object.setLevel(2);
    
     //set w = 1
     node.setW(1);
@@ -504,6 +504,7 @@ int SSSearch::step() {
 	Type out = queue.begin()->first;
 	
 	SearchNode nodecp = queue.begin()->second;
+        cout<<"******************************************"<<endl;
         cout<<"Raiz:  h = "<<nodecp.get_h()<<" g = "<<nodecp.get_real_g()<<" f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
 
         //remover el primer nodo o todos los que pertenecen a un mismo nivel
@@ -513,6 +514,7 @@ int SSSearch::step() {
         int g = out.getLevel(); //level del type
         cout<<"g : "<<g<<endl; 
 	int w = nodecp.getW();  //level del node
+       
 
   	//Every 2 secs aprox we check if we have done search for too long without selecting a subset
   	//Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
@@ -551,46 +553,66 @@ int SSSearch::step() {
 	    succ_node.open(succ_h, nodecp, op);
 	
 	    int succ_h2 = succ_node.get_h();		
-            //cout<<"succ_h2 = "<<succ_h2<<endl;
-            //int succ_h2_value = heuristics[0]->get_value();
-            //cout<<"succ_h2_value = "<<heuristics[0]->get_value()<<endl;
+           
 	    int succ_g = succ_node.get_real_g();
-	    //cout<<"succ_g = "<<succ_g<<endl;
-		
+	    cout<<"Childs:  h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+ 		
             if (succ_g <= depth) {
-               cout<<" child  h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+               cout<<"\tChild Pruned  h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
 	       int succ_f = succ_g + succ_h2;
 	       v_f_value.push_back(succ_f);
 
-	       //succ_node.open(succ_h, nodecp, op);
 	       TypeSystem ts2;
 	       Type type =  ts2.getType(succ_node, g);
                type.setLevel(g + 1);
 	       succ_node.setW(w);
-		
+               cout<<"\t\t\n";
+               cout<<"\t\t level: "<<type.getLevel()<<" (to confirm).\n";
+               
+	       for (map<Type, SearchNode>::iterator iter = queue.begin(); iter != queue.end(); iter++) {
+	           Type taux = iter->first;
+                   SearchNode n = iter->second;
+                   cout<<"\t\th = "<<n.get_h()<<", g = "<<n.get_real_g()<<", f = "<<n.get_h() + n.get_real_g()<<"\n";
+              	   if ((n.get_h() == succ_node.get_h()) && (taux.getLevel() == type.getLevel())) {
+                      cout<<"Node is in the queue and should not be added."<<endl;
+                   }
+	       } 
+               cout<<"\t\t\n";
+	      
                map<Type, SearchNode>::iterator queueIt = queue.find(type);
-	       //cout<<"expression = "<<expression<<endl;
+	      
 	       if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
 		  //the type already exists in the queue
-		  int wa = queueIt->second.getW();
+		  SearchNode n = queueIt->second;
+                  cout<<"Duplicate node h = "<<n.get_h()<<" g = "<<n.get_real_g()<<" f = "<<n.get_h() + n.get_real_g()<<"\n";
 
-		  queueIt->second.setW(wa + w);
+                  cout<<"Update w from "<<n.getW()<<" to ";
+                  int wa = n.getW();
+                  
+		  n.setW(wa + w);
+                  cout<<n.getW()<<endl;
+
                   double prob = (double)w/(wa +w);
 		  //long random_number = rand();			
 		  int  rand_100 = RanGen->IRandom(0, 99);
 		  double a = (double)rand_100/100;
 		  if (a < prob) {
+                     cout<<" a < prob add new child."<<endl;
 		     succ_node.setW(wa + w);
-	             queue.insert(pair<Type, SearchNode>(type, succ_node)); 
-	          }
+	             queue.insert(pair<Type, SearchNode>(type, succ_node));
+                  } else {
+                    cout<<" a >= prob do not add the new element."<<endl;
+		  }
                }  else {
 		  //the type does not exists in the queue, so add it to the queue
+                  cout<<"\tNew node h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<"\n";
 		  queue.insert(pair<Type, SearchNode>(type, succ_node)); 
-	       } 
+               }
+                
 	    } //end if pruning g <= depth	
 	} //end for from applicable_ops
 	k = k + 1;
-	mapg.insert(pair<int, vector<int> >(g, v_f_value));
+	mapg.insert(pair<int, vector<int> >(g + 1, v_f_value));
         v_f_value.clear();
         msumw.insert(pair<int, vector<int> >(g, sumw));
     } //end while
@@ -615,6 +637,7 @@ int SSSearch::step() {
         for (int r = 0; r < vect.size(); r++) {
             sum = sum + vect.at(r);
 	}
+        cout<<"sum: "<<sum<<endl;
         sumByDepth.insert(sumByDepth.begin() + t, sum);
         t++;
     }

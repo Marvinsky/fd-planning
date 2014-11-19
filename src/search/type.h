@@ -1,11 +1,14 @@
 #ifndef type_h
 #define type_h
 
-
 #include <map>
+#include "type_children.h"
+
+
 
 class Type {
 private:
+        TypeChildren children;
 	int p;
 	long h;
 	long level;
@@ -17,7 +20,13 @@ public:
 	//Type(int parent, long heuristic);
 	Type(long heuristic, long level);
 	
+	TypeChildren& getChildren()  {return children;}
+        TypeChildren getConstChildren() const {return children;}
+
+	void setChildren(TypeChildren c) {this->children = c;}
+
 	friend bool operator< (const Type&, const Type&);
+
 	long getH() const {return h;}
 	void setH(long i) {h = i;}
 	int getP() const {return p;}
@@ -51,20 +60,11 @@ bool operator< (const Type& o1, const Type& o2) {
 		return o1.level < o2.level;
 	}
 
-	if (o1.p != o2.p) {
-		return o1.p < o2.p;
-	}
-
 	if (o1.h != o2.h) {
 		return o1.h < o2.h;
 	}
 
-	if (o1.random != o2.random) {
-		return o1.random < o2.random;
-	}
-	return false;
-	//return o1.children < o2.children;
+	return o1.children < o2.children;
 }
-
 
 #endif
