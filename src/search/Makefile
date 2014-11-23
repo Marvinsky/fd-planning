@@ -77,6 +77,7 @@ HEADERS += cea_heuristic.h
 HEADERS += cg_heuristic.h cg_cache.h
 HEADERS += ff_heuristic.h
 HEADERS += goal_count_heuristic.h
+HEADERS += dijkstra_search_heuristic.h
 HEADERS += hm_heuristic.h
 HEADERS += lm_cut_heuristic.h
 HEADERS += incremental_lm_cut_heuristic.h

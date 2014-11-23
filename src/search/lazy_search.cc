@@ -144,7 +144,7 @@ int LazySearch::step() {
 
     SearchNode node = search_space.get_node(current_state);
     bool reopen = reopen_closed_nodes && (current_g < node.get_g()) && !node.is_dead_end() && !node.is_new();
-
+    cout<<"\nRaiz h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
     if (node.is_new() || reopen) {
         state_var_t *dummy_address = current_predecessor_buffer;
         // HACK! HACK! we do this because SearchNode has no default/copy constructor

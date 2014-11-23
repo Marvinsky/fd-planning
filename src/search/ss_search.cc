@@ -475,8 +475,8 @@ int SSSearch::step() {
     map<Type, SearchNode> queue;
     //include type system
     TypeSystem ts;
-    //long levelInicial = 1;
-    Type object = ts.getType(node, 1);//SearchNode, level initialized with 1 
+    //long levelInicial = 0;
+    Type object = ts.getType(node, 0);//SearchNode, level initialized with 1 
   
     //Initialize map of the g value.
     vector<int> f_first;
@@ -506,6 +506,8 @@ int SSSearch::step() {
 	SearchNode nodecp = queue.begin()->second;
         cout<<"******************************************"<<endl;
         cout<<"Raiz:  h = "<<nodecp.get_h()<<" g = "<<nodecp.get_real_g()<<" f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
+      
+	//v_f_value.push_back(nodecp.get_h() + nodecp.get_real_g());
 
         //remover el primer nodo o todos los que pertenecen a un mismo nivel
 	sumw.insert(sumw.begin() + k, nodecp.getW());
@@ -597,7 +599,9 @@ int SSSearch::step() {
 		  int  rand_100 = RanGen->IRandom(0, 99);
 		  double a = (double)rand_100/100;
 		  if (a < prob) {
-                     cout<<" a < prob add new child."<<endl;
+                     queue.erase(queueIt->first);
+                     cout<<"remove the old node. "<<endl;
+                     cout<<" a < prob add new child with w = "<<(wa + w) <<endl;
 		     succ_node.setW(wa + w);
 	             queue.insert(pair<Type, SearchNode>(type, succ_node));
                   } else {

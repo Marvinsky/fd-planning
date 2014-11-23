@@ -341,6 +341,9 @@ int EagerSearch::step() {
     SearchNode node = n.first;
     cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
     
+    v_f.push_back(node.get_h() + node.get_real_g()); 
+    v_g.push_back(node.get_real_g());
+    v_h.push_back(node.get_h());
 
 
     //Every 2 secs aprox we check if we have done search for too long without selecting a subset
@@ -402,47 +405,100 @@ int EagerSearch::step() {
 	    double m = (double)ng.at(r+1)/(double)ne.at(r);
 	    cout<<"effectiveBranchingFactor: "<<m<<endl;
 	}
-	/*
-	//cout<<"v_f.size() = "<<v_f.size()<<endl;
-	//cout<<"v_g.size() = "<<v_g.size()<<endl;
-      	
-	//cout<<"totallevels: "<<mapv_f.size()<<endl;
-        //vector<int> nlevel;
-        //vector<int> glevel;
-     
-        int z = 0;
-	for (map<int, vector<long> >::iterator it = mapv_f.begin(); it != mapv_f.end(); ++it) {
-            //int g = it->first;
-            glevel.insert(glevel.begin() + z, it->first);
-            nlevel.insert(nlevel.begin() + z, it->second.size());
-            z++;
-	}
-        
-	vector<int> rlevel;
-	for (int i = 0; i < nlevel.size(); i++) {
-            
-	    int diff = 0;
-	    if (i == 0) {
-		diff = nlevel.at(i) - 0;
-	    } else {
-		diff = nlevel.at(i) - nlevel.at(i-1);
-	    }
-           
-	    rlevel.insert(rlevel.begin() + i, diff);
-	}
-
-	
-	for (int i = 0; i < rlevel.size(); i++) {
-	    cout<<"glevel: "<<glevel.at(i) + 1<<endl;
-            cout<<"nlevel: "<<rlevel.at(i)<<endl;
-	}
-	*/
         cout<<"\nCount the nodes in the last level."<<endl;
 	
 	int last_level = search_progress.return_lastjump_f_value();
 	nivel = last_level;
 	first_time = true;
-	return IN_PROGRESS;
+        map<int, int> g;
+        map<int, vector<int> > mapv_f;
+        for (int i = 0; i < v_g.size(); i++) {
+            int a = v_g.at(i);
+            int k = 1;
+            for (int j = 0; j < v_g.size(); j++) {
+	        int b  = v_g.at(j);
+                if (i != j) {
+                  if (a==b) {
+                     k++;
+		  }
+                }
+            }
+            map<int, int>::iterator mIter = g.find(a);
+            if (mIter == g.end()) {
+               g.insert(pair<int, int>(a, k));
+            }
+        }
+        cout<<"g.size() = "<<g.size()<<endl;
+        int r = 0;
+        cout<<"Display"<<endl;
+        vector<int> f_exp;
+        for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++)  {
+	    int level = iter->first;
+            int q = iter->second;
+
+            cout<<"g = "<<level<<endl;
+            vector<int> v;
+            for (int i = 0; i < q; i++) {
+                int f = v_h.at(r) + v_g.at(r);
+                v.push_back(f);
+                f_exp.push_back(f);
+                r++;
+            }
+            for (int i = 0; i < v.size(); i++) {
+                cout<<v.at(i)<<" ";
+            }
+            cout<<"\n\n";
+            mapv_f.insert(pair<int, vector<int> >(level, v));
+        }
+        cout<<"f_exp.size() = "<<f_exp.size()<<endl;
+        map<int, int> dist = getFDistribution(f_exp);
+        cout<<"f(camada)\t#nodes expanded"<<endl;
+        for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
+            int f = iter->first;
+            int q = iter->second;
+            cout<<f<<"\t"<<q<<"\n";
+        }
+        cout<<"\n";
+        //astar have one heuristic parameter
+        string heur_name = heuristics[0]->get_heur_name();
+        if (heur_name == "dijkstra()") {
+           cout<<"Dijkstra: Nodes by level."<<endl;
+           cout<<"totalniveles: "<<mapv_f.size()<<endl;
+      
+           for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
+             
+               vector<int> v = iter->second;
+               map<int, int> m = getFDistribution(v);
+               //int mapsize = m.size();
+               for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
+                   int f = iter2->first;
+                   int q = iter2->second;
+                   cout<<"f: "<<f<<" q: "<<q<<endl;
+                   cout<<"\n";
+                   cout<<"fnivel: "<<f<<"\n";
+                   cout<<"nodesGeneratedByLevel: "<<q<<"\n";
+                   cout<<"time0: 1\n";
+                   cout<<"nodesGeneratedToTheLevel: 5\n";
+                   cout<<"\n";
+               }
+	   }    
+        } else {
+           cout<<"Nodes by camadas."<<endl;
+           cout<<"totalniveles: "<<dist.size()<<endl;
+
+           for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
+               int f = iter->first;
+               int q = iter->second;
+               cout<<"\n";
+               cout<<"fnivel: "<<f<<"\n";
+               cout<<"nodesGeneratedByLevel: "<<q<<"\n";
+               cout<<"time0: 1\n";
+               cout<<"nodesGeneratedToTheLevel: 5\n";
+               cout<<"\n";
+            }  
+        }
+         
+	return SOLVED;
     }
 
 
@@ -718,6 +774,27 @@ int EagerSearch::step() {
     //mapv_f.insert(pair<int, vector<long> >(g, v_f));
     //v_f.clear();
     return IN_PROGRESS;
+}
+
+map<int, int> EagerSearch::getFDistribution(vector<int> v_f_value) {
+    map<int, int> m;
+    for (int i = 0; i < v_f_value.size(); i++) {
+        int a = v_f_value.at(i);
+        int k = 1;
+        for (int j = 0; j < v_f_value.size(); j++) {
+            int b = v_f_value.at(j);
+            if (i != j) {
+               if (a==b) {
+                  k++;
+               }
+            }    
+        }
+        map<int, int>::iterator mIter = m.find(a);
+        if (mIter == m.end()) {
+           m.insert(pair<int, int>(a, k));
+        }
+    }
+    return m;
 }
 
 pair<SearchNode, bool> EagerSearch::fetch_next_node() {
