@@ -463,7 +463,7 @@ int EagerSearch::step() {
            
           return IN_PROGRESS;
        } else {
-	  cout<<"totalniveles: "<<vniveles.size()<<endl;
+	  //cout<<"totalniveles: "<<vniveles.size()<<endl;
           cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
           generateReport(v_f, v_h, v_g);
 	  return SOLVED;
@@ -811,7 +811,7 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
 	   }    
         } else {
            cout<<"Nodes by camadas."<<endl;
-           cout<<"totalniveles: "<<dist.size()<<endl;
+           cout<<"niveles totales "<<dist.size()<<endl;
 
            for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
                int f = iter->first;
