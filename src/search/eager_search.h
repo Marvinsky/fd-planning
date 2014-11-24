@@ -66,6 +66,7 @@ public:
     map<int, int> getFDistribution(vector<int> v_f_value);
  
     void generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g);
+    vector<string> readFile();
 };
 
 #endif

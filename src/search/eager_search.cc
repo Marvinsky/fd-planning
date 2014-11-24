@@ -16,6 +16,9 @@
 #include <set>
 #include <iostream>
 #include <fstream>
+
+#include <dirent.h>
+
 using namespace std;
 
 HST lsearch_space2(10000,1);
@@ -825,7 +828,16 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
             }
            cout<<"Dijkstra: Nodes by level."<<endl;
            cout<<"totalniveles: "<<mapv_f.size()<<endl;
-           string fdist = "/home/marvin/marvin/testss/merge_and_shrink/report/blocks/fdist/probBLOCKS-4-0.pddl";
+
+           vector<string> vs = readFile();
+           string dominio = vs.at(0);
+           string tarefa = vs.at(1);
+           string heuristica = vs.at(2);
+           cout<<"dominio2 = "<<dominio<<endl;
+           cout<<"tarefa2 = "<<tarefa<<endl;
+           cout<<"heuristica2 = "<<heuristica<<endl;
+     
+           string fdist = "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist/"+tarefa;
 
            ofstream outputFile;
            outputFile.open(fdist.c_str(), ios::out);
@@ -851,6 +863,51 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
 	   }
            outputFile.close();
         }
+}
+
+vector<string> EagerSearch::readFile() {
+      vector<string> vs;
+      string path;
+      char input[] = "/home/marvin/fd/src/translate/arquivos/";
+      DIR *dir;
+      struct dirent *ent;
+
+      dir = opendir(input);
+      if (dir != NULL) {
+         while ((ent = readdir(dir)) != NULL) {
+            string fileName = ent->d_name;
+            cout<<"fileName.size() = "<<fileName.size()<<endl;
+            if ((fileName.size() == 1) || (fileName.size() == 2)) {
+               //TODO
+            } else {
+               path = fileName;
+            }
+         }
+         closedir(dir);
+      } else {
+         cout<<"directory does not exists."<<endl;
+      }
+
+      cout<<"The path in eager search is: "<<path<<endl;
+
+      string rutaT = "/home/marvin/fd/src/translate/arquivos/"+path;
+      ifstream fileT(rutaT.c_str());
+      
+      string dominio;
+      string tarefa;
+      string heuristica;
+     
+      fileT>>dominio;
+      fileT>>tarefa;
+      fileT>>heuristica;
+      cout<<"dominio = "<<dominio<<endl;
+      cout<<"tarefa = "<<tarefa<<endl;
+      cout<<"heuristica = "<<heuristica<<endl;
+      vs.push_back(dominio.c_str());
+      vs.push_back(tarefa.c_str());
+      vs.push_back(heuristica.c_str());
+     
+      return vs;
 }
 
 
