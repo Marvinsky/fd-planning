@@ -108,9 +108,12 @@ bool SearchProgress::check_h_progress(int g) {
         if (heuristics[i]->is_dead_end())
             continue;
         int h = heuristics[i]->get_heuristic();
+        cout<<"\t\t\t\th = "<<h<<endl;
         int &best_h = best_heuristic_values[i];
+        cout<<"\t\t\t\tbest_h = "<<best_h<<endl;
         if (best_h == -1 || h < best_h) {
             best_h = h;
+            cout<<"\t\t\t\tnew best_h = "<<best_h<<endl;
             progress = true;
         }
     }

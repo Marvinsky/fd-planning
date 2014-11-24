@@ -2,6 +2,7 @@
 #define LAZY_SEARCH_H
 
 #include <vector>
+#include <map>
 
 #include "open_lists/open_list.h"
 #include "search_engine.h"
@@ -34,6 +35,11 @@ protected:
     int current_g;
     int current_real_g;
 
+    vector<int> v_f;
+    vector<int> v_g;
+    vector<int> v_h;
+    bool two_heuristics;
+
     virtual void initialize();
     virtual int step();
 
@@ -50,6 +56,7 @@ public:
     void set_pref_operator_heuristics(vector<Heuristic *> &heur);
 
     virtual void statistics() const;
+    map<int, int> getFDistribution(vector<int> v_f_value);
 };
 
 #endif

@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <limits>
+#include <iostream>
+#include <fstream>
 
 static const int DEFAULT_LAZY_BOOST = 1000;
 
@@ -54,6 +56,13 @@ void LazySearch::initialize() {
         heuristics.push_back(*it);
     }
     assert(!heuristics.empty());
+    int total_heuristics = heuristics.size();
+    if (total_heuristics == 2) {
+       two_heuristics = true;
+    } else {
+       two_heuristics = false;
+    }
+    cout<<"total_heuristics = "<<total_heuristics<<endl;
 }
 
 void LazySearch::get_successor_operators(vector<const Operator *> &ops) {
@@ -97,14 +106,18 @@ void LazySearch::generate_successors() {
 
     state_var_t *current_state_buffer =
         search_space.get_node(current_state).get_state_buffer();
-
+    cout<<"\t\t\tSuccessors: "<<endl;
     for (int i = 0; i < operators.size(); i++) {
         int new_g = current_g + get_adjusted_cost(*operators[i]);
         int new_real_g = current_real_g + operators[i]->get_cost();
+        cout<<"\t\t\tnew_g = "<<new_g<<endl;
+        cout<<"\t\t\tnew_real_g = "<<new_real_g<<endl;
         bool is_preferred = operators[i]->is_marked();
+        cout<<"\t\t\tis_preferred = "<<is_preferred<<endl;
         if (is_preferred)
             operators[i]->unmark();
         if (new_real_g < bound) {
+            cout<<"\t\t\t\tnew_g evaluated is = "<<new_g<<endl;
             open_list->evaluate(new_g, is_preferred);
             open_list->insert(
                 make_pair(current_state_buffer, operators[i]));
@@ -143,9 +156,10 @@ int LazySearch::step() {
 
 
     SearchNode node = search_space.get_node(current_state);
+    cout<<"\nNode that comes from current_state: h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
+
     bool reopen = reopen_closed_nodes && (current_g < node.get_g()) && !node.is_dead_end() && !node.is_new();
-    cout<<"\nRaiz h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
-    if (node.is_new() || reopen) {
+        if (node.is_new() || reopen) {
         state_var_t *dummy_address = current_predecessor_buffer;
         // HACK! HACK! we do this because SearchNode has no default/copy constructor
         if (dummy_address == NULL) {
@@ -153,6 +167,7 @@ int LazySearch::step() {
         }
 
         SearchNode parent_node = search_space.get_node(State(dummy_address));
+        cout<<"\nParent node: h "<<parent_node.get_h()<<" g = "<<parent_node.get_real_g()<<" f = "<<parent_node.get_h() + parent_node.get_real_g()<<endl;
         const State perm_state = node.get_state();
 
         for (int i = 0; i < heuristics.size(); i++) {
@@ -170,17 +185,237 @@ int LazySearch::step() {
             int h = heuristics[0]->get_value();
             if (reopen) {
                 node.reopen(parent_node, current_operator);
+                cout<<"\tNode Reopen h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
                 search_progress.inc_reopened();
             } else if (current_predecessor_buffer == NULL) {
                 node.open_initial(h);
+                cout<<"\tInitial State h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
+                /*if (two_heuristics) {
+                  int h = heuristics[1]->get_value();
+                  cout<<"\th = "<<h<<endl;
+                  v_f.push_back(h + node.get_real_g());
+                  v_g.push_back(node.get_real_g());
+                  v_h.push_back(h);
+                } else {
+                   v_f.push_back(node.get_h() + node.get_real_g());
+                   v_g.push_back(node.get_real_g());
+                   v_h.push_back(node.get_h());
+                }*/
+
+
                 search_progress.get_initial_h_values();
             } else {
                 node.open(h, parent_node, current_operator);
+                cout<<"\tNode Removed From the openlist h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
+                /*if (two_heuristics) {
+                   int h = heuristics[1]->get_value();
+                   cout<<"\th = "<<h<<endl;
+                   v_f.push_back(h + node.get_real_g());
+                   v_g.push_back(node.get_real_g());
+                   v_h.push_back(h);
+                } else {
+                   cout<<"\th = "<<h<<endl;
+                   v_f.push_back(node.get_h() + node.get_real_g());
+                   v_g.push_back(node.get_real_g());
+                   v_h.push_back(node.get_h());
+                }*/
             }
+            cout<<"\n";
             node.close();
-            if (check_goal_and_set_plan(current_state))
-                return SOLVED;
+            if (check_goal_and_set_plan(current_state)) {
+               cout<<"\tGOAL NODE h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n";
+                
+               if (two_heuristics) {
+                  int h = heuristics[1]->get_value();
+                  cout<<"\th = "<<h<<endl;
+                  v_f.push_back(h + node.get_real_g());
+                  v_g.push_back(node.get_real_g());
+                  v_h.push_back(h);
+
+                  map<int, int> g;
+                  map<int, vector<int> > mapv_f;
+                  for (int i = 0; i < v_g.size(); i++) {
+                      int a = v_g.at(i);
+                      int k = 1;
+                      for (int j = 0; j < v_g.size(); j++) {
+                          int b = v_g.at(j);
+                          if (i != j) {
+                             if (a==b) {
+                                k++;
+                             }
+                          }
+                      }
+                      map<int, int>::iterator mIter = g.find(a);
+                      if (mIter == g.end()) {
+                         g.insert(pair<int, int>(a, k));
+                      }
+                  }
+                  cout<<"g.size() = "<<g.size()<<endl;
+                  int r = 0;
+                  cout<<"Display: "<<endl;
+                  vector<int> f_exp;
+                  for (map<int,int>::iterator iter = g.begin(); iter != g.end(); iter++) {
+                      int level = iter->first;
+                      int q = iter->second;
+                
+                      cout<<"level = "<<level<<endl;
+                      vector<int> v;
+                      for (int i = 0; i < q; i++) {
+                          int f = v_h.at(r) + v_g.at(r);
+                          v.push_back(f);
+                          f_exp.push_back(f);
+                          r++;
+                      }
+                      for (int i = 0; i < v.size(); i++) {
+                          cout<<v.at(i)<<endl;
+                      }
+                      cout<<"\n\n";
+                      mapv_f.insert(pair<int, vector<int> >(level, v));
+                  }
+                  cout<<"f_exp.size() = "<<f_exp.size()<<endl;
+                  map<int, int> dist = getFDistribution(f_exp);
+                  cout<<"***************************************************"<<endl;
+                  cout<<"f(camada)\t#nodes expanded"<<endl;
+                  for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
+                      int f = iter->first;
+                      int q = iter->second;
+                      cout<<f<<"\t"<<q<<"\n";
+                  }
+                  cout<<"***************************************************"<<endl;
+                  cout<<"\n";
+                  cout<<"Dijkstra: Nodes by level:"<<endl;
+                  cout<<"totalniveles: "<<mapv_f.size()<<endl;
+               
+
+                  string fDist = "/home/marvin/marvin/testss/merge_and_shrink/report/blocks/fdist/probBLOCKS-4-0.pddl";
+                  ofstream outFile;
+                  outFile.open(fDist.c_str(), ios::out);
+
+                  outFile<<"\t\ttitle\n";
+                  outFile<<"\ttotalniveles: "<<mapv_f.size()<<"\n";
+                  outFile<<"\tthreshold: 12\n";
+                
+
+                  for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
+                      
+                      int g = iter->first;
+                      outFile<<"\tg:"<<g<<"\n";         
+                      vector<int> v = iter->second;
+                      map<int, int> m = getFDistribution(v);
+
+                     
+                      outFile<<"\tsize: "<<m.size()<<"\n";
+                      //Distribution of f-values print on testss to calculate te prediction.
+                      for (map<int, int>:: iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
+                          int f = iter2->first;
+                          int q = iter2->second;
+                          cout<<"f: "<<f<<" q: "<<q<<endl;
+                          outFile<<"\t\tf: "<<f<<"\tq: "<<q<<"\n";
+
+                          //cout<<"\n";
+                          //cout<<"fnivel: "<<f<<"\n";
+                          //cout<<"nodesGeneratedByLevel: "<<q<<"\n";
+                          //cout<<"time0: 1\n";
+                          //cout<<"nodesGeneratedToTheLevel: 5\n";
+                          //cout<<"\n";
+
+                      }
+                      outFile<<"\n\n";
+		  }
+                  outFile.close();
+	       } else {
+                   //cout<<"\th = "<<h<<endl;
+                   //v_f.push_back(node.get_h() + node.get_real_g());
+                   //v_g.push_back(node.get_real_g());
+                   //v_h.push_back(node.get_h());
+                  
+                  map<int, int> g;
+                  map<int, vector<int> > mapv_f;
+                  for (int i = 0; i < v_g.size(); i++) {
+                      int a = v_g.at(i);
+                      int k = 1;
+                      for (int j = 0; j < v_g.size(); j++) {
+                          int b = v_g.at(j);
+                          if (i != j) {
+                             if (a==b) {
+                                k++;
+                             }
+                          }
+                      }
+                      map<int, int>::iterator mIter = g.find(a);
+                      if (mIter == g.end()) {
+                         g.insert(pair<int, int>(a, k));
+                      }
+                  }
+                  cout<<"g.size() = "<<g.size()<<endl;
+                  int r = 0;
+                  cout<<"Display: "<<endl;
+                  vector<int> f_exp;
+                  for (map<int,int>::iterator iter = g.begin(); iter != g.end(); iter++) {
+                      int level = iter->first;
+                      int q = iter->second;
+                
+                      cout<<"level = "<<level<<endl;
+                      vector<int> v;
+                      for (int i = 0; i < q; i++) {
+                          int f = v_h.at(r) + v_g.at(r);
+                          v.push_back(f);
+                          f_exp.push_back(f);
+                          r++;
+                      }
+                      for (int i = 0; i < v.size(); i++) {
+                          cout<<v.at(i)<<endl;
+                      }
+                      cout<<"\n\n";
+                      mapv_f.insert(pair<int, vector<int> >(level, v));
+                  }
+                  cout<<"f_exp.size() = "<<f_exp.size()<<endl;
+                  map<int, int> dist = getFDistribution(f_exp);
+                  cout<<"***************************************************"<<endl;
+                  cout<<"f-value(camada)\t#nodes expanded"<<endl;
+                  for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
+                      int f = iter->first;
+                      int q = iter->second;
+                      cout<<f<<"\t"<<q<<"\n";
+                  }
+                  cout<<"***************************************************"<<endl;
+                  cout<<"\n";
+                  cout<<"Dijkstra: Nodes by level:"<<endl;
+                  cout<<"totalniveles: "<<mapv_f.size()<<endl;
+               
+                  for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
+                      
+                      int g = iter->first;
+                      cout<<"level: "<<g<<endl;         
+                      vector<int> v = iter->second;
+                      map<int, int> m = getFDistribution(v);
+                
+                      for (map<int, int>:: iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
+                          int f = iter2->first;
+                          int q = iter2->second;
+                          cout<<"f: "<<f<<" q: "<<q<<endl;
+                          
+                          //cout<<"\n";
+                          //cout<<"fnivel: "<<f<<"\n";
+                          //cout<<"nodesGeneratedByLevel: "<<q<<"\n";
+                          //cout<<"time0: 1\n";
+                          //cout<<"nodesGeneratedToTheLevel: 5\n";
+                          //cout<<"\n";
+                      }
+		  }
+               }
+
+               return SOLVED;
+            }
+            cout<<"\t\t\tcurrent_g? = "<<current_g<<endl; 
             if (search_progress.check_h_progress(current_g)) {
+                cout<<"\n\t\t\tNODE: h = "<<node.get_h()<<" g = "<<node.get_real_g()<<"\n\n\n";
+                int h = heuristics[1]->get_value();
+                cout<<"\th = "<<h<<endl;
+                v_f.push_back(h + node.get_real_g());
+                v_g.push_back(node.get_real_g());
+                v_h.push_back(h);
+
                 reward_progress();
             }
             generate_successors();
@@ -192,6 +427,28 @@ int LazySearch::step() {
     }
     return fetch_next_state();
 }
+
+map<int, int> LazySearch::getFDistribution(vector<int> v_f_value) {
+      map<int, int> m;
+      for (int i = 0; i < v_f_value.size(); i++) {
+          int a = v_f_value.at(i);
+          int k = 1;
+          for (int j = 0; j < v_f_value.size(); j++) {
+              int b = v_f_value.at(j);
+              if (i != j) {
+                 if (a == b) {
+                    k++;
+                 }
+              }
+          }
+          map<int, int>::iterator mIter = m.find(a);
+          if (mIter == m.end()) {
+             m.insert(pair<int, int>(a, k));
+          }
+      }
+      return m;
+}
+
 
 void LazySearch::reward_progress() {
     // Boost the "preferred operator" open lists somewhat whenever

@@ -32,7 +32,7 @@ class EagerSearch : public SearchEngine {
     bool first_time;
     int nivel;
     int count_last_nodes_gerados;
-
+    bool isCompleteExplored;
     vector<int> v_f;
     vector<int> v_g;
     vector<int> v_h;
@@ -64,6 +64,8 @@ public:
     void dump_search_space();
     double get_total_sampling_time(){return total_sampling_timer;}
     map<int, int> getFDistribution(vector<int> v_f_value);
+ 
+    void generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g);
 };
 
 #endif
