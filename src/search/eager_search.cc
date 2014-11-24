@@ -198,19 +198,22 @@ void EagerSearch::initialize() {
        
         int aux_h = heuristics[i]->get_value();        
         heuristics[i]->set_evaluator_value(0);
-
-        SearchNode initialNode = search_space.get_node(*g_initial_state);
-        initialNode.open_initial(heuristics[i]->get_value());
+        string heurname = heuristics[i]->get_heur_name();
+        if (heurname == "dijkstra()") {
+           //TODO
+        } else {
+           SearchNode initialNode = search_space.get_node(*g_initial_state);
+           initialNode.open_initial(heuristics[i]->get_value());
         
-        v_f.push_back(aux_h + initialNode.get_real_g()); 
-        v_g.push_back(initialNode.get_real_g());
-        v_h.push_back(aux_h);
+           v_f.push_back(aux_h + initialNode.get_real_g()); 
+           v_g.push_back(initialNode.get_real_g());
+           v_h.push_back(aux_h);
         
-        cout<<"************************"<<endl;
-        cout<<"Initial node h: "<<initialNode.get_h()<<endl;
-        cout<<"************************"<<endl;
-
-       	dead_end=heuristics[i]->is_dead_end();
+           cout<<"************************"<<endl;
+           cout<<"Initial node h: "<<initialNode.get_h()<<endl;
+           cout<<"************************"<<endl;
+        }
+        dead_end=heuristics[i]->is_dead_end();
 	if(dead_end){
 	  break;
 	}
