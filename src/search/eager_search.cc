@@ -424,7 +424,7 @@ int EagerSearch::step() {
         if(Current_RIDA_Phase==SOLVING_PHASE){
 	   output_problem_results();
         }
-        //cout<<"totalniveles: "<<vniveles.size() + 1<<endl;
+        
         
         std::vector<int> ne; 
         int p = 0;
@@ -466,9 +466,9 @@ int EagerSearch::step() {
            
           return IN_PROGRESS;
        } else {
-	  //cout<<"totalniveles: "<<vniveles.size()<<endl;
+	  
           cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
-          generateReport(v_f, v_h, v_g);
+          generateReport(v_f, v_h, v_g, nivel);
 	  return SOLVED;
        }
     }
@@ -739,7 +739,7 @@ map<int, int> EagerSearch::getFDistribution(vector<int> v_f_value) {
     return m;
 }
 
-void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g) {
+void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g, int threshold) {
         map<int, int> g;
         map<int, vector<int> > mapv_f;
         for (int i = 0; i < v_g.size(); i++) {
@@ -793,7 +793,7 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
         string heur_name = heuristics[0]->get_heur_name();
         if (heur_name == "dijkstra()") {
            cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<<mapv_f.size()<<endl;
+           cout<<"totalniveles: "<< (threshold - v_f.at(0)) + 1 <<endl;
       
            for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
              
@@ -819,15 +819,17 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
            for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
                int f = iter->first;
                int q = iter->second;
-               cout<<"\n";
-               cout<<"fnivel: "<<f<<"\n";
-               cout<<"nodesGeneratedByLevel: "<<q<<"\n";
-               cout<<"time0: 1\n";
-               cout<<"nodesGeneratedToTheLevel: 5\n";
-               cout<<"\n";
-            }
+               if (f <=  threshold) {
+                  cout<<"\n";
+                  cout<<"fnivel: "<<f<<"\n";
+                  cout<<"nodesGeneratedByLevel: "<<q<<"\n";
+                  cout<<"time0: 1\n";
+                  cout<<"nodesGeneratedToTheLevel: 5\n";
+                  cout<<"\n";
+               }
+           }
            cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<<mapv_f.size()<<endl;
+           cout<<"totalniveles: "<<(threshold - v_f.at(0)) + 1<<endl;
 
            vector<string> vs = readFile();
            string dominio = vs.at(0);
@@ -925,7 +927,7 @@ pair<SearchNode, bool> EagerSearch::fetch_next_node() {
         if (open_list->empty()) {
             cout << "Completely explored state space -- no solution!" << endl;
             isCompleteExplored=true;
-            generateReport(v_f, v_h, v_g);
+            generateReport(v_f, v_h, v_g, search_progress.return_lastjump_f_value());
             return make_pair(search_space.get_node(*g_initial_state), false);
         }
         vector<int> last_key_removed;

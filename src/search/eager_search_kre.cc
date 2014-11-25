@@ -190,6 +190,16 @@ void EagerSearchKRE::initialize() {
     bool dead_end=false;
     for (size_t i = 0; i < heuristics.size(); i++){
 	heuristics[i]->evaluate(*g_initial_state);
+        cout<<"**************************"<<endl;
+        cout<<"Setting initial h: "<<heuristics[i]->get_value()<<endl;
+        cout<<"**************************"<<endl;
+        SearchNode initialNode = search_space.get_node(*g_initial_state);
+        initialNode.open_initial(heuristics[i]->get_value());
+
+        v_f.push_back(initialNode.get_h() + initialNode.get_real_g());
+        v_g.push_back(initialNode.get_real_g());
+        v_h.push_back(initialNode.get_h());
+
 	dead_end=heuristics[i]->is_dead_end();
 	if(dead_end){
 	  break;
@@ -330,11 +340,6 @@ void EagerSearchKRE::statistics() const {
 }
 
 int EagerSearchKRE::step() {
-    cout<<"_______________________________________"<<endl;
-    cout<<"             calling step()            "<<endl;
-    cout<<"_______________________________________"<<endl;
-
-
 
     pair<SearchNode, bool> n = fetch_next_node();
     if (!n.second) {
@@ -343,6 +348,8 @@ int EagerSearchKRE::step() {
         return FAILED;
     }
     SearchNode node = n.first;
+    
+    cout<<"Node h = "<<node.get_h()<<", g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
 
   //Every 2 secs aprox we check if we have done search for too long without selecting a subset
   //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
@@ -385,8 +392,9 @@ int EagerSearchKRE::step() {
 	    count_last_nodes_gerados = count_last_nodes_gerados + 1;
 	    return IN_PROGRESS;
 	} else {
-            cout<<"totalniveles: "<<vniveles.size() + 1<<endl;		
+            		
             cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
+            generateReport(v_f, v_h, v_g, nivel);
 	    return SOLVED;
 	}
     }
@@ -531,7 +539,13 @@ int EagerSearchKRE::step() {
                 }
             }
 	    open_list->insert(succ_node.get_state_buffer());
-		
+	    
+            cout<<"\tChild node h = "<<succ_node.get_h()<<", g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+            
+            v_f.push_back(succ_node.get_h() + succ_node.get_real_g());
+            v_g.push_back(succ_node.get_real_g());
+            v_h.push_back(succ_node.get_h());
+	
 	    
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
@@ -583,6 +597,95 @@ int EagerSearchKRE::step() {
 
     return IN_PROGRESS;
 }
+
+map<int, int> EagerSearchKRE::getFDistribution(vector<int> v_f_value) {
+	map<int, int> m;
+        for (int i = 0; i < v_f_value.size(); i++) {
+            int a = v_f_value.at(i);
+            int k = 1;
+            for (int j = 0; j < v_f_value.size(); j++) {
+	        int b = v_f_value.at(j);
+                if (i != j ) {
+                   if (a == b) {
+                      k++;
+                   }
+                }
+            }
+            map<int, int>::iterator mIter = m.find(a);
+            if (mIter == m.end()) {
+               m.insert(pair<int, int>(a, k));
+            }
+        }
+        return m;
+}
+
+void EagerSearchKRE::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g, int threshold) {
+	map<int, int> g;
+        map<int, vector<int> > mapv_f;
+        for (int i = 0; i < v_g.size(); i++) {
+            int a = v_g.at(i);
+            int k = 1;
+            for (int j = 0; j < v_g.size(); j++) {
+                int b = v_g.at(j);
+                if (i != j) {
+                    if (a == b) {
+                       k++;
+                    }
+                }
+            }
+            map<int, int>::iterator mIter = g.find(a);
+            if (mIter == g.end()) {
+               g.insert(pair<int, int>(a, k));
+            }
+        }
+
+        cout<<"g.size() = "<<g.size()<<endl;
+        int r = 0;
+        cout<<"Display."<<endl;
+        vector<int> f_exp;
+        for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++) {
+            int level = iter->first;
+            int quantity = iter->second;
+
+            cout<<"g = "<<level<<endl;
+            vector<int> v;
+            for (int i = 0; i < quantity; i++) {
+                int f = v_h.at(r) + v_g.at(r);
+                v.push_back(f);
+                f_exp.push_back(f);
+                r++;
+            }
+            for (int i = 0; i < v.size(); i++) {
+                cout<<v.at(i)<<" ";
+            }
+            cout<<"\n\n";
+            mapv_f.insert(pair<int, vector<int> >(level, v));
+        }
+        cout<<"f_exp.size() = "<<f_exp.size()<<endl;
+        map<int, int> dist = getFDistribution(f_exp);
+        cout<<"f(camada)\t#nodes expanded\n";
+        for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
+            int f = iter->first;
+            int q = iter->second;
+            
+            cout<<f<<"\t"<<q<<"\n";
+        }
+
+        cout<<"totalniveles: "<<(threshold - v_f.at(0)) + 1<<endl;
+        for (map<int, int>::iterator iter2 = dist.begin(); iter2 != dist.end(); iter2++) {
+            int f = iter2->first;
+            int q = iter2->second;
+            if (f <= threshold) {
+               cout<<"fnivel: "<<f<<endl;
+               cout<<"nodesGeneratedByLevel: "<<q<<endl;
+               cout<<"time0: 1\n";
+               cout<<"nodesGeneratedToTheLevel: 5\n";
+            }
+        }
+}
+
+
+
 
 pair<SearchNode, bool> EagerSearchKRE::fetch_next_node() {
     /* TODO: The bulk of this code deals with multi-path dependence,

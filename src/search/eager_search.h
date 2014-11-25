@@ -53,7 +53,6 @@ protected:
     // should disappear into the open list
 
     vector<int> vniveles;
-    
     virtual void initialize();
     void sample_frontier_now(int next_f_boundary);
     void output_problem_results();
@@ -65,7 +64,7 @@ public:
     double get_total_sampling_time(){return total_sampling_timer;}
     map<int, int> getFDistribution(vector<int> v_f_value);
  
-    void generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g);
+    void generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g, int threshold);
     vector<string> readFile();
 };
 
