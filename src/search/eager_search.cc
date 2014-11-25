@@ -794,37 +794,40 @@ void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v
         if (heur_name == "dijkstra()") {
            cout<<"Dijkstra: Nodes by level."<<endl;
            cout<<"totalniveles: "<< (threshold - v_f.at(0)) + 1 <<endl;
-      
+           int amount = 0;
            for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
              
                vector<int> v = iter->second;
                map<int, int> m = getFDistribution(v);
                //int mapsize = m.size();
+              
                for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
                    int f = iter2->first;
                    int q = iter2->second;
+                   amount = amount + q;
                    cout<<"f: "<<f<<" q: "<<q<<endl;
                    cout<<"\n";
                    cout<<"fnivel: "<<f<<"\n";
                    cout<<"nodesGeneratedByLevel: "<<q<<"\n";
                    cout<<"time0: 1\n";
-                   cout<<"nodesGeneratedToTheLevel: 5\n";
+                   cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
                    cout<<"\n";
                }
 	   }    
         } else {
            cout<<"Nodes by camadas."<<endl;
            cout<<"niveles totales "<<dist.size()<<endl;
-
+           int amount = 0;
            for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
                int f = iter->first;
                int q = iter->second;
                if (f <=  threshold) {
+                  amount = amount + q;
                   cout<<"\n";
                   cout<<"fnivel: "<<f<<"\n";
                   cout<<"nodesGeneratedByLevel: "<<q<<"\n";
                   cout<<"time0: 1\n";
-                  cout<<"nodesGeneratedToTheLevel: 5\n";
+                  cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
                   cout<<"\n";
                }
            }
