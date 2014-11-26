@@ -360,7 +360,7 @@ int SSSearch::step() {
     cout<<" ____________________________"<<endl;
     cout<<"|       step process         |"<<endl;
     cout<<" ____________________________"<<endl;
-    
+  
     string path;
      
     char input[] = "/home/marvin/fd/src/translate/arquivos/";  
@@ -384,7 +384,7 @@ int SSSearch::step() {
     }
     
     cout<<"Path in the ss = "<<path<<endl;
-    
+
     string rutaT = "/home/marvin/fd/src/translate/arquivos/"+path; 
     ifstream fileT(rutaT.c_str());
 
@@ -405,14 +405,14 @@ int SSSearch::step() {
     } else {
 	cout<<"the directory "<<dominio<<" was created"<<endl;
     }
-    
+
     string arquivoRSS =  "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/"+tarefa;
-    
+
     ofstream outputfile;
     outputfile.open(arquivoRSS.c_str(), ios::out);
 
     //Here we are in the test directory and not the testss directory. 
-    string rutaR = "/home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio+"/"+tarefa;
+    string rutaR = "/home/marvin/marvin/test/"+heuristica+"/report2/"+dominio+"/"+tarefa;
     cout<<"rutaR = "<<rutaR.c_str()<<endl;
     ifstream fileR(rutaR.c_str());
     
@@ -465,7 +465,6 @@ int SSSearch::step() {
     for (int i = 0; i < v_nivel.size(); i++) {
         cout<<v_nivel.at(i)<<endl;
     }
-    
     //Initialize the same queue.
     //fetch next node, now just have to call the initial node.
     SearchNode node = search_space.get_node(*g_initial_state);    //n.first; 
@@ -474,29 +473,30 @@ int SSSearch::step() {
     node.open_initial(heuristics[0]->get_value());
     int depth = 2*node.get_h(); //threshold
     map<Type, SearchNode> queue;
-
-    map<Type, SearchNode> S;
     //include type system
     TypeSystem ts;
-  
+    //long levelInicial = 0;
     Type object = ts.getType(node, 0);//SearchNode, level initialized with 1 
   
+    //Initialize map of the g value.
     vector<int> f_first;
     f_first.push_back(node.get_h() + node.get_real_g());
 
     map<int, vector<int> > mapg;
     mapg.insert(pair<int, vector<int> >(object.getLevel(), f_first));
- 
+  
+    //set w = 1
     node.setW(1);
-    queue.insert(pair<Type, SearchNode>(object, node)); 
-    S.insert(pair<Type, SearchNode>(object, node)); 
+    //root node added to the queue
+    queue.insert(pair<Type, SearchNode>(object, node));
+    
+   
     int k = 0;
     vector<int> sumw;  //Generated Nodes
     vector<int> v_f_value;
    
     //Initialize map for sumw
     map<int, vector<int> > msumw;
-    
     while(!queue.empty()) {
 	//tira o menor de acordo com o sistema de tipos
 	Type out = queue.begin()->first;
@@ -508,9 +508,8 @@ int SSSearch::step() {
 	//v_f_value.push_back(nodecp.get_h() + nodecp.get_real_g());
 
         //remover el primer nodo o todos los que pertenecen a un mismo nivel
-	//sumw.insert(sumw.begin() + k, nodecp.getW());
-	sumw.push_back(nodecp.getW());
-        queue.erase(out);
+	sumw.insert(sumw.begin() + k, nodecp.getW());
+	queue.erase(out);
 
         int g = out.getLevel(); //level del type
         cout<<"g : "<<g<<endl; 
@@ -545,8 +544,9 @@ int SSSearch::step() {
 	for (int i = 0; i < applicable_ops.size(); i++) {
 	    const Operator *op = applicable_ops[i];
 	    State succ_state(newState, *op);
-	    	     
+	    search_progress.inc_generated();	     
 	    SearchNode succ_node = search_space.get_node(succ_state);
+
             if (succ_node.is_new()) {
                int succ_h = 0;
                bool dead_end = false;
@@ -561,11 +561,10 @@ int SSSearch::step() {
                       }
                    }
                    succ_h = max(succ_h, heuristics[i]->get_heuristic());
-               }
-	
-               succ_node.open(succ_h, nodecp, op);
-	       int succ_h2 = succ_node.get_h();		
-           
+               } 
+
+	       succ_node.open(succ_h, nodecp, op);
+	       int succ_h2 = succ_node.get_h();
 	       int succ_g = succ_node.get_real_g();
 	       cout<<"Childs:  h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
  		
@@ -588,44 +587,42 @@ int SSSearch::step() {
               	      if ((n.get_h() == succ_node.get_h()) && (taux.getLevel() == type.getLevel())) {
                          cout<<"Node is in the queue and should not be added."<<endl;
                       }
-	           } 
-                   cout<<"\t\t\n";
+	          } 
+                  cout<<"\t\t\n";
 	      
-                   map<Type, SearchNode>::iterator queueIt = queue.find(type);
+                  map<Type, SearchNode>::iterator queueIt = queue.find(type);
 	      
-	           if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
-		      //the type already exists in the queue
-		      SearchNode n = queueIt->second;
-                      cout<<"Duplicate node h = "<<n.get_h()<<" g = "<<n.get_real_g()<<" f = "<<n.get_h() + n.get_real_g()<<"\n";
+	          if (queueIt != queue.end()) { // Check whether a key has associated value in a map.
+		     //the type already exists in the queue
+		     SearchNode n = queueIt->second;
+                     cout<<"Duplicate node h = "<<n.get_h()<<" g = "<<n.get_real_g()<<" f = "<<n.get_h() + n.get_real_g()<<"\n";
 
-                      cout<<"Update w from "<<n.getW()<<" to ";
-                      int wa = n.getW();
-		      n.setW(wa + w);
-                      cout<<n.getW()<<endl;
+                     cout<<"Update w from "<<n.getW()<<" to ";
+                     int wa = n.getW();
+                  
+		     n.setW(wa + w);
+                     cout<<n.getW()<<endl;
 
-                      double prob = (double)w/(wa +w);
-		      //long random_number = rand();			
-		      int  rand_100 = RanGen->IRandom(0, 99);
-		      double a = (double)rand_100/100;
-		      if (a < prob) {
-	                 queue.erase(queueIt->first);
-                         S.erase(queueIt->first);
-                         cout<<"remove the old node. "<<endl;
-                         cout<<" a < prob add new child with w = "<<(wa + w) <<endl;
-		         succ_node.setW(wa + w);
-	                 queue.insert(pair<Type, SearchNode>(type, succ_node));
-                         S.insert(pair<Type, SearchNode>(type, succ_node));
-                      } else {
-                         cout<<" a >= prob do not add the new element."<<endl;
-		      }
-                   }  else {
-		      //the type does not exists in the queue, so add it to the queue
-                      cout<<"\tNew node h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<"\n";
-		      queue.insert(pair<Type, SearchNode>(type, succ_node)); 
-                      S.insert(pair<Type, SearchNode>(type, succ_node));
-                   }
-	       } //end if pruning g <= depth
-            } //end  if is new
+                     double prob = (double)w/(wa +w);
+		     //long random_number = rand();			
+		     int  rand_100 = RanGen->IRandom(0, 99);
+		     double a = (double)rand_100/100;
+		     if (a < prob) {
+                        queue.erase(queueIt->first);
+                        cout<<"remove the old node. "<<endl;
+                        cout<<" a < prob add new child with w = "<<(wa + w) <<endl;
+		        succ_node.setW(wa + w);
+	                queue.insert(pair<Type, SearchNode>(type, succ_node));
+                     } else {
+                        cout<<" a >= prob do not add the new element."<<endl;
+		     }
+                  }  else {
+		     //the type does not exists in the queue, so add it to the queue
+                     cout<<"\tNew node h = "<<succ_node.get_h()<<" g = "<<succ_node.get_real_g()<<" f = "<<succ_node.get_h() + succ_node.get_real_g()<<"\n";
+		     queue.insert(pair<Type, SearchNode>(type, succ_node)); 
+                  }
+	       } //end if pruning g <= depth	
+            } //end if is_new
 	} //end for from applicable_ops
 	k = k + 1;
 	mapg.insert(pair<int, vector<int> >(g + 1, v_f_value));
@@ -636,19 +633,7 @@ int SSSearch::step() {
     vector<int> v_g;
     int p = 0;
     cout<<"****************************************************************"<<endl;
-    cout<<"S map."<<endl;
-    int sumMap = 0;
-    cout<<"S.size() = "<<S.size()<<endl; 
     
-    for (map<Type, SearchNode>::iterator it = S.begin(); it != S.end(); ++it) {
-	Type type = it->first;
-        SearchNode n = it->second;
-	sumMap = sumMap + n.getW();
-    }
-    cout<<"sumMap = "<<sumMap<<endl;
-
-
-
     for (map<int, vector<int> >::iterator it = mapg.begin(); it != mapg.end(); ++it) {
 	int g = it->first;
 	v_g.insert(v_g.begin() + p, g);
@@ -659,16 +644,20 @@ int SSSearch::step() {
         
     vector<int> sumByDepth;
     int t = 0;
+    int sumAllNodes = 0;
     for (map<int, vector<int> >::iterator it = msumw.begin(); it != msumw.end(); ++it) {
         vector<int> vect = it->second;
         int sum = 0;
         for (int r = 0; r < vect.size(); r++) {
             sum = sum + vect.at(r);
 	}
+        sumAllNodes = sumAllNodes + sum;
         cout<<"sum: "<<sum<<endl;
         sumByDepth.insert(sumByDepth.begin() + t, sum);
         t++;
     }
+
+    cout<<"All nodes generated by SS: "<<sumAllNodes<<endl;
 	
     int max_g = getMax_gvalue(v_g);
     cout<<"The f-Distribution for max_g of this iteration "<<max_g<<endl;
@@ -697,14 +686,14 @@ int SSSearch::step() {
     outputfile.close(); 
     
     //Print the f-value Distribution
-    string fdist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist";
+    string fdist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist";
     if (system(fdist.c_str())) {
        cout<<"the directory was not created"<<endl;
     } else {
        cout<<"the directory "<<dominio<<" was created."<<endl;
     }
 
-    string arqfDist =  "/home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist/"+tarefa;
+    string arqfDist =  "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist/"+tarefa;
 
     ofstream outputfile2;
     outputfile2.open(arqfDist.c_str(), ios::out);
@@ -732,7 +721,7 @@ int SSSearch::step() {
      }
  
     outputfile2.close();
-     
+   
     return SOLVED;
 }
 
