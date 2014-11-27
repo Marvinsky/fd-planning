@@ -357,16 +357,42 @@ string SSSearch::getRealHeuristic(string heur) {
 
 
 int SSSearch::step() {
-    double totalPrediction = 0;
+    
+   
+    
     int probes = 50;
+    double totalPrediction = 0;
+    double totalPrediction2 = 0;
     for (int i = 0; i < probes; i++) {
+        collector.clear();
+
         long p = probe();
+        long p2 = getProbingResult();
+        
         totalPrediction = totalPrediction + (p - totalPrediction)/(i+1);
+        totalPrediction2 = totalPrediction2 + (p2 - totalPrediction2)/(i+1);
     }
-    cout<<"PREDICTION = "<<totalPrediction<<endl;
-return SOLVED;
+
+    cout<<"#probes\tprediction\n";
+    cout<<probes<<"\t"<<totalPrediction<<"\n";
+
+    cout<<"#probes\tprediction\n";
+    cout<<probes<<"\t"<<totalPrediction2<<"\n";
+    cout<<"probes: "<<probes<<"\n";
+    cout<<"prediction: "<<totalPrediction<<"\n"; 
+  
+    return SOLVED;
 }
 
+long SSSearch::getProbingResult() {
+    long expansions = 0;
+
+    map<Type, SearchNode>::iterator it = collector.begin();
+    for (; it != collector.end(); ++it) {
+        expansions += it->second.getW();
+    }
+    return expansions;
+}
 
 long SSSearch::probe() {
     cout<<" ____________________________"<<endl;
@@ -472,7 +498,7 @@ long SSSearch::probe() {
     mapg.insert(pair<int, vector<int> >(object.getLevel(), f_first));
  
     node.setW(1);
-    queue.insert(pair<Type, SearchNode>(object, node)); 
+    queue.insert(pair<Type, SearchNode>(object, node));
     S.insert(pair<Type, SearchNode>(object, node)); 
     int k = 0;
     vector<int> sumw;  //Generated Nodes
@@ -495,6 +521,9 @@ long SSSearch::probe() {
 	//sumw.insert(sumw.begin() + k, nodecp.getW());
 	sumw.push_back(nodecp.getW());
         queue.erase(out);
+
+        collector.insert(pair<Type, SearchNode>(out, nodecp));
+
 
         int g = out.getLevel(); //level del type
         cout<<"g : "<<g<<endl; 

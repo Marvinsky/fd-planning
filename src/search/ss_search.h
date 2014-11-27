@@ -51,13 +51,13 @@ class SSSearch : public SearchEngine {
 	ScalarEvaluator *f_evaluator;
 	bool first_sample;
 
-	map<Type, SearchNode> output;
+	map<Type, SearchNode> collector;
 	//AbstractPKHeuristic *hf;
 	//TypeSystem *typesystem;	
 	
 	CRandomMersenne* RanGen;
         string heuristic_name;
-
+        
 protected:
 	int step();
         long probe();
@@ -86,5 +86,6 @@ public:
         int getMax_gvalue(vector<int> v_g);
         map<int, int> getFDistribution(vector<int> v_f_value);
         vector<string> readFile();
+        long getProbingResult();
 }; 
 #endif
