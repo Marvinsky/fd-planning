@@ -1,5 +1,5 @@
-#ifndef STRATIFIED_SAMPLING_SEARCH_H
-#define STRATIFIED_SAMPLING_SEARCH_H
+#ifndef DFS_SEARCH_H
+#define DFS_SEARCH_H
 
 #include <vector>
 
@@ -11,17 +11,12 @@
 #include "evaluator.h"
 #include "search_progress.h"
 #include "Tree.h"
-#include "type.h"
-
-//#include "type_system.h"
-//#include "abstract_pk_heuristic.h"
 
 #include "time.h"
-#include "../randomc/randomc.h"
-#include "../randomc/mersenne.cpp"
 
 #include <map>
 #include <locale>
+#include <stack>
 
 
 class Heuristic;
@@ -33,12 +28,11 @@ template<class charT, charT sep>
 class punct_facet: public std::numpunct<charT> {
 protected:
 	charT do_decimal_point() const {
-		return sep;
-	}
+              return sep;
+        }
 };
 
-
-class SSSearch : public SearchEngine {
+class DFSSearch : public SearchEngine {
 	//search behavior parameters
 	bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths.
 	bool do_pathmax; //whether to use pathmax correction
@@ -51,16 +45,13 @@ class SSSearch : public SearchEngine {
 	ScalarEvaluator *f_evaluator;
 	bool first_sample;
 
-	map<Type, SearchNode> output;
-	//AbstractPKHeuristic *hf;
-	//TypeSystem *typesystem;	
-	
-	CRandomMersenne* RanGen;
+
         string heuristic_name;
+        stack<SearchNode> P;
+        stack<SearchNode> S;
 
 protected:
 	int step();
-        long probe();
 	pair<SearchNode, bool> fetch_next_node();
 	//bool check_goal(const SearchNode &node);
 	//void update_jump_statistic(const SearchNode &node);
@@ -78,7 +69,7 @@ protected:
 	//void sample_frontier_now(int next_f_boundary);
 	void output_problem_results();
 public:
-	SSSearch(const Options &opts);
+	DFSSearch(const Options &opts);
 	void statistics() const;
         string getRealHeuristic(string heur);	
 	//void dump_search_space();

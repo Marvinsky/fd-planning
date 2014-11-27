@@ -17,7 +17,7 @@ class SearchNodeInfo {
     const Operator *creating_operator;
     int real_g;
     int w;
-
+    int l;
     // HACK
     int layer;
   public:

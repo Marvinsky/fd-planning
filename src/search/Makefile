@@ -25,6 +25,7 @@ HEADERS = \
           combining_evaluator.h \
           domain_transition_graph.h \
 	  ss_search.h \
+          dfs_search.h \
           eager_search.h \
 	  eager_search_kre.h \
           Tree.h \

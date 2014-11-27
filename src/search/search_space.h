@@ -67,6 +67,8 @@ public:
 
     int getW();
     void setW(int w);
+    int getL();
+    void setL(int l);
 };
 
 

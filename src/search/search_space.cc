@@ -144,6 +144,13 @@ void SearchNode::setW(int w) {
 	info.w = w;
 }
 
+int SearchNode::getL() {
+	return info.l;
+}
+
+void SearchNode::setL(int l) {
+	info.l = l;
+}
 
 class SearchSpace::HashTable
     : public __gnu_cxx::hash_map<StateProxy, SearchNodeInfo> {
