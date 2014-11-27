@@ -29,8 +29,8 @@
 using namespace std;
 
 
-//HST lsearch_space2(10000, 1);
-//static bool time_limit_node_adjusted=false;
+HST lsearch_space4(10000, 1);
+static bool time_limit_node_adjusted=false;
 SSSearch::SSSearch(
 	const Options &opts) 
 	: SearchEngine(opts),
@@ -542,7 +542,7 @@ long SSSearch::probe() {
 	  	gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
 	  	cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
 	      }
-	      //sample_frontier_now(nodecp.get_g()+nodecp.get_h());
+	      sample_frontier_now(nodecp.get_g()+nodecp.get_h());
       	    }
     	  }
   	}
@@ -893,15 +893,95 @@ void SSSearch::reward_progress() {
 void SSSearch::dump_search_space() {
 
 }
-
+*/
 
 void SSSearch::sample_frontier_now(int next_f_boundary) {
-	cout<<" ________________________________"<<endl;
-	cout<<"|   next_f_boundary              |"<<endl;
-	cout<<" ________________________________"<<endl;	
+	  cout<<" ________________________________"<<endl;
+	  cout<<"|   next_f_boundary              |"<<endl;
+	  cout<<" ________________________________"<<endl;
+	
+	  //int next_f_boundary=open_list->get_f_boundary();
+  vector<pair<State,int> > chosen_Hoff_Roots;//populates with selected Hoff Roots
+  F_boundary_time=search_timer();//for the purpose of maximum sampling time
+	  //int Hoff_Root_Range=open_list->open_list_get_next_boundary_range(); 
+	  int Hoff_Root_Range=open_list->open_list_get_boundary_range(); 
+	//cout<<"finished open_list_get_boundary_range"<<endl;fflush(stdout);
+	  if(full_sampling){
+	    leaves_to_sample=Hoff_Root_Range;
+	  }
+	  else{
+	    leaves_to_sample=0.1*Hoff_Root_Range;
+	  }
+	  if(leaves_to_sample<100){
+	    leaves_to_sample=min(100,Hoff_Root_Range);
+	  }
+	  cout<<"F_bound:"<<search_progress.return_lastjump_f_value()<<"F_boundary_time:"<<F_boundary_time<<",Hoff Potential Range:"<<Hoff_Root_Range<<",leaves_to_sample:"<<leaves_to_sample<<endl;
+
+	//int max_position=Hoff_Root_Range-1;
+	  if(Hoff_Root_Range>50){
+	  //if((leaves_to_sample)<Hoff_Root_Range&&(Current_RIDA_Phase==SAMPLING_PHASE)&&F_boundary_time>5.0)
+	    if(one_time_sampling==true){
+	      first_sample=false;
+	      cout<<"only sampling one iteration, set first_sample to false"<<endl;
+	    }
+    
+	    Current_RIDA_Phase=SOLVING_PHASE;//needs to be changed for calcultate_heuristics function in Tree.CC
+	    pair<State,int> Hoff_Root(*g_initial_state,0);//Need to intialize state, constructor does not allow empty state!
+	    //calculate ratio that will approximately generate  the number of random Hoff Roots in a random pass
+	    if(full_sampling){
+	      leaf_selection_ratio=1.0;
+	    }
+	    else{
+	      leaf_selection_ratio=double(leaves_to_sample)/double(Hoff_Root_Range);
+	    }
+	    cout<<"SAMPLING_PHASE,F:,"<<search_progress.return_lastjump_f_value()<<",Hoff Potential Range:"<<Hoff_Root_Range<<",leaves_to_sample:"<<leaves_to_sample<<",leaf_selection_ratio:,"<<leaf_selection_ratio<<endl;fflush(stdout);
+	    for(int i=0;i<Hoff_Root_Range;i++){
+	      //Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i,next_f_boundary);
+	      Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i);
+	      chosen_Hoff_Roots.push_back(Hoff_Root);
+	      if(leaves_to_sample<=i){
+		break;
+	      }
+
+	      /*  if(fRand(0.0,1.0)<=leaf_selection_ratio){
+		Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i);
+		//cout<<"\tadded Hoff Root#"<<i<<":;";Hoff_Root.first.dump_pddl();cout<<"g:"<<Hoff_Root.second<<endl;
+		chosen_Hoff_Roots.push_back(Hoff_Root);
+	      }*/
+	    }
+	    heuristics=orig_heuristics;
+	    IDA_iter_sampling_timer.reset();IDA_iter_sampling_timer.resume();
+	    //Options opt2;
+	    //OptionParser parser;
+	    //SearchEngine::add_options_to_parser(parser);
+	    //HustSearch lsearch_space4(&opts2);
+	    //HustSearch lsearch_space4();
+	    //lsearch_space4.select_best_estimated_heuristic_subset(&chosen_Hoff_Roots,orig_heuristics,heuristics);
+     
+	    cout<<"Memory before starting sampling:"<<get_peak_memory_in_kb()<<endl;
+	    lsearch_space4.select_best_estimated_heuristic_subset(&search_space,&chosen_Hoff_Roots,orig_heuristics,heuristics,next_f_boundary, Hoff_Root_Range);
+	    if(!one_time_sampling){
+	      Current_RIDA_Phase=SAMPLING_PHASE;//needs to be changed for calcultate_heuristics function in Tree.CC
+	    }
+	    total_sampling_timer+=IDA_iter_sampling_timer.stop();
+	    cout<<"sampling time until now:"<<total_sampling_timer<<endl;
+	    if(full_sampling&&(!time_limit_node_adjusted)){//need to remove the sampling costs from the time limit
+	      time_limit+=total_sampling_timer;
+	      time_limit_node_adjusted=true;
+	      cout<<"time_limit set to "<<time_limit<<"because when doing full sampling we ignore sampling costs"<<endl;
+	    }
+	  }
+	  else{
+	    cout<<"Need at least 10 or more F-boundary roots"<<endl;
+	    return;
+	  }
+	cout<<"Memory after sampling:"<<get_peak_memory_in_kb()<<",active heurs:"<<heuristics.size()<<endl;
+	for(int i=0;i<heuristics.size();i++){
+	  cout<<"selected_heur("<<i<<") is:";heuristics[i]->print_heur_name();cout<<endl;
+	}
 }
 
-
+/*
 void SSSearch::update_jump_statistic(const SearchNode &node) {	
 	cout<<" __________________________________"<<endl;
 	cout<<"|   update jump statistic          |"<<endl;

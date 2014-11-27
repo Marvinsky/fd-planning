@@ -45,7 +45,7 @@ class SSSearch : public SearchEngine {
 	bool use_multi_path_dependence;
 	bool mark_children_as_finished;
 	
-	//Timer IDA_iter_sampling_timer;
+	Timer IDA_iter_sampling_timer;
 	double total_sampling_timer;
 	OpenList<state_var_t *> *open_list;
 	ScalarEvaluator *f_evaluator;
@@ -75,7 +75,7 @@ protected:
 	//should disappear into the open list
 	
 	virtual void initialize();
-	//void sample_frontier_now(int next_f_boundary);
+	void sample_frontier_now(int next_f_boundary);
 	void output_problem_results();
 public:
 	SSSearch(const Options &opts);
