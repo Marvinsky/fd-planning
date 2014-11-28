@@ -55,7 +55,7 @@ void DFSSearch::output_problem_results() {
 
 void DFSSearch::initialize() {
 	cout<<" __________________________________________"<<endl;
-	cout<<"|  initialize() - ss_search.cc             |"<<endl;
+	cout<<"|  initialize() - dfs_search.cc             |"<<endl;
 	cout<<" __________________________________________"<<endl;
 	//use basic_ios::imbue
 	std::cout.imbue(std::locale(std::cout.getloc(), new punct_facet<char, ','>));
@@ -66,6 +66,9 @@ void DFSSearch::initialize() {
          << endl;
          cout<<"first_sample set to true"<<endl;
 	first_sample=true;
+        cout<<"do_pathmax "<<do_pathmax<<endl;
+        cout<<"use_multi_path_dependence = "<<use_multi_path_dependence<<endl;
+
 	if (do_pathmax)
         	cout << "Using pathmax correction" << endl;
     	if (use_multi_path_dependence)
@@ -364,11 +367,12 @@ int DFSSearch::step() {
     v_f.push_back(node.get_h() + node.get_real_g());
     v_g.push_back(node.get_real_g());
     v_h.push_back(node.get_h());
-    int iter = 0;
+    //int iter = 0;
     while (!S.empty()) {
 
 	SearchNode nodecp = S.top();
         int g = nodecp.getL();
+        /*
         stack<SearchNode> A;
         cout<<"**************************************************************************"<<endl;
         cout<<"iter: "<<iter<<endl;
@@ -385,8 +389,26 @@ int DFSSearch::step() {
            S.push(n);
         }
         cout<<"**************************************************************************"<<endl;
-
+        */
+       
         S.pop();
+        /*
+        cout<<"**************************************************************************"<<endl;
+        cout<<"iter: "<<iter<<endl;
+        iter++;
+        while (!S.empty()) {
+           SearchNode n = S.top();
+           cout<<"\t\t\t h = "<<n.get_h()<<", g = "<<n.get_real_g()<<", f = "<<n.get_h() + n.get_real_g()<<endl;
+           S.pop();
+           A.push(n);
+        }
+        while (!A.empty()) {
+           SearchNode n = A.top();
+           A.pop();
+           S.push(n);
+        }
+        cout<<"**************************************************************************"<<endl;
+        */
 
         cout<<"Raiz h = "<<nodecp.get_h()<<", g = "<<nodecp.get_real_g()<<", f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
 
@@ -403,7 +425,7 @@ int DFSSearch::step() {
 	        cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
 	      }
               cout<<"IF IN SOME MOMENT ENTER HERE."<<endl;
-	      sample_frontier_now(node.get_g()+node.get_h());
+	      sample_frontier_now(nodecp.get_g()+nodecp.get_h());
             } 
           }
         }
@@ -427,15 +449,40 @@ int DFSSearch::step() {
        search_progress.inc_evaluations(preferred_operator_heuristics.size());
 
        for (int i = 0; i < applicable_ops.size(); i++) {
-           
+           if (incremental_memory_limit) {
+              for (int j = 0; j < heuristics.size(); j++) {
+                  Heuristic *h = heuristics[j];
+                  h->free_up_memory(search_space);
+              }
+           }    
         
- 
            const Operator *op = applicable_ops[i];
+           if ((nodecp.get_real_g() + op->get_cost()) >= bound) {
+              continue;
+           }
+  
            State succ_state(newState, *op);
+           search_progress.inc_generated();
            SearchNode succ_node = search_space.get_node(succ_state);
-           int succ_h = 0;
-           bool dead_end = false;
+           if (succ_node.is_dead_end()) {
+              continue;
+           }
+           //update new path
+           if (use_multi_path_dependence || succ_node.is_new()) {
+              bool h_is_dirty = false;
+              for (size_t i = 0; i < heuristics.size(); i++) {
+                   if (heuristics[i]->reach_state(newState, *op, succ_node.get_state())) {
+                      h_is_dirty = true;
+                   }
+              }
+              if (h_is_dirty && use_multi_path_dependence) {
+                 succ_node.set_h_dirty();
+              }
+           }
+           /*
            if (succ_node.is_new()) {
+              int succ_h = 0;
+              bool dead_end = false;
               for (size_t i = 0; i < heuristics.size(); i++) {
                   heuristics[i]->evaluate(succ_state);
                   dead_end = heuristics[i]->is_dead_end();
@@ -447,9 +494,9 @@ int DFSSearch::step() {
                      }
                   }
                   succ_h = max(succ_h, heuristics[i]->get_heuristic());
-              }
-              //heuristics[0]->evaluate(succ_state);
-              //int succ_h = heuristics[0]->get_heuristic();
+              }*/
+              heuristics[0]->evaluate(succ_state);
+              int succ_h = heuristics[0]->get_heuristic();
               
               succ_node.open(succ_h, nodecp, op);
               int succ_h2 = succ_node.get_h();
@@ -464,11 +511,9 @@ int DFSSearch::step() {
 
                    v_f.push_back(succ_h2 + succ_g);
                    v_g.push_back(succ_g);
-                   v_h.push_back(succ_h2);
-                 
+                   v_h.push_back(succ_h2); 
               } // end if prunning g <= depth
-           } //end if is new node
-          
+           //} // is new node
        } //end for applicable
     } // end while
  
@@ -835,7 +880,7 @@ void DFSSearch::print_heuristic_values(const vector<int> &values) const {
 
 static SearchEngine *_parse_ss(OptionParser &parser) {
 	cout<<" ______________________________"<<endl;
-	cout<<"|  parse_ss - ss_search.cc     |"<<endl;
+	cout<<"|  parse_ss - dfs_search.cc     |"<<endl;
 	cout<<" ______________________________"<<endl;
 	parser.add_option<ScalarEvaluator *>("eval");
    	parser.add_option<bool>("pathmax", false,
