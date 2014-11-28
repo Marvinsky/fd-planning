@@ -379,22 +379,26 @@ int DFSSearch::step() {
         int g = nodecp.getL();
         S.pop();
 
-       cout<<"Raiz h = "<<nodecp.get_h()<<", g = "<<nodecp.get_real_g()<<", f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
+        cout<<"Raiz h = "<<nodecp.get_h()<<", g = "<<nodecp.get_real_g()<<", f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
 
-       if (Current_RIDA_Phase==SAMPLING_PHASE) {
-	  if (search_progress.get_generated()%node_time_adjusted_reval==0) {
-	     cout<<"search_timer() = "<<search_timer()<<endl;
-             if (search_timer()>200.0) {
-                cout<<"sample_frontier_now, actual time above the 200 sec limit maximizing all heuristics"<<", overall time: "<<g_timer()<<",search time:"<<search_timer()<<endl;
- 	        if (gen_to_eval_ratio==0) {
-                   cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
-                   gen_to_eval_ratio= double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
-                   cout<<"gen_to_eval_ratio: "<<gen_to_eval_ratio<<endl;
-                }
-                sample_frontier_now(node.get_g() + node.get_h());
-             }
-	  }
-       }
+        //Every 2 secs aprox we check if we have done search for too long without selecting a subset
+        //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
+        //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
+        if(Current_RIDA_Phase==SAMPLING_PHASE){
+          if(search_progress.get_generated()%node_time_adjusted_reval==0){
+	    cout<<"search_timer() = "<<search_timer()<<endl;
+	    if(search_timer()>200.0){
+	      cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
+	      if(gen_to_eval_ratio==0){
+	        cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
+	        gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
+	        cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
+	      }
+	      sample_frontier_now(node.get_g()+node.get_h());
+            } 
+          }
+        }
+
        State newState = nodecp.get_state();
 
        vector<const Operator *> applicable_ops;
