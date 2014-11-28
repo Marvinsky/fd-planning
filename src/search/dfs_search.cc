@@ -361,22 +361,31 @@ int DFSSearch::step() {
     S.push(node);
     P.push(node);
 
-    vector<int> v_f_value;
-    vector<int> v_g_value;
-    vector<int> v_h_value;
-    v_f_value.push_back(node.get_h() + node.get_real_g());
-    v_g_value.push_back(node.get_real_g());
-    v_h_value.push_back(node.get_h());
-
-    map<int, vector<int> > msumf;
-
-    msumf.insert(pair<int, vector<int> >(node.getL(), v_f_value));
-
+    v_f.push_back(node.get_h() + node.get_real_g());
+    v_g.push_back(node.get_real_g());
+    v_h.push_back(node.get_h());
+    int iter = 0;
     while (!S.empty()) {
-	vector<int> f_sum_value;
 
 	SearchNode nodecp = S.top();
         int g = nodecp.getL();
+        stack<SearchNode> A;
+        cout<<"**************************************************************************"<<endl;
+        cout<<"iter: "<<iter<<endl;
+        iter++;
+        while (!S.empty()) {
+           SearchNode n = S.top();
+           cout<<"\t\t\t h = "<<n.get_h()<<", g = "<<n.get_real_g()<<", f = "<<n.get_h() + n.get_real_g()<<endl;
+           S.pop();
+           A.push(n);
+        }
+        while (!A.empty()) {
+           SearchNode n = A.top();
+           A.pop();
+           S.push(n);
+        }
+        cout<<"**************************************************************************"<<endl;
+
         S.pop();
 
         cout<<"Raiz h = "<<nodecp.get_h()<<", g = "<<nodecp.get_real_g()<<", f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
@@ -385,8 +394,7 @@ int DFSSearch::step() {
         //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
         //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
         if(Current_RIDA_Phase==SAMPLING_PHASE){
-          if(search_progress.get_generated()%node_time_adjusted_reval==0){
-	    cout<<"search_timer() = "<<search_timer()<<endl;
+          if(search_progress.get_generated()%node_time_adjusted_reval==0) {
 	    if(search_timer()>200.0){
 	      cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
 	      if(gen_to_eval_ratio==0){
@@ -394,6 +402,7 @@ int DFSSearch::step() {
 	        gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
 	        cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
 	      }
+              cout<<"IF IN SOME MOMENT ENTER HERE."<<endl;
 	      sample_frontier_now(node.get_g()+node.get_h());
             } 
           }
@@ -418,6 +427,9 @@ int DFSSearch::step() {
        search_progress.inc_evaluations(preferred_operator_heuristics.size());
 
        for (int i = 0; i < applicable_ops.size(); i++) {
+           
+        
+ 
            const Operator *op = applicable_ops[i];
            State succ_state(newState, *op);
            SearchNode succ_node = search_space.get_node(succ_state);
@@ -436,8 +448,8 @@ int DFSSearch::step() {
                   }
                   succ_h = max(succ_h, heuristics[i]->get_heuristic());
               }
-              heuristics[0]->evaluate(succ_state);
-              int succ_h = heuristics[0]->get_heuristic();
+              //heuristics[0]->evaluate(succ_state);
+              //int succ_h = heuristics[0]->get_heuristic();
               
               succ_node.open(succ_h, nodecp, op);
               int succ_h2 = succ_node.get_h();
@@ -446,17 +458,17 @@ int DFSSearch::step() {
 
               succ_node.setL(g+1);
               if (succ_g <= depth) {
-                   cout<<"\tNodes generated:  h = "<<succ_node.get_h()<<", g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+                   cout<<"\n\t\tChild added :  h = "<<succ_node.get_h()<<", g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<"\n"<<endl;
                    P.push(succ_node);
                    S.push(succ_node);
 
-                   v_f_value.push_back(succ_h2 + succ_g);
-                   v_g_value.push_back(succ_g);
-                   v_h_value.push_back(succ_h2);
-                   f_sum_value.push_back(succ_h2 + succ_g);
+                   v_f.push_back(succ_h2 + succ_g);
+                   v_g.push_back(succ_g);
+                   v_h.push_back(succ_h2);
+                 
               } // end if prunning g <= depth
            } //end if is new node
-           msumf.insert(pair<int, vector<int> >(g, f_sum_value));
+          
        } //end for applicable
     } // end while
  
@@ -474,43 +486,12 @@ int DFSSearch::step() {
        P.push(n);
     }
     cout<<"\nVector."<<endl;
-    cout<<"v_f_value.size() = "<<v_f_value.size()<<endl;
-    for (int i = 0; i < v_f_value.size(); i++) {
-        cout<<"\t\t h = "<<v_h_value.at(i)<<", g = "<<v_g_value.at(i)<<", f = "<<v_h_value.at(i) + v_g_value.at(i)<<endl;
+    cout<<"v_f.size() = "<<v_f.size()<<endl;
+    for (int i = 0; i < v_f.size(); i++) {
+        cout<<"\t\t h = "<<v_h.at(i)<<", g = "<<v_g.at(i)<<", f = "<<v_h.at(i) + v_g.at(i)<<endl;
     }
-    
-    ofstream output;
-    vector<string> vs = readFile();
-    string dominio = vs.at(0);
-    string tarefa = vs.at(1);
-    string heuristica = vs.at(2);
-    cout<<"dominio = "<<dominio<<endl;
-    cout<<"tarefa = "<<tarefa<<endl;
-    cout<<"heuristica = "<<heuristica<<endl;
-
-    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
-
-    output.open(outputFile.c_str());
-    output<<"\t\ttitle\n";
-    output<<"totalniveles: 1\n";
-    output<<"threshold: 12\n";
-
-   cout<<"f-dist"<<endl;
-   for (map<int, vector<int> >::iterator iter = msumf.begin(); iter != msumf.end(); iter++) {
-       cout<<"g = "<<iter->first<<endl;
-       output<<"g:"<<iter->first<<"\n";
-       vector<int> v = iter->second;
-
-       map<int, int> m = getFDistribution(v);
-       output<<"size: "<<m.size()<<"\n";
-       for (map<int, int>::iterator ite = m.begin(); ite != m.end(); ite++) {
-           cout<<"f: "<<ite->first<<" q: "<<ite->second<<"\n";
-           output<<"\tf: "<<ite->first<<" q: "<<ite->second<<"\n";
-       }
-       cout<<"\n";
-   }  
-
-   output.close();
+    generateReport(v_h, v_g);    
+   
    return SOLVED;
 }
 
@@ -535,6 +516,95 @@ map<int, int> DFSSearch::getFDistribution(vector<int> v_f_value) {
 	    }
 	}
 	return m;
+}
+
+
+void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g) {
+
+    map<int, int> g;
+    map<int, vector<int> > mapv_f;
+    for (int i = 0; i < v_g.size(); i++) {
+        int a = v_g.at(i);
+        int k = 1;
+        for (int j = 0; j <  v_g.size(); j++) {
+            int b = v_g.at(j);
+            if (i != j) {
+               if (a==b) {
+                  k++;
+               }
+            }
+        }
+        map<int, int>::iterator mIter = g.find(a);
+        if (mIter == g.end()) {
+           g.insert(pair<int, int>(a, k));
+        }
+    }
+    cout<<"g.size() = "<<g.size()<<endl;
+    int r = 0;
+    cout<<"Display."<<endl;
+    vector<int> f_exp;
+    for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++) {
+        int level = iter->first;
+        int q = iter->second;
+
+        cout<<"g = "<<level<<endl;
+        vector<int> v;
+        for (int i = 0; i < q; i++) {
+            int f = v_h.at(r) + v_g.at(r);
+            v.push_back(f);
+            f_exp.push_back(f);
+            r++;
+        }
+        for (int i = 0; i < v.size(); i++) {
+            cout<<v.at(i)<<" ";
+        }
+        cout<<"\n\n";
+        mapv_f.insert(pair<int, vector<int> >(level, v));
+    }
+    
+    cout<<"f_exp.size() = "<<f_exp.size()<<endl;
+    map<int, int> dist = getFDistribution(f_exp);
+    cout<<"f(camada)\t#nodes expanded"<<endl;
+    for (map<int, int>::iterator iter =  dist.begin(); iter != dist.end(); iter++) {
+        int f = iter->first;
+        int q = iter->second;
+        cout<<f<<"\t"<<q<<"\n";
+    }
+    cout<<"\n";
+
+
+    ofstream output;
+    vector<string> vs = readFile();
+    string dominio = vs.at(0);
+    string tarefa = vs.at(1);
+    string heuristica = vs.at(2);
+    cout<<"dominio = "<<dominio<<endl;
+    cout<<"tarefa = "<<tarefa<<endl;
+    cout<<"heuristica = "<<heuristica<<endl;
+
+    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
+
+    output.open(outputFile.c_str());
+    output<<"\t\ttitle\n";
+    output<<"totalniveles: 1\n";
+    output<<"threshold: 12\n";
+
+   cout<<"f-dist"<<endl;
+   for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
+       cout<<"g = "<<iter->first<<endl;
+       output<<"g:"<<iter->first<<"\n";
+       vector<int> v = iter->second;
+
+       map<int, int> m = getFDistribution(v);
+       output<<"size: "<<m.size()<<"\n";
+       for (map<int, int>::iterator ite = m.begin(); ite != m.end(); ite++) {
+           cout<<"f: "<<ite->first<<" q: "<<ite->second<<"\n";
+           output<<"\tf: "<<ite->first<<" q: "<<ite->second<<"\n";
+       }
+       cout<<"\n";
+   }  
+
+   output.close();
 }
 
 vector<string> DFSSearch::readFile() {

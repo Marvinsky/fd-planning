@@ -50,6 +50,10 @@ class DFSSearch : public SearchEngine {
         stack<SearchNode> P;
         stack<SearchNode> S;
 
+        vector<int> v_f;
+        vector<int> v_g;
+        vector<int> v_h;
+
 protected:
 	int step();
 	pair<SearchNode, bool> fetch_next_node();
@@ -77,5 +81,7 @@ public:
         int getMax_gvalue(vector<int> v_g);
         map<int, int> getFDistribution(vector<int> v_f_value);
         vector<string> readFile();
+        void generateReport(vector<int> v_h, vector<int> v_g);
 }; 
 #endif
+
