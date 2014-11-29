@@ -80,11 +80,27 @@ void SearchNode::open(int h, const SearchNode &parent_node,
     assert(info.status == SearchNodeInfo::NEW);
     info.status = SearchNodeInfo::OPEN;
     info.g = parent_node.info.g + get_adjusted_action_cost(*parent_op, cost_type);
+    cout<<"parent_op->get_cost() = "<<parent_op->get_cost()<<endl;
     info.real_g = parent_node.info.real_g + parent_op->get_cost();
     info.h = h;
     info.parent_state = parent_node.state_buffer;
     info.creating_operator = parent_op;
 }
+
+
+void SearchNode::open2(int h, const SearchNode &parent_node,
+                      const Operator *parent_op) {
+    assert(info.status == SearchNodeInfo::NEW);
+    info.status = SearchNodeInfo::OPEN;
+    info.g = parent_node.info.g + get_adjusted_action_cost(*parent_op, cost_type);
+    cout<<"parent_op->get_cost() = "<<parent_op->get_cost()<<endl;
+    info.real_g = parent_node.info.real_g + parent_op->get_cost();
+    info.h = h;
+    info.parent_state = parent_node.state_buffer;
+    info.creating_operator = parent_op;
+}
+
+
 
 void SearchNode::reopen(const SearchNode &parent_node,
                         const Operator *parent_op) {
@@ -127,6 +143,11 @@ void SearchNode::mark_as_dead_end() {
   //cout<<"Node marked as last end"<<endl;
     info.status = SearchNodeInfo::DEAD_END;
 }
+
+void SearchNode::set_as_new_node() {
+    info.status = SearchNodeInfo::NEW;
+}
+
 
 void SearchNode::dump() {
     cout << state_buffer << ": ";

@@ -18,6 +18,8 @@
 #include <locale>
 #include <stack>
 
+#include <iostream>
+#include <exception>
 
 class Heuristic;
 class Operator;
@@ -49,6 +51,7 @@ class DFSSearch : public SearchEngine {
         string heuristic_name;
         stack<SearchNode> P;
         stack<SearchNode> S;
+      
 
         vector<int> v_f;
         vector<int> v_g;
@@ -82,6 +85,7 @@ public:
         map<int, int> getFDistribution(vector<int> v_f_value);
         vector<string> readFile();
         void generateReport(vector<int> v_h, vector<int> v_g);
+        void printStack(stack<SearchNode> S);
 }; 
 #endif
 

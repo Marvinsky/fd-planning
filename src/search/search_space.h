@@ -55,6 +55,8 @@ public:
     void open_initial(int h);
     void open(int h, const SearchNode &parent_node,
               const Operator *parent_op);
+    void open2(int h, const SearchNode &parent_node,
+              const Operator *parent_op);
     void reopen(const SearchNode &parent_node,
                 const Operator *parent_op);
     void update_parent(const SearchNode &parent_node,
@@ -62,7 +64,7 @@ public:
     void increase_h(int h);
     void close();
     void mark_as_dead_end();
-
+    void set_as_new_node();
     void dump();
 
     int getW();
