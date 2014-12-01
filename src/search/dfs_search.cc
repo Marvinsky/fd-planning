@@ -356,7 +356,8 @@ int DFSSearch::step() {
     cout<<" ____________________________"<<endl;
    
     SearchNode node = search_space.get_node(*g_initial_state);
-
+  
+  
     node.open_initial(heuristics[0]->get_value());
     int depth = 2*node.get_h();
     
@@ -367,12 +368,15 @@ int DFSSearch::step() {
     v_f.push_back(node.get_h() + node.get_real_g());
     v_g.push_back(node.get_real_g());
     v_h.push_back(node.get_h());
+    Node n(node.get_h(), node.get_real_g(), node.get_h() + node.get_real_g());
+    K.push_back(n);
+  
     //int iter = 0;
     while (!S.empty()) {
         printStack(S); 
      
         SearchNode nodecp = S.top();
-        nodecp.set_as_new_node();
+        //nodecp.set_as_new_node();
         int g = nodecp.getL();
         cout<<"Raiz h = "<<nodecp.get_h()<<", g = "<<nodecp.get_real_g()<<", f = "<<nodecp.get_h() + nodecp.get_real_g()<<endl;
         S.pop();
@@ -460,10 +464,10 @@ int DFSSearch::step() {
                   }
                   succ_h = max(succ_h, heuristics[i]->get_heuristic());
               }
-             // heuristics[0]->evaluate(succ_state);
-             // int succ_h = heuristics[0]->get_heuristic();
+              //heuristics[0]->evaluate(succ_state);
+              //int succ_h = heuristics[0]->get_heuristic();
               
-              succ_node.open(succ_h, nodecp, op);
+              succ_node.open2(succ_h, nodecp, op);
              
               if (mark_children_as_finished) {
                  for (size_t i = 0; i < heuristics.size(); i++) {
@@ -485,13 +489,24 @@ int DFSSearch::step() {
                    v_f.push_back(succ_h2 + succ_g);
                    v_g.push_back(succ_g);
                    v_h.push_back(succ_h2); 
+
+                   Node n(succ_node.get_h(), succ_node.get_real_g(), succ_node.get_h() + succ_node.get_real_g());
+                   K.push_back(n);
               } // end if prunning g <= depth
-           } /*else if (succ_node.is_open()) {
+            } /*else if (succ_node.is_open()) {
               cout<<"Node open."<<endl;
               cout<<"\n\t\tChild added :  h = "<<succ_node.get_h()<<", g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<"\n"<<endl;
            }*/
        } //end for applicable
     } // end while
+
+    cout<<"K. "<<K.size()<<endl;
+    list<Node>::const_iterator pos;
+    for (pos = K.begin(); pos != K.end(); ++pos) {
+        Node elem =   *pos;
+        cout<<"h = "<<elem.getH()<<", g = "<<elem.getG()<<", f = "<<elem.getF()<<endl;
+    } 
+
     cout<<"Print P."<<endl;
     printStack(P);
  
@@ -500,10 +515,12 @@ int DFSSearch::step() {
     for (int i = 0; i < v_f.size(); i++) {
         cout<<"\t\t h = "<<v_h.at(i)<<", g = "<<v_g.at(i)<<", f = "<<v_h.at(i) + v_g.at(i)<<endl;
     }
-    generateReport(v_h, v_g);    
+    generateReport(v_h, v_g, K);    
    
    return SOLVED;
 }
+
+
 
 void DFSSearch::printStack(stack<SearchNode> S) {
     cout<<"**********************************************************************"<<endl;
@@ -547,7 +564,7 @@ map<int, int> DFSSearch::getFDistribution(vector<int> v_f_value) {
 }
 
 
-void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g) {
+void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
 
     map<int, int> g;
     map<int, vector<int> > mapv_f;
@@ -575,17 +592,24 @@ void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g) {
         int level = iter->first;
         int q = iter->second;
 
-        cout<<"g = "<<level<<endl;
+        vector<Node> vnode;
+        list<Node>::const_iterator pos;
+        for (pos = K.begin(); pos != K.end(); ++pos) {
+            Node elem =   *pos;
+            if (elem.getG() == level) {
+               Node n1(elem.getH(), elem.getG(), elem.getF());
+               vnode.push_back(n1);
+            }
+        }
         vector<int> v;
-        for (int i = 0; i < q; i++) {
-            int f = v_h.at(r) + v_g.at(r);
-            v.push_back(f);
-            f_exp.push_back(f);
-            r++;
+        cout<<"g: "<<level<<endl;
+        for (int i = 0; i < vnode.size(); i++) {
+            Node n2 = vnode.at(i);
+            cout<<"\th = "<<n2.getH()<<", g = "<<n2.getG()<<", f = "<<n2.getF()<<endl;
+            v.push_back(n2.getF());
+            f_exp.push_back(n2.getF());
         }
-        for (int i = 0; i < v.size(); i++) {
-            cout<<v.at(i)<<" ";
-        }
+       
         cout<<"\n\n";
         mapv_f.insert(pair<int, vector<int> >(level, v));
     }
@@ -599,7 +623,7 @@ void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g) {
         cout<<f<<"\t"<<q<<"\n";
     }
     cout<<"\n";
-
+    
 
     ofstream output;
     vector<string> vs = readFile();

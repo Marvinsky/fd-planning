@@ -18,13 +18,14 @@ class SearchNodeInfo {
     int real_g;
     int w;
     int l;
+    bool visited : 1;
     // HACK
     int layer;
   public:
 
     SearchNodeInfo()
         : status(NEW), g(-1), h(-1), h_is_dirty(false),
-          parent_state(0), creating_operator(0), real_g(-1) {
+          parent_state(0), creating_operator(0), real_g(-1), visited(false) {
     }
 };
 

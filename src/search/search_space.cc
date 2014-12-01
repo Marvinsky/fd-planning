@@ -80,7 +80,6 @@ void SearchNode::open(int h, const SearchNode &parent_node,
     assert(info.status == SearchNodeInfo::NEW);
     info.status = SearchNodeInfo::OPEN;
     info.g = parent_node.info.g + get_adjusted_action_cost(*parent_op, cost_type);
-    cout<<"parent_op->get_cost() = "<<parent_op->get_cost()<<endl;
     info.real_g = parent_node.info.real_g + parent_op->get_cost();
     info.h = h;
     info.parent_state = parent_node.state_buffer;
@@ -90,10 +89,9 @@ void SearchNode::open(int h, const SearchNode &parent_node,
 
 void SearchNode::open2(int h, const SearchNode &parent_node,
                       const Operator *parent_op) {
-    assert(info.status == SearchNodeInfo::NEW);
-    info.status = SearchNodeInfo::OPEN;
+    //assert(info.status == SearchNodeInfo::NEW);
+    //info.status = SearchNodeInfo::OPEN;
     info.g = parent_node.info.g + get_adjusted_action_cost(*parent_op, cost_type);
-    cout<<"parent_op->get_cost() = "<<parent_op->get_cost()<<endl;
     info.real_g = parent_node.info.real_g + parent_op->get_cost();
     info.h = h;
     info.parent_state = parent_node.state_buffer;
@@ -171,6 +169,18 @@ int SearchNode::getL() {
 
 void SearchNode::setL(int l) {
 	info.l = l;
+}
+
+void SearchNode::set_visited() {
+    info.visited = true;
+}
+
+void SearchNode::clear_visited() {
+    info.visited = false;
+}
+
+bool SearchNode::is_visited() const {
+    return info.visited;
 }
 
 class SearchSpace::HashTable

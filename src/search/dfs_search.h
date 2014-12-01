@@ -18,6 +18,9 @@
 #include <locale>
 #include <stack>
 
+#include "Stack.h"
+#include "node.h"
+#include <list>
 #include <iostream>
 #include <exception>
 
@@ -51,7 +54,7 @@ class DFSSearch : public SearchEngine {
         string heuristic_name;
         stack<SearchNode> P;
         stack<SearchNode> S;
-      
+        list<Node> K; 
 
         vector<int> v_f;
         vector<int> v_g;
@@ -84,7 +87,7 @@ public:
         int getMax_gvalue(vector<int> v_g);
         map<int, int> getFDistribution(vector<int> v_f_value);
         vector<string> readFile();
-        void generateReport(vector<int> v_h, vector<int> v_g);
+        void generateReport(vector<int> v_h, vector<int> v_g, list<Node> K);
         void printStack(stack<SearchNode> S);
 }; 
 #endif

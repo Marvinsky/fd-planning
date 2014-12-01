@@ -56,6 +56,7 @@ HEADERS = \
           sum_evaluator.h \
           timer.h \
           utilities.h \
+          node.h \
           weighted_evaluator.h \
           \
           open_lists/alternation_open_list.h \

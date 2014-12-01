@@ -71,6 +71,9 @@ public:
     void setW(int w);
     int getL();
     void setL(int l);
+    bool is_visited() const;
+    void set_visited();
+    void clear_visited();
 };
 
 
