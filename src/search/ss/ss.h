@@ -26,7 +26,7 @@ public:
 	State state;
 	int weight;
 	SSNode(State s, int w) : state(s), weight(w){}
-};1
+};
 
 class SS : public SearchEngine {
 public: 
