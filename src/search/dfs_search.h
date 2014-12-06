@@ -64,11 +64,11 @@ class DFSSearch : public SearchEngine {
         string heuristic_name;
         //stack<SearchNode> P;
         //stack<SearchNode> S;
-        //list<Node> K; 
+        list<Node> K; 
 
         //vector<int> v_f;
-        //vector<int> v_g;
-        //vector<int> v_h;
+        vector<int> v_g;
+        vector<int> v_h;
          
         stack<SSNode> queue;        
         int depth; 

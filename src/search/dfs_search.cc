@@ -23,6 +23,7 @@
 using namespace std;
 
 
+
 HST lsearch_space5(10000, 1);
 static bool time_limit_node_adjusted=false;
 DFSSearch::DFSSearch(
@@ -359,8 +360,7 @@ string DFSSearch::getRealHeuristic(string heur) {
 	}
 	
 	return heuristic;
-}
-
+} 
 
 int DFSSearch::step() {
     cout<<" ____________________________"<<endl;
@@ -376,32 +376,18 @@ int DFSSearch::step() {
     queue.push(node); 
 
 
-    //SearchNode nodeInitial = search_space.get_node(*g_initial_state);
-    //int h_initial = heuristics[0]->get_value(),
-    //SSNode node(*g_initial_state, h_initial, 0, 0);
-    
-    //node.open_initial(heuristics[0]->get_value());
-    //int depth = 2*h_initial;
-    
-    //node.setL(0);   
-    //S.push(node);
-    //P.push(node);
+    v_g.push_back(node.g_value);
+    v_h.push_back(node.h_value);
 
-    //v_f.push_back(node.h_value + node.g_value);
-    //v_g.push_back(node.g_value);
-    //v_h.push_back(node.h_value);
-
-    //Node n(node.h_value, node.g_value, node.h_value + node.g_value);
-    //K.push_back(n);
+    Node n(node.h_value, node.g_value, node.h_value + node.g_value);
+    K.push_back(n);
     
     while (!queue.empty()) {
-        printStack(queue); 
+        //printStack(queue); 
      
-        //SearchNode nodecp = S.top();
-        //nodecp.set_as_new_node();
         SSNode nodecp = queue.top();
         int g = nodecp.level;
-        cout<<"Raiz h = "<<nodecp.h_value<<", g = "<<nodecp.g_value<<", f = "<<nodecp.h_value + nodecp.g_value<<endl;
+        //cout<<"Raiz h = "<<nodecp.h_value<<", g = "<<nodecp.g_value<<", f = "<<nodecp.h_value + nodecp.g_value<<endl;
         queue.pop();
        
        State s = nodecp.state;
@@ -421,61 +407,40 @@ int DFSSearch::step() {
        }
 
        search_progress.inc_evaluations(preferred_operator_heuristics.size());
-       cout<<"applicable_ops.size() = "<<applicable_ops.size()<<endl;
+       
        for (int i = 0; i < applicable_ops.size(); i++) {
           
            const Operator *op = applicable_ops[i];
           
            State child(s, *op);
-           //search_progress.inc_generated();
-           //SearchNode succ_node = search_space.get_node(succ_state);
+          
           
            heuristics[0]->evaluate(child);
            int succ_h = heuristics[0]->get_heuristic();
               
-           //succ_node.open2(succ_h, nodecp, op);
+           
            SSNode succ_node(child, succ_h, nodecp.g_value + 1, g + 1);
-           cout<<"\tNodes generated:  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
+           //cout<<"\tNodes generated:  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
 
               
-              //int succ_h2 = succ_node.get_h();
-              //int succ_g = succ_node.get_real_g();
-              
-              //succ_node.setL(g+1);
               if (succ_node.g_value <= depth) {
-                  cout<<"\t\t\tNodes Added  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
+                  //cout<<"\t\t\tNodes Added  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
                    queue.push(succ_node);
                    //P.push(succ_node);
                    //S.push(succ_node);
 
                    //v_f.push_back(succ_node.h_value + succ_node.g_value);
-                   //v_g.push_back(succ_node.g_value);
-                   //v_h.push_back(succ_node.h_value); 
+                   v_g.push_back(succ_node.g_value);
+                   v_h.push_back(succ_node.h_value); 
 
-                   //Node n(succ_node.h_value, succ_node.g_value, succ_node.h_value + succ_node.g_value);
-                   //K.push_back(n);
+                   Node n(succ_node.h_value, succ_node.g_value, succ_node.h_value + succ_node.g_value);
+                   K.push_back(n);
               } // end if prunning g <= depth
        } //end for applicable
     } // end while
-
-    /*
-    cout<<"K. "<<K.size()<<endl;
-    list<Node>::const_iterator pos;
-    for (pos = K.begin(); pos != K.end(); ++pos) {
-        Node elem =   *pos;
-        cout<<"h = "<<elem.getH()<<", g = "<<elem.getG()<<", f = "<<elem.getF()<<endl;
-    } 
-    
-    cout<<"Print P."<<endl;
-    printStack(P);
-    
-    cout<<"\nVector."<<endl;
-    cout<<"v_f.size() = "<<v_f.size()<<endl;
-    for (int i = 0; i < v_f.size(); i++) {
-        cout<<"\t\t h = "<<v_h.at(i)<<", g = "<<v_g.at(i)<<", f = "<<v_h.at(i) + v_g.at(i)<<endl;
-    }
-    */
-    //generateReport(v_h, v_g, K);    
+    cout<<"end expansion of nodes finished."<<endl;
+    cout<<"Total of nodes expanded: "<<K.size()<<endl;
+    generateReport(v_h, v_g, K);    
     
    return SOLVED;
 }
@@ -524,8 +489,9 @@ map<int, int> DFSSearch::getFDistribution(vector<int> v_f_value) {
 }
 
 
-void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
 
+void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
+    cout<<"star generateReport"<<endl;
     map<int, int> g;
     map<int, vector<int> > mapv_f;
     for (int i = 0; i < v_g.size(); i++) {
@@ -539,11 +505,14 @@ void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
                }
             }
         }
+        
         map<int, int>::iterator mIter = g.find(a);
         if (mIter == g.end()) {
            g.insert(pair<int, int>(a, k));
         }
     }
+    cout<<"end two loops"<<endl;
+    
     cout<<"g.size() = "<<g.size()<<endl;
     int r = 0;
     cout<<"Display."<<endl;
@@ -617,6 +586,7 @@ void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
    }  
 
    output.close();
+   
 }
 
 vector<string> DFSSearch::readFile() {
