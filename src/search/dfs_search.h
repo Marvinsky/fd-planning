@@ -18,8 +18,9 @@
 #include <locale>
 #include <stack>
 
-#include "Stack.h"
+//#include "Stack.h"
 #include "node.h"
+//#include "ss_node.h"
 #include <list>
 #include <iostream>
 #include <exception>
@@ -37,6 +38,15 @@ protected:
         }
 };
 
+class SSNode {
+public:
+	State state;
+        int h_value;
+        int g_value;
+        int level;
+        SSNode(State s, int h, int g, int l) : state(s), h_value(h), g_value(g), level(l) {}
+};
+
 class DFSSearch : public SearchEngine {
 	//search behavior parameters
 	bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths.
@@ -52,14 +62,16 @@ class DFSSearch : public SearchEngine {
 
 
         string heuristic_name;
-        stack<SearchNode> P;
-        stack<SearchNode> S;
-        list<Node> K; 
+        //stack<SearchNode> P;
+        //stack<SearchNode> S;
+        //list<Node> K; 
 
-        vector<int> v_f;
-        vector<int> v_g;
-        vector<int> v_h;
-
+        //vector<int> v_f;
+        //vector<int> v_g;
+        //vector<int> v_h;
+         
+        stack<SSNode> queue;        
+        int depth; 
 protected:
 	int step();
 	pair<SearchNode, bool> fetch_next_node();
@@ -88,7 +100,7 @@ public:
         map<int, int> getFDistribution(vector<int> v_f_value);
         vector<string> readFile();
         void generateReport(vector<int> v_h, vector<int> v_g, list<Node> K);
-        void printStack(stack<SearchNode> S);
+        void printStack(stack<SSNode> S);
 }; 
 #endif
 
