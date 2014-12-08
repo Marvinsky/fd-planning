@@ -372,7 +372,8 @@ int DFSSearch::step() {
     cout<<"h_initial = "<<h_initial<<endl;
     SSNode node(*g_initial_state, h_initial, 0, 0);
     
-    depth = 2*h_initial;
+    depth = h_initial;
+    cout<<"depth = "<<depth<<endl;
     queue.push(node); 
 
 
@@ -382,6 +383,7 @@ int DFSSearch::step() {
     //Node n(node.h_value, node.g_value, node.h_value + node.g_value);
     //K.push_back(n);
     int count_value = 1;
+    int count_total = 0;
     while (!queue.empty()) {
         //printStack(queue); 
      
@@ -403,7 +405,7 @@ int DFSSearch::step() {
           q++;
           iter->second = q;
        }
-     
+       count_total++;
        vector<const Operator *> applicable_ops;
        set<const Operator *> preferred_ops;
  
@@ -451,7 +453,7 @@ int DFSSearch::step() {
        } //end for applicable
     } // end while
     cout<<"end expansion of nodes finished."<<endl;
-    cout<<"Total of nodes expanded: "<<count_value<<endl;
+    cout<<"Total of nodes expanded: "<<count_total<<endl;
     cout<<"collector.size() = "<<collector.size()<<endl;
 
 
