@@ -376,12 +376,12 @@ int DFSSearch::step() {
     queue.push(node); 
 
 
-    v_g.push_back(node.g_value);
-    v_h.push_back(node.h_value);
+    //v_g.push_back(node.g_value);
+    //v_h.push_back(node.h_value);
 
-    Node n(node.h_value, node.g_value, node.h_value + node.g_value);
-    K.push_back(n);
-    
+    //Node n(node.h_value, node.g_value, node.h_value + node.g_value);
+    //K.push_back(n);
+    int count_value = 1;
     while (!queue.empty()) {
         //printStack(queue); 
      
@@ -392,6 +392,18 @@ int DFSSearch::step() {
        
        State s = nodecp.state;
 
+       Node2 node2(nodecp.h_value + nodecp.g_value, g);
+    
+       
+       if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+          count_value = 1;
+       } else {
+          map<Node2, int>::iterator iter = collector.find(node2);
+          int q = iter->second;
+          q++;
+          iter->second = q;
+       }
+     
        vector<const Operator *> applicable_ops;
        set<const Operator *> preferred_ops;
  
@@ -430,17 +442,62 @@ int DFSSearch::step() {
                    //S.push(succ_node);
 
                    //v_f.push_back(succ_node.h_value + succ_node.g_value);
-                   v_g.push_back(succ_node.g_value);
-                   v_h.push_back(succ_node.h_value); 
+                   //v_g.push_back(succ_node.g_value);
+                   //v_h.push_back(succ_node.h_value); 
 
-                   Node n(succ_node.h_value, succ_node.g_value, succ_node.h_value + succ_node.g_value);
-                   K.push_back(n);
+                   //Node n(succ_node.h_value, succ_node.g_value, succ_node.h_value + succ_node.g_value);
+                   //K.push_back(n);
               } // end if prunning g <= depth
        } //end for applicable
     } // end while
     cout<<"end expansion of nodes finished."<<endl;
-    cout<<"Total of nodes expanded: "<<K.size()<<endl;
-    generateReport(v_h, v_g, K);    
+    cout<<"Total of nodes expanded: "<<count_value<<endl;
+    cout<<"collector.size() = "<<collector.size()<<endl;
+
+
+
+    ofstream output;
+    vector<string> vs = readFile();
+    string dominio = vs.at(0);
+    string tarefa = vs.at(1);
+    string heuristica = vs.at(2);
+    cout<<"dominio = "<<dominio<<endl;
+    cout<<"tarefa = "<<tarefa<<endl;
+    cout<<"heuristica = "<<heuristica<<endl;
+
+    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
+
+    output.open(outputFile.c_str());
+    output<<"\t"<<outputFile.c_str()<<"\n";
+    output<<"totalniveles: "<<depth<<"\n";
+    output<<"threshold: "<<depth<<"\n\n";
+
+    for (int i = 0; i <= depth; i++) {
+       int k = 0;
+       vector<int> f;
+       vector<int> q;
+       for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
+           Node2 n = iter->first;
+           if (i == n.getL()) {
+              k++;
+              f.push_back(n.getF());
+              q.push_back(iter->second);
+           }      
+       }
+       cout<<"g:"<<i<<"\n";
+       output<<"g:"<<i<<"\n";
+
+       cout<<"size: "<<k<<"\n";
+       output<<"size: "<<k<<"\n";
+
+       for (int j = 0; j < f.size(); j++) {
+           cout<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+           output<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+       }
+       cout<<"\n";
+    }
+    output.close();
+    //generateReport(v_h, v_g, K);    
     
    return SOLVED;
 }

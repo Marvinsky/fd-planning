@@ -20,6 +20,7 @@
 
 //#include "Stack.h"
 #include "node.h"
+#include "node2.h"
 //#include "ss_node.h"
 #include <list>
 #include <iostream>
@@ -71,7 +72,8 @@ class DFSSearch : public SearchEngine {
         vector<int> v_h;
          
         stack<SSNode> queue;        
-        int depth; 
+        int depth;
+        map<Node2, int> collector; 
 protected:
 	int step();
 	pair<SearchNode, bool> fetch_next_node();

@@ -9,6 +9,7 @@
  state_var_t.h
 .obj/timer.1.o: timer.cc timer.h
 .obj/node.1.o: node.cc node.h
+.obj/node2.1.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.1.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.1.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.1.o: open_lists/pareto_open_list.cc
@@ -37,6 +38,7 @@
  state_var_t.h
 .obj/timer.1.debug.o: timer.cc timer.h
 .obj/node.1.debug.o: node.cc node.h
+.obj/node2.1.debug.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.1.debug.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.1.debug.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.1.debug.o: open_lists/pareto_open_list.cc
@@ -65,6 +67,7 @@
  state_var_t.h
 .obj/timer.1.profile.o: timer.cc timer.h
 .obj/node.1.profile.o: node.cc node.h
+.obj/node2.1.profile.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.1.profile.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.1.profile.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.1.profile.o: open_lists/pareto_open_list.cc
@@ -93,6 +96,7 @@
  state_var_t.h
 .obj/timer.2.o: timer.cc timer.h
 .obj/node.2.o: node.cc node.h
+.obj/node2.2.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.2.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.2.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.2.o: open_lists/pareto_open_list.cc
@@ -121,6 +125,7 @@
  state_var_t.h
 .obj/timer.2.debug.o: timer.cc timer.h
 .obj/node.2.debug.o: node.cc node.h
+.obj/node2.2.debug.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.2.debug.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.2.debug.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.2.debug.o: open_lists/pareto_open_list.cc
@@ -149,6 +154,7 @@
  state_var_t.h
 .obj/timer.2.profile.o: timer.cc timer.h
 .obj/node.2.profile.o: node.cc node.h
+.obj/node2.2.profile.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.2.profile.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.2.profile.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.2.profile.o: open_lists/pareto_open_list.cc
@@ -177,6 +183,7 @@
  state_var_t.h
 .obj/timer.4.o: timer.cc timer.h
 .obj/node.4.o: node.cc node.h
+.obj/node2.4.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.4.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.4.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.4.o: open_lists/pareto_open_list.cc
@@ -205,6 +212,7 @@
  state_var_t.h
 .obj/timer.4.debug.o: timer.cc timer.h
 .obj/node.4.debug.o: node.cc node.h
+.obj/node2.4.debug.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.4.debug.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.4.debug.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.4.debug.o: open_lists/pareto_open_list.cc
@@ -233,6 +241,7 @@
  state_var_t.h
 .obj/timer.4.profile.o: timer.cc timer.h
 .obj/node.4.profile.o: node.cc node.h
+.obj/node2.4.profile.o: node2.cc node2.h
 .obj/open_lists/alternation_open_list.4.profile.o: open_lists/alternation_open_list.cc
 .obj/open_lists/open_list_buckets.4.profile.o: open_lists/open_list_buckets.cc
 .obj/open_lists/pareto_open_list.4.profile.o: open_lists/pareto_open_list.cc
