@@ -460,9 +460,10 @@ int DFSSearch::step() {
 
     ofstream output;
     vector<string> vs = readFile();
-    string dominio = vs.at(0);
-    string tarefa = vs.at(1);
-    string heuristica = vs.at(2);
+    string dominio = domain_name; //vs.at(0);
+    string tarefa =  problem_name2;//vs.at(1);
+    string heuristica = heuristic_name2;  //vs.at(2);
+    cout<<"changing the code."<<endl;
     cout<<"dominio = "<<dominio<<endl;
     cout<<"tarefa = "<<tarefa<<endl;
     cout<<"heuristica = "<<heuristica<<endl;

@@ -183,6 +183,15 @@ SearchEngine *OptionParser::parse_cmd_line(
             ++i;
             OptionParser p(argv[i], dry_run);
             engine = p.start_parsing<SearchEngine *>();
+        } else if (arg.compare("--domain_name") == 0) {
+            ++i;
+           domain_name = argv[i]; 
+        } else if (arg.compare("--problem_name") == 0) {
+            ++i;
+            problem_name2 = argv[i];
+        } else if (arg.compare("--heuristic_name") == 0) {
+           ++i;
+           heuristic_name2 = argv[i];
         } else if (arg.compare("--random-seed") == 0) {
             ++i;
 	    g_random_seed=(atoi(argv[i]));
