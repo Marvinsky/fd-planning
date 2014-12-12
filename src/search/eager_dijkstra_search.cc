@@ -74,7 +74,7 @@ void EagerDijkstraSearch::initialize() {
     }
     cout<<"Initial state:";g_initial_state->inline_dump();
     //cout<<"Goal state:"<<g_goal<<endl;
-    
+    count_value = 1; 
     set<Heuristic *> hset;
     cout<<"calling get_involved heuristics"<<endl;fflush(stdout);
     open_list->get_involved_heuristics(hset);
@@ -339,7 +339,7 @@ int EagerDijkstraSearch::step() {
      
       
     Node2 node2(node.get_h() + node.get_real_g(), node.get_real_g());
-    if (collector.insert(pair<Node2, int>(node2, 1)).second) {
+    if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
        count_value = 1;
     } else {
        map<Node2, int>::iterator iter = collector.find(node2);
