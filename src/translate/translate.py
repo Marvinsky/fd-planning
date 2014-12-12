@@ -688,16 +688,16 @@ def main():
     dominio = args.soloDominio
     heuristica = args.heuristic
     
-    fileName = "/home/marvin/fd/src/translate/arquivos/"+tarefa  
+    #fileName = "/home/marvin/fd/src/translate/arquivos/"+tarefa  
     
 
-    saveFile = open(fileName , 'w');
+    #saveFile = open(fileName , 'w');
    
     linea = dominio +"  "+tarefa +"  "+heuristica
     print("Linea! %s" %linea)
-    saveFile.write(linea);
-    saveFile.write("\n");
-    saveFile.close()
+    #saveFile.write(linea);
+    #saveFile.write("\n");
+    #saveFile.close()
     
 
 if __name__ == "__main__":

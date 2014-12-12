@@ -28,6 +28,7 @@ HEADERS = \
           dfs_search.h \
           eager_search.h \
 	  eager_search_kre.h \
+          eager_dijkstra_search.h \
           Tree.h \
           enforced_hill_climbing_search.h \
           exact_timer.h \
