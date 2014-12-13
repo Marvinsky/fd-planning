@@ -193,29 +193,18 @@ void EagerSearch::initialize() {
 //	    }
 //    }
     bool dead_end=false;
+    count_value = 1;
     for (size_t i = 0; i < heuristics.size(); i++){
 	heuristics[i]->evaluate(*g_initial_state);
-        cout<<"************************"<<endl;
-        cout<<"Setting initial h: "<<heuristics[i]->get_value()<<endl;
-        cout<<"************************"<<endl;
        
-        int aux_h = heuristics[i]->get_value();        
-        heuristics[i]->set_evaluator_value(0);
-        string heurname = heuristics[i]->get_heur_name();
-        if (heurname == "dijkstra()") {
-           //TODO
-        } else {
-           SearchNode initialNode = search_space.get_node(*g_initial_state);
-           initialNode.open_initial(heuristics[i]->get_value());
-        
-           v_f.push_back(aux_h + initialNode.get_real_g()); 
-           v_g.push_back(initialNode.get_real_g());
-           v_h.push_back(aux_h);
-        
-           cout<<"************************"<<endl;
-           cout<<"Initial node h: "<<initialNode.get_h()<<endl;
-           cout<<"************************"<<endl;
-        }
+        cout<<"Setting initial h: "<<heuristics[i]->get_value()<<endl;
+      
+        SearchNode initialNode = search_space.get_node(*g_initial_state);
+        initialNode.open_initial(heuristics[i]->get_value());
+       
+        Node2 node2(initialNode.get_h() + initialNode.get_real_g(), initialNode.get_real_g()) ; 
+        collector.insert(pair<Node2, int>(node2, count_value));
+  
         dead_end=heuristics[i]->is_dead_end();
 	if(dead_end){
 	  break;
@@ -367,57 +356,12 @@ int EagerSearch::step() {
     SearchNode node = n.first;
     
     cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
-     
-    //v_f.push_back(node.get_h() + node.get_real_g()); 
-    //v_g.push_back(node.get_real_g());
-    //v_h.push_back(node.get_h());
-
-    string heur_name = heuristics[0]->get_heur_name();
-    if (heur_name == "dijkstra()") {
-       
-       v_f.push_back(node.get_h() + node.get_real_g()); 
-       v_g.push_back(node.get_real_g());
-       v_h.push_back(node.get_h());
-    } else {
-       //v_f.push_back(node.get_h() + node.get_real_g()); 
-       //v_g.push_back(node.get_real_g());
-       //v_h.push_back(node.get_h());
-    }
-            
-
-    //Every 2 secs aprox we check if we have done search for too long without selecting a subset
-    //Note that timer checks can actually be quite expensive when node generation cost microseconds or less, that is why we only do this check 
-    //every time we have generated enough nodes to cover approx 2 secs.  Modulus operation is very cheap.
-    if(Current_RIDA_Phase==SAMPLING_PHASE){
-       if(search_progress.get_generated()%node_time_adjusted_reval==0){
-	  cout<<"search_timer() = "<<search_timer()<<endl;
-	  if(search_timer()>200.0){
-	     cout<<"sample_frontier_now, actual time above the 200 secs limit maximizing all heuristics"<<",overall time:"<<g_timer()<<",search time:"<<search_timer()<<endl;
-	     if(gen_to_eval_ratio==0){
-	        cout<<"setting gen_to_eval as the first F-boundary was not completed, doing early sampling"<<endl;
-	        gen_to_eval_ratio=double(search_progress.get_generated())/double(search_progress.get_evaluated_states());
-	        cout<<"gen_to_eval_ratio:"<<gen_to_eval_ratio<<endl;
-	     }
-	     sample_frontier_now(node.get_g()+node.get_h());
-          } 
-       }
-    }
-  
-
+    
     State s = node.get_state();
     
 
     if (check_goal_and_set_plan(s)){
-        string heur_name = heuristics[0]->get_heur_name();
-        if (heur_name == "dijkstra()") {
-           //TODO:
-        } else {
-           //v_f.push_back(node.get_h() + node.get_real_g()); 
-           //v_g.push_back(node.get_real_g());
-           //v_h.push_back(node.get_h());
-        }
-    
- 
+        
         cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
         problem_was_solved=true;
 
@@ -425,27 +369,6 @@ int EagerSearch::step() {
 	   output_problem_results();
         }
         
-        
-        std::vector<int> ne; 
-        int p = 0;
-	for (map<int, int>::iterator it = nodes_expanded_by_level.begin(); it != nodes_expanded_by_level.end(); ++it) {
-            int nodesExpanded = it->second;
-            ne.insert(ne.begin() + p, nodesExpanded);
-            p++;
-	}
-        std::vector<int> ng;
-        int q = 0;
-	for (map<int, int>::iterator it = nodes_generated_by_level.begin(); it != nodes_generated_by_level.end(); ++it) {
-            int nodesGenerated = it->second;
-           
-            ng.insert(ng.begin() + q, nodesGenerated);
-            q++;
-	}
-     	
-        for (int r = 0; r < p-1; r++) {
-	    double m = (double)ng.at(r+1)/(double)ne.at(r);
-	    cout<<"effectiveBranchingFactor: "<<m<<endl;
-	}
         cout<<"\nCount the nodes in the last level."<<endl;
 	
 	int last_level = search_progress.return_lastjump_f_value();
@@ -468,7 +391,7 @@ int EagerSearch::step() {
        } else {
 	  
           cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
-          generateReport(v_f, v_h, v_g, nivel);
+          generateReport();
 	  return SOLVED;
        }
     }
@@ -559,7 +482,6 @@ int EagerSearch::step() {
             // We have not seen this state before.
             // Evaluate and create a new node.
             int succ_h=0;
-            int aux_h=0;
 	    bool dead_end=false;
             for (size_t i = 0; i < heuristics.size(); i++){
                 heuristics[i]->evaluate(succ_state);
@@ -574,8 +496,8 @@ int EagerSearch::step() {
 		       succ_h=INT_MAX/2;//need to keep nodes in case we need to sample for one of the heuristics which do not know that the node is a dead end
 		   }
 		}
-                aux_h = max(succ_h,heuristics[i]->get_heuristic());
-	        succ_h =  0;  //max(succ_h,heuristics[i]->get_heuristic());
+                
+	        succ_h =  max(succ_h,heuristics[i]->get_heuristic());
                 
 	    } 	
 
@@ -630,37 +552,20 @@ int EagerSearch::step() {
                 }
             }
 	    open_list->insert(succ_node.get_state_buffer());
-	    //if(Current_RIDA_Phase==SOLVING_PHASE){
-	    //cout<<"Node is inserted"<<endl;fflush(stdout);
-	    //}
-            /*if (search_progress.get_generated()%node_time_adjusted_reval==0){//check memory is still within bounds
-		 //if(Current_RIDA_Phase==SOLVING_PHASE){
-		 //  cout<<"Checking if time or memory out"<<endl;fflush(stdout);
-		 //}
-              if(memory_limit<get_peak_memory_in_kb()||g_timer()>time_limit){
-                cout<<"current memory usage:"<<endl; print_peak_memory();
-  
-                //problem_was_solved=false;
-                cout<<"Exiting, total hashed nodes:"<<search_space.size()<<endl;
-                cout<<"Exiting, memory limit is:"<<memory_limit<<" and peak memory is:"<<get_peak_memory_in_kb()<<endl;
-                cout<<"Exiting, time limit is:"<<time_limit<<" and current time is:"<<g_timer()<<endl;
-                delete open_list;
-                delete f_evaluator;
-                return FAILED;
-              }
-            }*/
-	   
+	  
 
-	    cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<aux_h+succ_node.get_real_g()<<endl;
-             string heur_name = heuristics[0]->get_heur_name();
-             if (heur_name == "dijkstra()") {
-                 //TODO
-             } else {
-                v_f.push_back(aux_h + succ_node.get_real_g()); 
-                v_g.push_back(succ_node.get_real_g());
-                v_h.push_back(aux_h);
-             }
-             
+	    cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<succ_node.get_h()+succ_node.get_real_g()<<endl;
+                           
+            Node2 node2(succ_node.get_h() + succ_node.get_real_g(), succ_node.get_real_g());
+            if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+                count_value = 1;
+            } else {
+                map<Node2, int>::iterator iter = collector.find(node2);
+                int q = iter->second;
+                q++;
+                iter->second = q;
+            }
+ 
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
             }
@@ -701,220 +606,94 @@ int EagerSearch::step() {
         }
     }
     for (size_t i = 0; i < heuristics.size(); i++) {
-	//if(Current_RIDA_Phase==SOLVING_PHASE){
-	//  cout<<"Getting Boundary information form incremental_lmcut"<<endl;fflush(stdout);
-	//}
-        // HACK try to maintain only met information for boundary nodes
-        // only useful for incremental lmcut atm
+
         heuristics[i]->finished_state(s, node.get_real_g() + node.get_h(), true);
     }
-	//if(Current_RIDA_Phase==SOLVING_PHASE){
-	//  cout<<"Returning"<<endl;fflush(stdout);
-	//}
-    
 
-    //mapv_f.insert(pair<int, vector<long> >(g, v_f));
-    //v_f.clear();
     return IN_PROGRESS;
 }
 
-map<int, int> EagerSearch::getFDistribution(vector<int> v_f_value) {
-    map<int, int> m;
-    for (int i = 0; i < v_f_value.size(); i++) {
-        int a = v_f_value.at(i);
-        int k = 1;
-        for (int j = 0; j < v_f_value.size(); j++) {
-            int b = v_f_value.at(j);
-            if (i != j) {
-               if (a==b) {
-                  k++;
-               }
-            }    
-        }
-        map<int, int>::iterator mIter = m.find(a);
-        if (mIter == m.end()) {
-           m.insert(pair<int, int>(a, k));
-        }
-    }
-    return m;
+int EagerSearch::returnMaxF(vector<int> levels) {
+      int max = levels.at(0);
+      for (int i = 0; i < levels.size(); i++) {
+          if (max < levels.at(i)) {
+             max = levels.at(i);
+          }
+      }
+      return max;
 }
 
-void EagerSearch::generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g, int threshold) {
-        map<int, int> g;
-        map<int, vector<int> > mapv_f;
-        for (int i = 0; i < v_g.size(); i++) {
-            int a = v_g.at(i);
-            int k = 1;
-            for (int j = 0; j < v_g.size(); j++) {
-	        int b  = v_g.at(j);
-                if (i != j) {
-                  if (a==b) {
-                     k++;
-		  }
-                }
-            }
-            map<int, int>::iterator mIter = g.find(a);
-            if (mIter == g.end()) {
-               g.insert(pair<int, int>(a, k));
-            }
-        }
-        cout<<"g.size() = "<<g.size()<<endl;
-        int r = 0;
-        cout<<"Display"<<endl;
-        vector<int> f_exp;
-        for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++)  {
-	    int level = iter->first;
-            int q = iter->second;
-
-            cout<<"g = "<<level<<endl;
-            vector<int> v;
-            for (int i = 0; i < q; i++) {
-                int f = v_h.at(r) + v_g.at(r);
-                v.push_back(f);
-                f_exp.push_back(f);
-                r++;
-            }
-            for (int i = 0; i < v.size(); i++) {
-                cout<<v.at(i)<<" ";
-            }
-            cout<<"\n\n";
-            mapv_f.insert(pair<int, vector<int> >(level, v));
-        }
-        cout<<"f_exp.size() = "<<f_exp.size()<<endl;
-        map<int, int> dist = getFDistribution(f_exp);
-        cout<<"f(camada)\t#nodes expanded"<<endl;
-        for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
-            int f = iter->first;
-            int q = iter->second;
-            cout<<f<<"\t"<<q<<"\n";
-        }
-        cout<<"\n";
-        //astar have one heuristic parameter
-        string heur_name = heuristics[0]->get_heur_name();
-        if (heur_name == "dijkstra()") {
-           cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<< (threshold - v_f.at(0)) + 1 <<endl;
-           int amount = 0;
-           for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
-             
-               vector<int> v = iter->second;
-               map<int, int> m = getFDistribution(v);
-               //int mapsize = m.size();
-              
-               for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
-                   int f = iter2->first;
-                   int q = iter2->second;
-                   amount = amount + q;
-                   cout<<"f: "<<f<<" q: "<<q<<endl;
-                   cout<<"\n";
-                   cout<<"fnivel: "<<f<<"\n";
-                   cout<<"nodesGeneratedByLevel: "<<q<<"\n";
-                   cout<<"time0: 1\n";
-                   cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
-                   cout<<"\n";
-               }
-	   }    
-        } else {
-           cout<<"Nodes by camadas."<<endl;
-           cout<<"niveles totales "<<dist.size()<<endl;
-           int amount = 0;
-           for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
-               int f = iter->first;
-               int q = iter->second;
-               if (f <=  threshold) {
-                  amount = amount + q;
-                  cout<<"\n";
-                  cout<<"fnivel: "<<f<<"\n";
-                  cout<<"nodesGeneratedByLevel: "<<q<<"\n";
-                  cout<<"time0: 1\n";
-                  cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
-                  cout<<"\n";
-               }
-           }
-           cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<<(threshold - v_f.at(0)) + 1<<endl;
-
-           vector<string> vs = readFile();
-           string dominio = vs.at(0);
-           string tarefa = vs.at(1);
-           string heuristica = vs.at(2);
-           cout<<"dominio2 = "<<dominio<<endl;
-           cout<<"tarefa2 = "<<tarefa<<endl;
-           cout<<"heuristica2 = "<<heuristica<<endl;
-     
-           string fdist = "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist/"+tarefa;
-
-           ofstream outputFile;
-           outputFile.open(fdist.c_str(), ios::out);
-           outputFile<<"\t\ttitle\n";
-           outputFile<<"\ttotalniveles: 1\n";
-           outputFile<<"\tthreshold: 1\n";
-           
-           for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
-               cout<<"g = "<<iter->first<<endl;
-               outputFile<<"\tg:"<<iter->first<<"\n";
-               vector<int> v = iter->second;
-               map<int, int> m = getFDistribution(v);
-               int mapsize = m.size();
-               cout<<"size: "<<mapsize<<endl;
-               outputFile<<"\tisize: "<<mapsize<<"\n";
-               for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
-                   int f = iter2->first;
-                   int q = iter2->second;
-                   cout<<"f: "<<f<<" q: "<<q<<endl; 
-                   outputFile<<"\t\tf: "<<f<<"\tq: "<<q<<"\n";
-               }
-               outputFile<<"\n\n";
-	   }
-           outputFile.close();
-        }
+int EagerSearch::returnMinF(vector<int> levels) {
+      int min = levels.at(0);
+      for (int i = 0; i < levels.size(); i++) {
+          if (min > levels.at(i)) {
+             min = levels.at(i);
+          }
+      }
+      return min;
 }
 
-vector<string> EagerSearch::readFile() {
-      vector<string> vs;
-      string path;
-      char input[] = "/home/marvin/fd/src/translate/arquivos/";
-      DIR *dir;
-      struct dirent *ent;
 
-      dir = opendir(input);
-      if (dir != NULL) {
-         while ((ent = readdir(dir)) != NULL) {
-            string fileName = ent->d_name;
-            cout<<"fileName.size() = "<<fileName.size()<<endl;
-            if ((fileName.size() == 1) || (fileName.size() == 2)) {
-               //TODO
-            } else {
-               path = fileName;
-            }
-         }
-         closedir(dir);
-      } else {
-         cout<<"directory does not exists."<<endl;
+void EagerSearch::generateReport() {
+      cout<<"collector.size() = "<<collector.size()<<endl;
+      vector<int> levels;
+      for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
+          Node2 n = iter->first;
+          levels.push_back(n.getF());
       }
 
-      cout<<"The path in eager search is: "<<path<<endl;
+      int depth = returnMaxF(levels);
+      int minDepth = returnMinF(levels);
+      map<int, int> m;
 
-      string rutaT = "/home/marvin/fd/src/translate/arquivos/"+path;
-      ifstream fileT(rutaT.c_str());
-      
-      string dominio;
-      string tarefa;
-      string heuristica;
-     
-      fileT>>dominio;
-      fileT>>tarefa;
-      fileT>>heuristica;
+      string dominio = domain_name;
+      string tarefa = problem_name2;
+      string heuristica = heuristic_name2;
       cout<<"dominio = "<<dominio<<endl;
       cout<<"tarefa = "<<tarefa<<endl;
       cout<<"heuristica = "<<heuristica<<endl;
-      vs.push_back(dominio.c_str());
-      vs.push_back(tarefa.c_str());
-      vs.push_back(heuristica.c_str());
-     
-      return vs;
-}
 
+      string directoryDomain = "mkdir /home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio;
+      system(directoryDomain.c_str());
+      
+      string nBL = "/home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio+"/"+tarefa; 
+
+      ofstream outputFile;
+      outputFile.open(nBL.c_str(), ios::out);
+      outputFile<<"\t\t"<<nBL.c_str()<<"\n";
+      outputFile<<"\ttotalniveles: "<<(nivel - minDepth) + 1<<"\n";
+       
+      outputFile<<"\tf-value\t\t#nodesByLevel\t\ttime\t\t#nodesExpanded\n";
+
+      for (int i = 0; i <= depth; i++) {
+          int k = 0;
+          for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
+              Node2 n = iter->first;
+              if (i == n.getF()) {
+                  k = k + iter->second;
+              }
+          }
+          map<int, int>::iterator iter = m.find(i);
+          if (iter == m.end()) {
+             m.insert(pair<int, int>(i, k));
+          }
+      }
+      int sum = 0;
+      for (map<int, int>::iterator iter = m.begin(); iter != m.end(); iter++) {
+          int f = iter->first;
+          int q = iter->second;
+          
+          if ((f <= nivel) && (q != 0) ) {
+             cout<<"f = "<<f<<"\tq = "<<q<<endl;
+             sum = sum + q;
+             outputFile<<"\t"<<f<<"\t\t"<<q<<"\t\t\t1\t\t\t"<<sum<<"\n";
+          }
+      }
+
+      outputFile.close();
+
+
+}
 
 pair<SearchNode, bool> EagerSearch::fetch_next_node() {
     /* TODO: The bulk of this code deals with multi-path dependence,
@@ -930,7 +709,7 @@ pair<SearchNode, bool> EagerSearch::fetch_next_node() {
         if (open_list->empty()) {
             cout << "Completely explored state space -- no solution!" << endl;
             isCompleteExplored=true;
-            generateReport(v_f, v_h, v_g, search_progress.return_lastjump_f_value());
+            generateReport();
             return make_pair(search_space.get_node(*g_initial_state), false);
         }
         vector<int> last_key_removed;
@@ -995,87 +774,6 @@ void EagerSearch::dump_search_space() {
     search_space.dump();
 }
 
-void EagerSearch::sample_frontier_now(int next_f_boundary) {
-  //int next_f_boundary=open_list->get_f_boundary();
-  vector<pair<State,int> > chosen_Hoff_Roots;//populates with selected Hoff Roots
-  F_boundary_time=search_timer();//for the purpose of maximum sampling time
-	  //int Hoff_Root_Range=open_list->open_list_get_next_boundary_range(); 
-	  int Hoff_Root_Range=open_list->open_list_get_boundary_range(); 
-	//cout<<"finished open_list_get_boundary_range"<<endl;fflush(stdout);
-	  if(full_sampling){
-	    leaves_to_sample=Hoff_Root_Range;
-	  }
-	  else{
-	    leaves_to_sample=0.1*Hoff_Root_Range;
-	  }
-	  if(leaves_to_sample<100){
-	    leaves_to_sample=min(100,Hoff_Root_Range);
-	  }
-	  cout<<"F_bound:"<<search_progress.return_lastjump_f_value()<<"F_boundary_time:"<<F_boundary_time<<",Hoff Potential Range:"<<Hoff_Root_Range<<",leaves_to_sample:"<<leaves_to_sample<<endl;
-
-	//int max_position=Hoff_Root_Range-1;
-	  if(Hoff_Root_Range>50){
-	  //if((leaves_to_sample)<Hoff_Root_Range&&(Current_RIDA_Phase==SAMPLING_PHASE)&&F_boundary_time>5.0)
-	    if(one_time_sampling==true){
-	      first_sample=false;
-	      cout<<"only sampling one iteration, set first_sample to false"<<endl;
-	    }
-    
-	    Current_RIDA_Phase=SOLVING_PHASE;//needs to be changed for calcultate_heuristics function in Tree.CC
-	    pair<State,int> Hoff_Root(*g_initial_state,0);//Need to intialize state, constructor does not allow empty state!
-	    //calculate ratio that will approximately generate  the number of random Hoff Roots in a random pass
-	    if(full_sampling){
-	      leaf_selection_ratio=1.0;
-	    }
-	    else{
-	      leaf_selection_ratio=double(leaves_to_sample)/double(Hoff_Root_Range);
-	    }
-	    cout<<"SAMPLING_PHASE,F:,"<<search_progress.return_lastjump_f_value()<<",Hoff Potential Range:"<<Hoff_Root_Range<<",leaves_to_sample:"<<leaves_to_sample<<",leaf_selection_ratio:,"<<leaf_selection_ratio<<endl;fflush(stdout);
-	    for(int i=0;i<Hoff_Root_Range;i++){
-	      //Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i,next_f_boundary);
-	      Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i);
-	      chosen_Hoff_Roots.push_back(Hoff_Root);
-	      if(leaves_to_sample<=i){
-		break;
-	      }
-
-	      /*  if(fRand(0.0,1.0)<=leaf_selection_ratio){
-		Hoff_Root=open_list->get_specific_f_boundary_states_and_depth(i);
-		//cout<<"\tadded Hoff Root#"<<i<<":;";Hoff_Root.first.dump_pddl();cout<<"g:"<<Hoff_Root.second<<endl;
-		chosen_Hoff_Roots.push_back(Hoff_Root);
-	      }*/
-	    }
-	    heuristics=orig_heuristics;
-	    IDA_iter_sampling_timer.reset();IDA_iter_sampling_timer.resume();
-	    //Options opt2;
-	    //OptionParser parser;
-	    //SearchEngine::add_options_to_parser(parser);
-	    //HustSearch lsearch_space(&opts2);
-	    //HustSearch lsearch_space();
-	    //lsearch_space.select_best_estimated_heuristic_subset(&chosen_Hoff_Roots,orig_heuristics,heuristics);
-     
-	    cout<<"Memory before starting sampling:"<<get_peak_memory_in_kb()<<endl;
-	    lsearch_space2.select_best_estimated_heuristic_subset(&search_space,&chosen_Hoff_Roots,orig_heuristics,heuristics,next_f_boundary, Hoff_Root_Range);
-	    if(!one_time_sampling){
-	      Current_RIDA_Phase=SAMPLING_PHASE;//needs to be changed for calcultate_heuristics function in Tree.CC
-	    }
-	    total_sampling_timer+=IDA_iter_sampling_timer.stop();
-	    cout<<"sampling time until now:"<<total_sampling_timer<<endl;
-	    if(full_sampling&&(!time_limit_node_adjusted)){//need to remove the sampling costs from the time limit
-	      time_limit+=total_sampling_timer;
-	      time_limit_node_adjusted=true;
-	      cout<<"time_limit set to "<<time_limit<<"because when doing full sampling we ignore sampling costs"<<endl;
-	    }
-	  }
-	  else{
-	    cout<<"Need at least 10 or more F-boundary roots"<<endl;
-	    return;
-	  }
-	cout<<"Memory after sampling:"<<get_peak_memory_in_kb()<<",active heurs:"<<heuristics.size()<<endl;
-	for(int i=0;i<heuristics.size();i++){
-	  cout<<"selected_heur("<<i<<") is:";heuristics[i]->print_heur_name();cout<<endl;
-	}
-}
 void EagerSearch::update_jump_statistic(const SearchNode &node) {
   //vector<int> heuristics_to_drop;
     if (f_evaluator) {

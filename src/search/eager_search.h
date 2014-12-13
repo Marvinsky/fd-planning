@@ -2,6 +2,7 @@
 #define EAGER_SEARCH_H
 
 #include <vector>
+#include <map>
 
 #include "open_lists/open_list.h"
 #include "search_engine.h"
@@ -11,6 +12,7 @@
 #include "evaluator.h"
 #include "search_progress.h"
 #include "Tree.h"
+#include "node2.h"
 
 class Heuristic;
 class Operator;
@@ -33,9 +35,9 @@ class EagerSearch : public SearchEngine {
     int nivel;
     int count_last_nodes_gerados;
     bool isCompleteExplored;
-    vector<int> v_f;
-    vector<int> v_g;
-    vector<int> v_h;
+    
+    map<Node2, int> collector;
+    int count_value;
  
 protected:
     int step();
@@ -62,10 +64,10 @@ public:
 
     void dump_search_space();
     double get_total_sampling_time(){return total_sampling_timer;}
-    map<int, int> getFDistribution(vector<int> v_f_value);
- 
-    void generateReport(vector<int> v_f, vector<int> v_h, vector<int> v_g, int threshold);
-    vector<string> readFile();
+
+    void generateReport();
+    int returnMaxF(vector<int> levels);
+    int returnMinF(vector<int> levels);
 };
 
 #endif
