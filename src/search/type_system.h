@@ -1,31 +1,33 @@
-#ifndef type_system_h
-#define type_system_h
+#ifndef TYPE_SYSTEM_h__
+#define TYPE_SYSTEM_h__
+
+#include <vector>
+#include <string>
 
 #include "type.h"
-#include "search_space.h"
+#include "type_children.h"
+#include "state.h"
+#include "heuristic.h"
+#include "operator.h"
+#include "search_engine.h"
 
-#include <map>
-
+using namespace::std;
 
 
 class TypeSystem {
 private:
-	//AbstractPKHeuristic *hf;
-public:
-	TypeSystem();
-	Type getType(SearchNode &node, long level);
 
+	void sample(State state, int parent_heuristic, TypeChildren& children, int type, int current_level);
+	short* getEmptyFeatures(int lookahead);
+	Heuristic* heuristic;
+	int best_h;
+
+public:
+	TypeSystem(Heuristic* heuristic);
+	~TypeSystem();
+
+	Type getType(State state, int h, int type);
 };
 
-TypeSystem::TypeSystem() {
-
-}
-
-Type TypeSystem::getType(SearchNode &node, long level) {
-	long h = node.get_h();
-	Type obj(h, level);
-
-	return obj;
-}
-
 #endif
+

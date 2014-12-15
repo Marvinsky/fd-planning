@@ -24,7 +24,6 @@ HEADERS = \
           closed_list.h \
           combining_evaluator.h \
           domain_transition_graph.h \
-	  ss_search.h \
           dfs_search.h \
           eager_search.h \
 	  eager_search_kre.h \
@@ -138,6 +137,13 @@ HEADERS += pdbs/canonical_pdbs_heuristic.h \
            pdbs/pdb_heuristic.h \
            pdbs/util.h \
            pdbs/zero_one_pdbs_heuristic.h \
+
+
+HEADERS += type.h \
+           type_children.h \
+           type_child.h \
+           type_system.h \
+           ss_search.h \
 
 SHELL = /bin/bash
 

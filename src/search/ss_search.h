@@ -1,91 +1,71 @@
-#ifndef STRATIFIED_SAMPLING_SEARCH_H
-#define STRATIFIED_SAMPLING_SEARCH_H
+#ifndef STRATIFIED_SAMPLING_H_
+#define STRATIFIED_SAMPLING_H_
 
-#include <vector>
 
-#include "open_lists/open_list.h"
-#include "search_engine.h"
-#include "search_space.h"
 #include "state.h"
-#include "timer.h"
-#include "evaluator.h"
-#include "search_progress.h"
-#include "Tree.h"
+#include "heuristic.h"
+#include "operator.h"
+#include "search_engine.h"
 #include "type.h"
+#include "type_system.h"
 
-//#include "type_system.h"
-//#include "abstract_pk_heuristic.h"
+static const double DEFAULT_SS_RG = 0.01;
+static const double DEFAULT_SS_RL = 0.01;
+static const int DEFAULT_SS_LOOKAHEAD = 1;
+static const int DEFAULT_SS_BEAMSIZE = 10000;
+static const int DEFAULT_SS_MAXLEVELS = 100;
+static const int DEFAULT_SS_TIMELIMIT = 1800;
 
-#include "time.h"
-#include "../randomc/randomc.h"
-#include "../randomc/mersenne.cpp"
+using namespace std;
+typedef vector<const Operator*> Path;
 
-#include <map>
-#include <locale>
-
-
-class Heuristic;
-class Operator;
-class ScalarEvaluator;
-class Options;
-
-template<class charT, charT sep>
-class punct_facet: public std::numpunct<charT> {
-protected:
-	charT do_decimal_point() const {
-		return sep;
-	}
+class SSNode{
+public:
+	State state;
+	int weight;
+	SSNode(State s, int w) : state(s), weight(w){}
 };
 
-
 class SSSearch : public SearchEngine {
-	//search behavior parameters
-	bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths.
-	bool do_pathmax; //whether to use pathmax correction
-	bool use_multi_path_dependence;
-	bool mark_children_as_finished;
-	
-	Timer IDA_iter_sampling_timer;
-	double total_sampling_timer;
-	OpenList<state_var_t *> *open_list;
-	ScalarEvaluator *f_evaluator;
-	bool first_sample;
+public: 
+private:
+	double rg;
+	double rl;
+	int lookahead; //defines the type system being used
+	long beamsize; //maximum number of nodes expanded by level
+	int maxlevels; //maximum number of levels expanded with no progress before switching to a more refined type system
+	int timelimit; //time limit to solve the problem in seconds
 
-	map<Type, SearchNode> collector;
-	//AbstractPKHeuristic *hf;
-	//TypeSystem *typesystem;	
-	
-	CRandomMersenne* RanGen;
-        string heuristic_name;
-        
+	std::map<int, SSNode> open;
+	std::map<Type, SSNode> queue;
+	std::vector<Heuristic*> heuristics;
+	Heuristic* heuristic;
+	State current_state;
+	bool progress;
+	int total_min;
+	int depth;
+	int initial_value;
+        int threshold;
+
+	Timer search_time;
+	Timer level_time; //time required to expand an entire level
+
+	TypeSystem * sampler;
+
+	void restart();
+	void jump();
+	bool global_restart();
+	void report_progress();
+
 protected:
-	int step();
-        long probe();
-	pair<SearchNode, bool> fetch_next_node();
-	//bool check_goal(const SearchNode &node);
-	//void update_jump_statistic(const SearchNode &node);
-	//void print_heuristic_values(const vector<int> &values) const;	
-	void reward_progress();
 
-	vector<Heuristic *> heuristics;
-	vector<Heuristic *> orig_heuristics;
-	vector<Heuristic *> preferred_operator_heuristics;
-	vector<Heuristic *> estimate_heuristics;
-	//TODO: in the long term this
-	//should disappear into the open list
-	
+	virtual int step();
 	virtual void initialize();
-	void sample_frontier_now(int next_f_boundary);
-	void output_problem_results();
+
 public:
+	enum{A_LOT=10000000};
 	SSSearch(const Options &opts);
-	void statistics() const;
-        string getRealHeuristic(string heur);	
-	//void dump_search_space();
-	double get_total_sampling_time(){return total_sampling_timer;}
-        int getMax_gvalue(vector<int> v_g);
-        map<int, int> getFDistribution(vector<int> v_f_value);
-        vector<string> readFile();
-        long getProbingResult();
-}; 
-#endif
+	virtual ~SSSearch();
+};
+
+#endif /*MRW_H_*/
