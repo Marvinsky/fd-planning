@@ -637,13 +637,23 @@ int EagerSearch::returnMinF(vector<int> levels) {
 void EagerSearch::generateReport() {
       cout<<"collector.size() = "<<collector.size()<<endl;
       vector<int> levels;
+      map<int, int> mlevels;
+      int count_level = 0;
       for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
           Node2 n = iter->first;
           levels.push_back(n.getF());
+          
+          map<int, int>::iterator iter2 = mlevels.find(n.getF());
+          if ((iter2 == mlevels.end()) && n.getF() <= nivel) {
+             mlevels.insert(pair<int, int>(n.getF(), count_level));
+             count_level++;
+          }
       }
 
       int depth = returnMaxF(levels);
-      int minDepth = returnMinF(levels);
+      //int minDepth = returnMinF(levels);
+      cout<<"mlevels.size() = "<<mlevels.size()<<endl;
+      cout<<"count_level = "<<count_level<<endl;
       map<int, int> m;
 
       string dominio = domain_name;
@@ -661,7 +671,7 @@ void EagerSearch::generateReport() {
       ofstream outputFile;
       outputFile.open(nBL.c_str(), ios::out);
       outputFile<<"\t\t"<<nBL.c_str()<<"\n";
-      outputFile<<"\ttotalniveles: "<<(nivel - minDepth) + 1<<"\n";
+      outputFile<<"\ttotalniveles: "<<mlevels.size()<<"\n";
        
       outputFile<<"\tf-value\t\t#nodesByLevel\t\ttime\t\t#nodesExpanded\n";
 
