@@ -5,6 +5,8 @@
 #include "plugin.h"
 #include "rng.h"
 
+#include <iostream>
+#include <fstream>
 
 SSSearch::SSSearch(const Options &opts) :SearchEngine(opts), current_state(*g_initial_state){
 	rg = opts.get<double>("rg");
@@ -85,16 +87,28 @@ int SSSearch::step()
 	int last_level = 0;
 	int expansions_level = 0;
 	int number_levels_without_progress = 0;
-
+        count_value = 1;
 	while( !queue.empty() )
 	{
 		Type out = queue.begin()->first;
 		SSNode s = queue.begin()->second;
 		queue.erase( out );
-                
+                //Insert SSNode to count w
+                vweight.push_back(s);       
 		//output.insert( pair<SemiLosslessObject, PKState> ( out, s ) );
 		int g = out.getLevel();
-                cout<<"\nRaiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<"\n";
+               
+                //Insert each node.
+                Node2 node2(out.getH() + g, g);
+                if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+                   count_value = 1;
+                } else {
+                   map<Node2, int>::iterator iter = collector.find(node2);
+                   int q = iter->second;
+                   q++;
+                   iter->second = q;
+                }
+
 		//negative beam sizes equal to an allowance of infinity number of nodes expansions
 		if(beamsize > 0 && g == last_level && expansions_level > beamsize)
 		{
@@ -131,18 +145,21 @@ int SSSearch::step()
 				continue;
 			}
 
-			if (test_goal(child))
+			/*if (test_goal(child))
 			{
+                                Node2 node2(h + g+1, g+1);
+                                collector.insert(pair<Node2, int>(node2, 1));
 				cout << "[PROBLEM SOLVED] -- SUCCEEDED" << endl;
-				return SOLVED;
-			}
+                                //generateReport();
+				return IN_PROGRESS;
+			}*/
 
                         if (g <= threshold) {
 			   Type object = sampler->getType(child, h,  lookahead);
 			   object.setLevel( g + 1 );
 
 			   SSNode child_node(child, w);
-                           cout<<"\tChild: h = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH() + object.getLevel()<<"\n"; 
+                           //cout<<"\tChild: h = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH() + object.getLevel()<<"\n"; 
 			   std::map<Type, SSNode>::iterator queueIt = queue.find( object );
 			   if( queueIt != queue.end() )
 			   {
@@ -155,21 +172,101 @@ int SSSearch::step()
 
 				if(a < prob)
 				{
+                                        //cout<<"Added even though is duplicate.\n";
 					child_node.weight = wa + w;
 					queue.insert( pair<Type, SSNode>( object, child_node ) );
 				}
 			   }  
 			   else
 			   {
+                                //cout<<"new added\n";
 				queue.insert( pair<Type, SSNode>( object, child_node ) );
 			   }
                         }
 		}
 	}
+        generateReport();
 
-
-	return IN_PROGRESS;
+	return SOLVED;
 }
+
+
+void SSSearch::generateReport() {
+        string dominio = domain_name;
+        string tarefa = problem_name2;
+        string heuristica = heuristic_name2;
+
+        cout<<"dominio = "<<dominio<<endl;
+        cout<<"tarefa = "<<tarefa<<endl;
+        cout<<"heuristica = "<<heuristica<<endl;
+
+        string dirDomain = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio;
+        string dirfDist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist";
+       
+        string outputFile = "/home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist/"+tarefa;
+
+        ofstream output;
+
+        output.open(outputFile.c_str());
+        output<<"\t"<<outputFile.c_str()<<"\n" ;
+        output<<"predictionSS: "<<getProbingResult()<<"\n";
+        output<<"threshold: "<<threshold<<"\n";
+        
+
+        if (system(dirDomain.c_str())) {
+           cout<<"Directory: "<<heuristica<<" created."<<endl;
+        }
+
+        if (system(dirfDist.c_str())) {
+           cout<<"Directory: fdist created."<<endl;
+        }
+        cout<<"print."<<endl;
+        for (int i = 0; i <= threshold; i++) {
+            int k = 0;
+            vector<int> f;
+            vector<int> q;
+            for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
+                 Node2 n = iter->first;
+                 if (i == n.getL()) {
+                    k++;
+                    f.push_back(n.getF());
+                    q.push_back(iter->second);
+                 }
+            }
+            cout<<"g: "<<i<<"\n";
+            output<<"g:"<<i<<"\n";
+
+            cout<<"size: "<<k<<"\n";            
+            
+            for (int j = 0; j < f.size(); j++) {
+                 cout<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+                 output<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+            }
+            cout<<"\n";
+            output<<"\n";
+        }
+        output.close();
+}
+
+long SSSearch::getProbingResult() {
+        long expansions = 0;
+
+        for (int i = 0; i < vweight.size(); i++) {
+             SSNode n = vweight.at(i);
+             expansions += n.weight;
+        }
+        return expansions;
+}
+
+void SSSearch::printQueue() {
+        cout<<"\nPrintQueue\n";
+	for (map<Type, SSNode>::iterator iter = queue.begin(); iter !=  queue.end(); iter++) {
+            Type t = iter->first;
+            cout<<"\t\t h = "<<t.getH()<<" g = "<<t.getLevel()<<" f = "<<t.getH() + t.getLevel()<<"\n"; 
+        }
+        cout<<"\n";
+}
+
 
 void SSSearch::report_progress()
 {
@@ -208,6 +305,11 @@ void SSSearch::initialize() {
 	queue.insert( pair<Type, SSNode>( type, node ) );
 
 	//open.insert(make_pair(initial_value, node));
+        //Initialize 
+        //count_value = 1;
+        //Node2 node2(initial_value + type.getLevel(), type.getLevel());
+        //collector.insert(pair<Node2, int>(node2, count_value));
+
 	progress = true;
 	cout << "Initial heuristic value: ";
 	cout << initial_value << endl;

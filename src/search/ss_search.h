@@ -8,6 +8,7 @@
 #include "search_engine.h"
 #include "type.h"
 #include "type_system.h"
+#include "node2.h"
 
 static const double DEFAULT_SS_RG = 0.01;
 static const double DEFAULT_SS_RL = 0.01;
@@ -38,7 +39,9 @@ private:
 
 	std::map<int, SSNode> open;
 	std::map<Type, SSNode> queue;
+        std::map<Node2, int> collector;
 	std::vector<Heuristic*> heuristics;
+        std::vector<SSNode> vweight; 
 	Heuristic* heuristic;
 	State current_state;
 	bool progress;
@@ -46,6 +49,7 @@ private:
 	int depth;
 	int initial_value;
         int threshold;
+        int count_value;         
 
 	Timer search_time;
 	Timer level_time; //time required to expand an entire level
@@ -66,6 +70,9 @@ public:
 	enum{A_LOT=10000000};
 	SSSearch(const Options &opts);
 	virtual ~SSSearch();
+        void printQueue();
+        void generateReport();
+        long getProbingResult();
 };
 
 #endif /*MRW_H_*/
