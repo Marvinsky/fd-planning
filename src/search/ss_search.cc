@@ -237,7 +237,7 @@ void SSSearch::generateReport() {
             output<<"g:"<<i<<"\n";
 
             cout<<"size: "<<k<<"\n";            
-            
+            output<<"size: "<<k<<"\n"; 
             for (int j = 0; j < f.size(); j++) {
                  cout<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
                  output<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
