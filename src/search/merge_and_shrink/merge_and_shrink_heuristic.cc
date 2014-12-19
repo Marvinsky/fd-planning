@@ -173,6 +173,7 @@ void MergeAndShrinkHeuristic::initialize() {
     Timer timer;
     cout << "Initializing merge-and-shrink heuristic..." << endl;
     dump_options();
+    cout<<"use_expensive_statistics = "<<use_expensive_statistics<<"\n";
     warn_on_unusual_options();
 
     verify_no_axioms_no_cond_effects();

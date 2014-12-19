@@ -61,6 +61,7 @@ void EagerSearch::initialize() {
     first_time =false;
     count_last_nodes_gerados=0;
     isCompleteExplored=false;
+    time_level.reset();
     cout<<"mpd = "<<use_multi_path_dependence<<endl;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
@@ -664,7 +665,9 @@ void EagerSearch::generateReport() {
       cout<<"heuristica = "<<heuristica<<endl;
 
       string directoryDomain = "mkdir /home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio;
-      system(directoryDomain.c_str());
+      if (system(directoryDomain.c_str())) {
+         cout<<"Directory created successfully."<<endl;
+      }
       
       string nBL = "/home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio+"/"+tarefa; 
 
@@ -688,7 +691,13 @@ void EagerSearch::generateReport() {
              m.insert(pair<int, int>(i, k));
           }
       }
+      cout<<"print v_timer"<<endl;
+      for (int i = 0; i < v_timer.size(); i++) {
+          cout<<v_timer.at(i)<<endl;
+      }     
+
       int sum = 0;
+      int count_v_timer = 0;
       for (map<int, int>::iterator iter = m.begin(); iter != m.end(); iter++) {
           int f = iter->first;
           int q = iter->second;
@@ -696,7 +705,8 @@ void EagerSearch::generateReport() {
           if ((f <= nivel) && (q != 0) ) {
              cout<<"f = "<<f<<"\tq = "<<q<<endl;
              sum = sum + q;
-             outputFile<<"\t"<<f<<"\t\t"<<q<<"\t\t\t1\t\t\t"<<sum<<"\n";
+             outputFile<<"\t"<<f<<"\t\t"<<q<<"\t\t\t"<<v_timer.at(count_v_timer)<<"\t\t\t"<<sum<<"\n";
+             count_v_timer++;
           }
       }
 
@@ -794,41 +804,14 @@ void EagerSearch::update_jump_statistic(const SearchNode &node) {
         search_progress.report_f_value(new_f_value);*/
       int new_f_value = node.get_g()+node.get_h();
       //cout<<"new_f_value:"<<new_f_value<<endl; 
-
+      
       if(search_progress.updated_lastjump_f_value(new_f_value)){
+        double level_update_time = time_level();
+        cout<<"level_update_time = "<<level_update_time<<endl;
+        v_timer.push_back(level_update_time);
 
-        vniveles.push_back(new_f_value); 
 	search_progress.report_f_value(new_f_value);
-        /*
-    	map<int, int>::iterator mapIter = nodes_expanded_by_level.find(search_progress.return_lastjump_f_value()-1);//lastjump_f_value - 1, because at this point lastjump_f_value is updated and I want to get the last number of expanded nodes.
-
-	map<int, int>::iterator mapIter2 = nodes_generated_by_level.find(search_progress.return_lastjump_f_value());
-
-	bool bool_expr1 = (mapIter != nodes_expanded_by_level.end());
-	cout<<"bool_expr1 = "<<bool_expr1<<endl;
-
-	bool bool_expr2 = (mapIter2 != nodes_generated_by_level.end());
-	cout<<"bool_expr2 = "<<bool_expr2<<endl;
-
-	if (bool_expr1 && bool_expr2) {
-	   int nodesExpandedByLevel = mapIter->second;
-	   int nodesGeneratedLastLevel = mapIter2->second;
-	   cout<<"nodes expanded in the last level: "<<nodesExpandedByLevel<<endl;
-	   cout<<"nodes generated in the current level: "<<search_progress.get_generated()<<endl;
-	   cout<<"nodes generated int the last level: "<<nodesGeneratedLastLevel<<endl;
-	   if (nodesExpandedByLevel > 0) {
-	      gen_to_exp_ratio = double(search_progress.get_generated() -  nodesGeneratedLastLevel)/double(nodesExpandedByLevel);
-	      cout<<"effectiveBranchingFactor: "<<gen_to_exp_ratio<<endl;
-	   } else {
-	      cout<<"effectiveBranchingFactor: "<<0<<endl;
-	   }
-	} else {
-	   //handle error
-	   cout<<"There is no expanded nodes previous to the initial state."<<endl;
-	}
-	*/
-    	 
-
+ 
 
 	cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(StateProxy)+sizeof(SearchNodeInfo))/1024.0<<",F_boundary_Range:"<<open_list->open_list_get_boundary_range()<<endl;
 	///cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(: public __gnu_cxx::hash_map<StateProxy,SearchNodeInfo>))/1024.0<<endl;

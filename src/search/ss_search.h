@@ -39,6 +39,7 @@ private:
 
 	std::map<int, SSNode> open;
 	std::map<Type, SSNode> queue;
+        std::map<int, SSNode> mweight;
         std::map<Node2, int> collector;
 	std::vector<Heuristic*> heuristics;
         std::vector<SSNode> vweight; 
@@ -50,7 +51,7 @@ private:
 	int initial_value;
         int threshold;
         int count_value;         
-
+        int count_level_value;
 	Timer search_time;
 	Timer level_time; //time required to expand an entire level
 

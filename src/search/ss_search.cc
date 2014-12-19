@@ -86,15 +86,17 @@ int SSSearch::step()
 	 */
 	int last_level = 0;
 	int expansions_level = 0;
-	int number_levels_without_progress = 0;
+	//int number_levels_without_progress = 0;
         count_value = 1;
+        count_level_value = 1;
 	while( !queue.empty() )
 	{
 		Type out = queue.begin()->first;
 		SSNode s = queue.begin()->second;
 		queue.erase( out );
                 //Insert SSNode to count w
-                vweight.push_back(s);       
+                mweight.insert(pair<int, SSNode>(count_level_value, s));
+                count_level_value++;
 		//output.insert( pair<SemiLosslessObject, PKState> ( out, s ) );
 		int g = out.getLevel();
                
@@ -251,8 +253,8 @@ void SSSearch::generateReport() {
 long SSSearch::getProbingResult() {
         long expansions = 0;
 
-        for (int i = 0; i < vweight.size(); i++) {
-             SSNode n = vweight.at(i);
+        for (map<int, SSNode>::iterator iter = mweight.begin(); iter != mweight.end(); iter++) {
+             SSNode n = iter->second;
              expansions += n.weight;
         }
         return expansions;
