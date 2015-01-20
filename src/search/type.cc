@@ -56,4 +56,20 @@ bool operator< (const Type& o1, const Type& o2)
 	return o1.children < o2.children;
 }
 
+Type& Type::operator=(const Type &rhs) {
+	this->level = rhs.level;
+	this->best_h = rhs.best_h;
+	this->p = rhs.p;
+	this->h = rhs.h;
+	return *this;
+}
+
+int Type::operator==(const Type &rhs) const {
+	if (this->level != rhs.level) return 0;
+	if (this->best_h != rhs.best_h) return 0;
+	if (this->p != rhs.p) return 0;
+	if (this->h != rhs.h) return 0;
+	return 1;	
+}
+
 int Type::lookahead = 0;

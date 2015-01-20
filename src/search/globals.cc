@@ -411,6 +411,7 @@ map<int, vector<long> > mapv_f;
 string domain_name = "temp";
 string problem_name2 = "temp";
 string heuristic_name2 = "temp";
+int ss_probes = 0;
 int node_time_adjusted_reval=0;
 bool one_time_sampling=true;
 bool full_sampling=false;

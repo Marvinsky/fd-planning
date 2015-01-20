@@ -10,6 +10,12 @@
 #include "type_system.h"
 #include "node2.h"
 
+#include "map"
+
+#include "randomc/randomc.h"
+#include "randomc/mersenne.cpp"
+
+
 static const double DEFAULT_SS_RG = 0.01;
 static const double DEFAULT_SS_RL = 0.01;
 static const int DEFAULT_SS_LOOKAHEAD = 1;
@@ -21,11 +27,27 @@ using namespace std;
 typedef vector<const Operator*> Path;
 
 class SSNode{
+private:
+	State state;
+	double weight;
+public:
+        SSNode(): state(NULL), weight(0.0){}
+        SSNode(State s, double w) : state(s), weight(w){}
+        State getState() {return this->state;}
+        void setState(State s) {this->state = s;}
+        double getWeight()  {return this->weight;}
+        void setWeight(double w) {this->weight = w;} 
+};
+
+/*
+class SSNode {
 public:
 	State state;
-	int weight;
-	SSNode(State s, int w) : state(s), weight(w){}
+	double weight;
+        SSNode(State s, double w) : state(s), weight(w) {}
 };
+*/
+
 
 class SSSearch : public SearchEngine {
 public: 
@@ -38,11 +60,11 @@ private:
 	int timelimit; //time limit to solve the problem in seconds
 
 	std::map<int, SSNode> open;
-	std::map<Type, SSNode> queue;
-        std::map<int, SSNode> mweight;
+	map<Type, SSNode> queue;
+        map<Type, double> S; 
+        vector<SSNode> vweight;
         std::map<Node2, int> collector;
-	std::vector<Heuristic*> heuristics;
-        std::vector<SSNode> vweight; 
+	std::vector<Heuristic*> heuristics; 
 	Heuristic* heuristic;
 	State current_state;
 	bool progress;
@@ -50,17 +72,20 @@ private:
 	int depth;
 	int initial_value;
         int threshold;
-        int count_value;         
+        int count_value;
         int count_level_value;
+
 	Timer search_time;
 	Timer level_time; //time required to expand an entire level
 
 	TypeSystem * sampler;
 
-	void restart();
-	void jump();
-	bool global_restart();
+	//void restart();
+	//void jump();
+	//bool global_restart();
 	void report_progress();
+
+        CRandomMersenne* RanGen;        
 
 protected:
 
@@ -73,7 +98,9 @@ public:
 	virtual ~SSSearch();
         void printQueue();
         void generateReport();
-        long getProbingResult();
+        double getProbingResult();
+        void probe();
+        void predict(int probes);
 };
 
 #endif /*MRW_H_*/

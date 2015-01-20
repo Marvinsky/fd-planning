@@ -189,7 +189,7 @@ TARGET_DEBUG    = $(TARGET)$(TARGET_SUFFIX_DEBUG)
 OBJECTS_PROFILE = $(SOURCES:%.cc=.obj/%$(OBJECT_SUFFIX_PROFILE).o)
 TARGET_PROFILE  = $(TARGET)$(TARGET_SUFFIX_PROFILE)
 
-CC     = g++
+CC     = g++ -g -o0
 DEPEND = g++ -MM
 
 ## CCOPT, LINKOPT, POSTLINKOPT are options for compiler and linker

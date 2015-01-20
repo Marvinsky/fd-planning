@@ -183,6 +183,9 @@ SearchEngine *OptionParser::parse_cmd_line(
             ++i;
             OptionParser p(argv[i], dry_run);
             engine = p.start_parsing<SearchEngine *>();
+        } else if (arg.compare("--global_probes") == 0) {
+            ++i;
+            ss_probes = atoi(argv[i]);            
         } else if (arg.compare("--domain_name") == 0) {
             ++i;
            domain_name = argv[i]; 

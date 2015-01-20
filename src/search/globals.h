@@ -120,6 +120,7 @@ extern map<int, vector<long> > mapv_f;
 extern string domain_name;
 extern string problem_name2;
 extern string heuristic_name2;
+extern int ss_probes;
 extern bool evaluate_randomization;
 extern bool adding_found_lower_depth;
 extern long RANDOM_CAP;//100000 heur combined to 15 degrees
