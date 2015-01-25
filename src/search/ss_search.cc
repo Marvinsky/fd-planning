@@ -164,9 +164,16 @@ void SSSearch::probe()
                                 SSNode snode = queueIt->second;
 				double wa = (double)snode.getWeight();
 				snode.setWeight( wa + w);
-                                
+
+                                std::pair<std::map<Type, SSNode>::iterator, bool> ret0;
+
+                                ret0 = queue.insert(pair<Type, SSNode>(object, snode));
+                                cout<<"\tsnode.getWeight() = "<<snode.getWeight()<<endl;
+                                queueIt->second.setWeight(snode.getWeight());
+ 
+ 
 				double prob = ( double )w / ( wa + w );
-				int rand_100 =  (int)g_rng.next(100);  //RanGen->IRandom(0, 99);  				
+				int rand_100 = RanGen->IRandom(0, 99);  //(int)g_rng.next(100);
                           	 
                                 double a = (( double )rand_100) / 100;
 
@@ -188,8 +195,23 @@ void SSSearch::probe()
 				        cout<<"\t\tbefore insert."<<endl;
                                         printQueue();
                                         cout<<"\t\t190: child_node.getWeigt() = "<<child_node.getWeight()<<endl;
-                                        queue.insert( pair<Type, SSNode>( object, child_node ));      
-                                        //queue.at(type) = child_node; 
+                                        
+                                        std::pair<std::map<Type, SSNode>::iterator, bool> ret;
+                                      
+
+                                        ret = queue.insert( pair<Type, SSNode>( object, child_node ));      
+
+                                        queueIt = ret.first;
+                                        queueIt->second.setWeight(child_node.getWeight());
+                                        
+                                        cout<<"\t\tbegin for."<<endl;
+                                        for (; queueIt !=  queue.end(); queueIt++) {
+						Type t3 = queueIt->first;
+						SSNode t4 = queueIt->second;
+                                                cout<<"\t\th = "<<t3.getH()<<" g = "<<t3.getLevel()<<" f = "<<t3.getH() + t3.getLevel()<<" w = "<<t4.getWeight()<<endl;
+					}
+                                        cout<<"\t\tend for"<<endl;
+                                         
                                         cout<<"\t\t192: child_node.getWeight() = "<<child_node.getWeight()<<endl;
  
                                         cout<<"\t\tafter insert."<<endl;
@@ -198,7 +220,7 @@ void SSSearch::probe()
                                         map<Type, SSNode>::iterator it2 = queue.find(object);
                                         Type t1 = it2->first;
                                         SSNode t2 = it2->second; 
-                                        cout<<" h = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
+                                        cout<<"\t\th = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
 
                                         //S.insert( make_pair<Type, double>( object, it2->second + w ) );
 					count1++;

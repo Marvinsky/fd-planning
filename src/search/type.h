@@ -33,8 +33,12 @@ public:
 	void print() const;
 
 	friend bool operator< (const Type&, const Type&);
+
+
         Type &operator=(const Type &rhs);
-        int operator==(const Type &rhs) const;
+        bool operator==(const Type &rhs) const;
+        //bool operator<(const Type &rhs) const;        
+
 
 	int getH() const {return h;}
 	void setH(int i) {h = i;}

@@ -29,6 +29,7 @@ void Type::print() const
 	this->children.print();
 }
 
+
 bool operator< (const Type& o1, const Type& o2)
 {
      // node level is implicit in node class ("p" below)
@@ -53,7 +54,7 @@ bool operator< (const Type& o1, const Type& o2)
 		return o1.h < o2.h;  // higher heuristic values first
 	}
 
-	return o1.children < o2.children;
+	return false; //o1.children < o2.children;
 }
 
 Type& Type::operator=(const Type &rhs) {
@@ -64,12 +65,33 @@ Type& Type::operator=(const Type &rhs) {
 	return *this;
 }
 
-int Type::operator==(const Type &rhs) const {
-	if (this->level != rhs.level) return 0;
-	if (this->best_h != rhs.best_h) return 0;
-	if (this->p != rhs.p) return 0;
-	if (this->h != rhs.h) return 0;
-	return 1;	
+bool Type::operator==(const Type &rhs) const {
+	if (this->level != rhs.level) return false;
+	if (this->best_h != rhs.best_h) return false;
+	if (this->p != rhs.p) return false;
+	if (this->h != rhs.h) return false;
+	return true;	
 }
+
+/*
+bool Type::operator<(const Type &rhs) const {
+	if (this->level == rhs.level && this->best_h == rhs.best_h && this->p == rhs.p && this->h == rhs.h) {
+		return true;
+	}
+
+	if (this->level == rhs.level && this->best_h == rhs.best_h && this->p == rhs.p) {
+		return true;
+	}
+
+	if (this->level == rhs.level && this->best_h == rhs.best_h) {
+		return true;
+	}
+
+	if (this->level == rhs.level) {
+		return true;
+	}
+	return false;
+}
+*/
 
 int Type::lookahead = 0;
