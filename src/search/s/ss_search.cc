@@ -96,28 +96,26 @@ void SSSearch::probe()
 
         int count1 = 1;
         int count2 = 1;
-        int nraiz = 1; 
+        int nraiz = 1;
+ 
+        vector<bool> vbool;
+        int bcount = 0; 
 	while( !queue.empty() )
 	{
 		Type out = queue.begin()->first;
 		SSNode s = queue.begin()->second;
-               	int g = out.getLevel();
+               	int g = (int)out.getLevel();
 
                 printQueue();
-		queue.erase( out );
+
+                std::map<Type, SSNode>::iterator ret0;
+                ret0 = queue.find(out);
+
+
+		queue.erase( ret0 );
                 cout<<nraiz<<": Raiz: h = "<<out.getH()<<" g = "<<out.getLevel()<<" f = "<<out.getH() + out.getLevel()<<" w  = "<<s.getWeight()<<endl;   
                 nraiz++;                
                 
-                //Insert SSNode to count w
-                //vweight.insert(vweight.begin() + count_level_value, s);
-                //cout<<s.weight<<" ";
-                //count_level_value++;
-                
-                //Type out2 = S.begin()->first;
-                //double w2 = S.begin()->second;
-                //cout<<"w2 = "<<w2<<endl;
-                //S.erase(out2); 
- 
 		vweight.push_back(s);
 		
 	              /* 
@@ -133,8 +131,9 @@ void SSSearch::probe()
                 }	
 */
 		int h = -1;
-		double w = s.getWeight();
-		std::vector<const Operator*> applicable_ops;
+		double w = (double)s.getWeight();
+		cout<<"w = "<<w<<endl;  
+                std::vector<const Operator*> applicable_ops;
 		g_successor_generator->generate_applicable_ops(s.getState(), applicable_ops);
 		for (int i = 0; i < applicable_ops.size(); ++i)
 		{
@@ -147,14 +146,7 @@ void SSSearch::probe()
 			if(!heuristic->is_dead_end())
 			{
 				h = heuristic->get_heuristic();
-/*
-				if(h < total_min)
-				{
-					current_state = child;
-					total_min = h;
-					progress = true;
-					//report_progress();
-				}*/
+
 			}	
 
 			cout<<"\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<" w = "<<w<<endl; 
@@ -178,38 +170,67 @@ void SSSearch::probe()
 
                                 cout<<"\tis duplicate: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<< queueIt->first.getH()   +  queueIt->first.getLevel()<<"\n";
                                 SSNode snode = queueIt->second;
-				double wa = snode.getWeight();
-				snode.setWeight( wa + w);
-                                
-				double prob = ( double )w / ( wa + w );
-				int rand_100 =  g_rng.next(100);  //RanGen->IRandom(0, 99);  				
+				double wa = (double)snode.getWeight();
+				//snode.setWeight( wa + w);
+                                queueIt->second.setWeight(wa + w); 
+                                //std::pair<std::map<Type, SSNode>::iterator, bool> ret0;
+
+                                //ret0 = queue.insert(pair<Type, SSNode>(object, snode));
+                                //cout<<"\tsnode.getWeight() = "<<snode.getWeight()<<endl;
+                                //queueIt->second.setWeight(snode.getWeight());
+ 
+ 
+				double prob = ( double )w / (double)( wa + w );
+				int rand_100 = RanGen->IRandom(0, 99);  //(int)g_rng.next(100);
                           	 
                                 double a = (( double )rand_100) / 100;
-
-                                
-				//child_node.setWeight( wa + w);
-
-                                
+                                cout<<"a = "<<a<<" prob = "<<prob<<endl;
+                                bool b = a < prob;
+                                cout<<"b = "<<b<<endl;
+                                vbool.insert(vbool.begin() + bcount, b);
+                                bcount++;
 				if (a < prob) 
 				{
-                                        //queue.erase(queueIt->first);
-                                        //S.erase(queueIt->first);                                       
-
                                         cout<<"\t\tAdded even though is duplicate.\n";
                                         
 				        child_node.setWeight( wa + w);
-                                       
+                                        
                                         cout<<"\t\tw = "<<child_node.getWeight()<<endl;
-                                        cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
-				        //queue.insert( pair<Type, SSNode>( object, child_node ) );
-                                        queueIt->second.setWeight(wa + w);
-                                        //map<Type, SSNode>::iterator it2 = queue.find(object);
-                                        //Type t1 = it2->first;
-                                        //SSNode t2 = it2->second; 
-                                        //cout<<" h = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
+                                        /*cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
+				        cout<<"\t\tbefore insert."<<endl;
+                                        printQueue();
+                                        cout<<"\t\t190: child_node.getWeigt() = "<<child_node.getWeight()<<endl;
+                                        */ 
+                                        std::pair<std::map<Type, SSNode>::iterator, bool> ret;
+                                     	queue.erase(object); 
 
-                                        //S.insert( make_pair<Type, double>( object, it2->second + w ) );
-					count1++;
+                                        ret = queue.insert( pair<Type, SSNode>( object, child_node ));      
+
+                                        queueIt = ret.first;
+                                        queueIt->second.setWeight(child_node.getWeight());
+                                        
+					cout << queue[object].getWeight() << endl;
+
+					/*
+                                        cout<<"\t\tbegin for."<<endl;
+                                        for (; queueIt !=  queue.end(); queueIt++) {
+						Type t3 = queueIt->first;
+						SSNode t4 = queueIt->second;
+                                                cout<<"\t\th = "<<t3.getH()<<" g = "<<t3.getLevel()<<" f = "<<t3.getH() + t3.getLevel()<<" w = "<<t4.getWeight()<<endl;
+					}
+                                        cout<<"\t\tend for"<<endl;
+                                         
+                                        cout<<"\t\t192: child_node.getWeight() = "<<child_node.getWeight()<<endl;
+ 
+                                        cout<<"\t\tafter insert."<<endl;
+                                        printQueue();
+                                        //queueIt->second.setWeight(wa + w);
+                                        map<Type, SSNode>::iterator it2 = queue.find(object);
+                                        Type t1 = it2->first;
+                                        SSNode t2 = it2->second; 
+                                        cout<<"\t\th = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
+                                        */
+                                      	count1++;
 				} else {
                                         cout<<"\t\tNot added.\n";
                                 }
@@ -234,6 +255,13 @@ void SSSearch::probe()
 
         cout<<"count1 = "<<count1<<endl;
         cout<<"count2 = "<<count2<<endl;
+        cout<<"print boolean: "<<endl;
+        cout<<"bount = "<<bcount<<endl;
+        for (int i = 0; i <vbool.size(); i++) {
+            cout<<vbool.at(i)<<" ";
+        }
+        cout<<"\n";
+
         /*
         double sumS = 0.0;
         for (map<Type, SSNode>::iterator it = S.begin(); it != S.end(); ++it) {
@@ -427,7 +455,8 @@ void SSSearch::printQueue() {
         cout<<"\nPrintQueue\n";
 	for (map<Type, SSNode>::iterator iter = queue.begin(); iter !=  queue.end(); iter++) {
             Type t = iter->first;
-            cout<<"\t\t h = "<<t.getH()<<" g = "<<t.getLevel()<<" f = "<<t.getH() + t.getLevel()<<"\n"; 
+            SSNode t2  = iter->second;
+            cout<<"\t\t h = "<<t.getH()<<" g = "<<t.getLevel()<<" f = "<<t.getH() + t.getLevel()<<" w = "<<t2.getWeight()<<"\n"; 
         }
         cout<<"\n";
         cout<<"\nEnd PrintQueue\n";

@@ -61,16 +61,20 @@ Type TypeSystem::getType(State state, int h, int type)
 {
 	heuristic->evaluate(state);
 
-	best_h = h;
+//	best_h = h;
 
 	TypeChildren type_children;
 	Type obj(-1, h);
 
 	sample(state, h, type_children, type, 0);
 
-	obj.setBestH(best_h);
+//	obj.setBestH(best_h);
 
 	obj.setChildren(type_children);
 
 	return obj;
+
+//	Type obj(-1, -1);
+//	return obj;
 }
+

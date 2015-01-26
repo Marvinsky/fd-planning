@@ -96,7 +96,10 @@ void SSSearch::probe()
 
         int count1 = 1;
         int count2 = 1;
-        int nraiz = 1; 
+        int nraiz = 1;
+ 
+        vector<bool> vbool;
+        int bcount = 0; 
 	while( !queue.empty() )
 	{
 		Type out = queue.begin()->first;
@@ -104,7 +107,12 @@ void SSSearch::probe()
                	int g = (int)out.getLevel();
 
                 printQueue();
-		queue.erase( out );
+
+                std::map<Type, SSNode>::iterator ret0;
+                ret0 = queue.find(out);
+
+
+		queue.erase( ret0 );
                 cout<<nraiz<<": Raiz: h = "<<out.getH()<<" g = "<<out.getLevel()<<" f = "<<out.getH() + out.getLevel()<<" w  = "<<s.getWeight()<<endl;   
                 nraiz++;                
                 
@@ -163,47 +171,47 @@ void SSSearch::probe()
                                 cout<<"\tis duplicate: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<< queueIt->first.getH()   +  queueIt->first.getLevel()<<"\n";
                                 SSNode snode = queueIt->second;
 				double wa = (double)snode.getWeight();
-				snode.setWeight( wa + w);
+				//snode.setWeight( wa + w);
+                                queueIt->second.setWeight(wa + w); 
+                                //std::pair<std::map<Type, SSNode>::iterator, bool> ret0;
 
-                                std::pair<std::map<Type, SSNode>::iterator, bool> ret0;
-
-                                ret0 = queue.insert(pair<Type, SSNode>(object, snode));
-                                cout<<"\tsnode.getWeight() = "<<snode.getWeight()<<endl;
-                                queueIt->second.setWeight(snode.getWeight());
+                                //ret0 = queue.insert(pair<Type, SSNode>(object, snode));
+                                //cout<<"\tsnode.getWeight() = "<<snode.getWeight()<<endl;
+                                //queueIt->second.setWeight(snode.getWeight());
  
  
-				double prob = ( double )w / ( wa + w );
+				double prob = ( double )w / (double)( wa + w );
 				int rand_100 = RanGen->IRandom(0, 99);  //(int)g_rng.next(100);
                           	 
                                 double a = (( double )rand_100) / 100;
-
-                                
-				//child_node.setWeight( wa + w);
-
-                                
+                                cout<<"a = "<<a<<" prob = "<<prob<<endl;
+                                bool b = a < prob;
+                                cout<<"b = "<<b<<endl;
+                                vbool.insert(vbool.begin() + bcount, b);
+                                bcount++;
 				if (a < prob) 
 				{
-                                        //queue.erase(queueIt->first);
-                                        //S.erase(queueIt->first);                                       
-
                                         cout<<"\t\tAdded even though is duplicate.\n";
                                         
 				        child_node.setWeight( wa + w);
-                                       
+                                        
                                         cout<<"\t\tw = "<<child_node.getWeight()<<endl;
-                                        cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
+                                        /*cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
 				        cout<<"\t\tbefore insert."<<endl;
                                         printQueue();
                                         cout<<"\t\t190: child_node.getWeigt() = "<<child_node.getWeight()<<endl;
-                                        
+                                        */ 
                                         std::pair<std::map<Type, SSNode>::iterator, bool> ret;
-                                      
+                                     	queue.erase(object); 
 
                                         ret = queue.insert( pair<Type, SSNode>( object, child_node ));      
 
                                         queueIt = ret.first;
                                         queueIt->second.setWeight(child_node.getWeight());
                                         
+					cout << queue[object].getWeight() << endl;
+
+					/*
                                         cout<<"\t\tbegin for."<<endl;
                                         for (; queueIt !=  queue.end(); queueIt++) {
 						Type t3 = queueIt->first;
@@ -221,9 +229,8 @@ void SSSearch::probe()
                                         Type t1 = it2->first;
                                         SSNode t2 = it2->second; 
                                         cout<<"\t\th = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
-
-                                        //S.insert( make_pair<Type, double>( object, it2->second + w ) );
-					count1++;
+                                        */
+                                      	count1++;
 				} else {
                                         cout<<"\t\tNot added.\n";
                                 }
@@ -248,6 +255,13 @@ void SSSearch::probe()
 
         cout<<"count1 = "<<count1<<endl;
         cout<<"count2 = "<<count2<<endl;
+        cout<<"print boolean: "<<endl;
+        cout<<"bount = "<<bcount<<endl;
+        for (int i = 0; i <vbool.size(); i++) {
+            cout<<vbool.at(i)<<" ";
+        }
+        cout<<"\n";
+
         /*
         double sumS = 0.0;
         for (map<Type, SSNode>::iterator it = S.begin(); it != S.end(); ++it) {
