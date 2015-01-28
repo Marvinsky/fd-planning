@@ -144,6 +144,7 @@ HEADERS += type.h \
            type_child.h \
            type_system.h \
            ss_search.h \
+           ss2_search.h \
 
 SHELL = /bin/bash
 

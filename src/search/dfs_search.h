@@ -65,12 +65,8 @@ class DFSSearch : public SearchEngine {
         string heuristic_name;
         //stack<SearchNode> P;
         //stack<SearchNode> S;
-        list<Node> K; 
+        list<Node> K;
 
-        //vector<int> v_f;
-        vector<int> v_g;
-        vector<int> v_h;
-         
         stack<SSNode> queue;        
         int depth;
         map<Node2, int> collector; 
@@ -98,10 +94,6 @@ public:
         string getRealHeuristic(string heur);	
 	//void dump_search_space();
 	double get_total_sampling_time(){return total_sampling_timer;}
-        int getMax_gvalue(vector<int> v_g);
-        map<int, int> getFDistribution(vector<int> v_f_value);
-        vector<string> readFile();
-        void generateReport(vector<int> v_h, vector<int> v_g, list<Node> K);
         void printStack(stack<SSNode> S);
 }; 
 #endif

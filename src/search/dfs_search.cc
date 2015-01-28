@@ -366,31 +366,29 @@ int DFSSearch::step() {
     cout<<" ____________________________"<<endl;
     cout<<"|       step process         |"<<endl;
     cout<<" ____________________________"<<endl;
-   
+
     heuristics[0]->evaluate(*g_initial_state);	
     int h_initial = heuristics[0]->get_value();
     cout<<"h_initial = "<<h_initial<<endl;
     SSNode node(*g_initial_state, h_initial, 0, 0);
-    
-    depth = h_initial;
+    //For some domains the heuristic is constant equual to six 
+    depth = 2*h_initial;
     cout<<"depth = "<<depth<<endl;
     queue.push(node); 
 
-
-    //v_g.push_back(node.g_value);
-    //v_h.push_back(node.h_value);
-
-    //Node n(node.h_value, node.g_value, node.h_value + node.g_value);
-    //K.push_back(n);
     int count_value = 1;
     int count_total = 0;
+
+    int nraiz = 1;
     while (!queue.empty()) {
         //printStack(queue); 
      
-        SSNode nodecp = queue.top();
-        int g = nodecp.level;
-        //cout<<"Raiz h = "<<nodecp.h_value<<", g = "<<nodecp.g_value<<", f = "<<nodecp.h_value + nodecp.g_value<<endl;
-        queue.pop();
+       SSNode nodecp = queue.top();
+       int g = nodecp.level;
+       cout<<nraiz<<": Raiz h = "<<nodecp.h_value<<", g = "<<nodecp.g_value<<", f = "<<nodecp.h_value + nodecp.g_value<<endl;
+       
+       nraiz++;
+       queue.pop();
        
        State s = nodecp.state;
 
@@ -434,22 +432,15 @@ int DFSSearch::step() {
               
            
            SSNode succ_node(child, succ_h, nodecp.g_value + 1, g + 1);
-           //cout<<"\tNodes generated:  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
+           cout<<"\tNodes generated:  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
 
               
-              if (succ_node.g_value <= depth) {
-                  //cout<<"\t\t\tNodes Added  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
-                   queue.push(succ_node);
-                   //P.push(succ_node);
-                   //S.push(succ_node);
-
-                   //v_f.push_back(succ_node.h_value + succ_node.g_value);
-                   //v_g.push_back(succ_node.g_value);
-                   //v_h.push_back(succ_node.h_value); 
-
-                   //Node n(succ_node.h_value, succ_node.g_value, succ_node.h_value + succ_node.g_value);
-                   //K.push_back(n);
-              } // end if prunning g <= depth
+              if (succ_h + succ_node.g_value <= depth) {
+                  cout<<"\t\t\tNodes Added  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
+                   queue.push(succ_node); 
+              } else { // end if prunning g <= depth
+                  cout<<"\t\t\tPruned!"<<endl;
+              }
        } //end for applicable
     } // end while
     cout<<"end expansion of nodes finished."<<endl;
@@ -457,19 +448,23 @@ int DFSSearch::step() {
     cout<<"collector.size() = "<<collector.size()<<endl;
 
 
-
     ofstream output;
-    vector<string> vs = readFile();
-    string dominio = domain_name; //vs.at(0);
-    string tarefa =  problem_name2;//vs.at(1);
-    string heuristica = heuristic_name2;  //vs.at(2);
+    string dominio = domain_name;
+    string tarefa =  problem_name2;
+    string heuristica = heuristic_name2;
     cout<<"changing the code."<<endl;
     cout<<"dominio = "<<dominio<<endl;
     cout<<"tarefa = "<<tarefa<<endl;
     cout<<"heuristica = "<<heuristica<<endl;
 
-    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
+    string directoryDomain = "mkdir /home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio;
+    system(directoryDomain.c_str());
 
+    string directoryFdist = "mkdir /home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/";
+    system(directoryFdist.c_str());
+
+    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
+    cout<<"outputFile = "<<outputFile.c_str()<<endl;
     output.open(outputFile.c_str());
     output<<"\t"<<outputFile.c_str()<<"\n";
     output<<"totalniveles: "<<depth<<"\n";
@@ -497,10 +492,10 @@ int DFSSearch::step() {
            cout<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
            output<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
        }
+       output<<"\n";
        cout<<"\n";
     }
     output.close();
-    //generateReport(v_h, v_g, K);    
     
    return SOLVED;
 }
@@ -525,182 +520,6 @@ void DFSSearch::printStack(stack<SSNode> S) {
 }
 
 
-map<int, int> DFSSearch::getFDistribution(vector<int> v_f_value) { 
-	map<int, int> m;
-	for (int i = 0; i < v_f_value.size(); i++) {
-	    int a = v_f_value.at(i);
-	    int k = 1;
-	    for (int j = 0; j < v_f_value.size(); j++) {
-		int b = v_f_value.at(j);
-		if (i != j) {
-		   if (a==b) {
-		      k++;	
- 		   }
-		}
-	    }
-	    map<int, int>::iterator mIter = m.find(a);
-	    if (mIter != m.end()) {
-                //TODO        
-	    } else {
-		 m.insert(pair<int, int>(a, k));
-	    }
-	}
-	return m;
-}
-
-
-
-void DFSSearch::generateReport(vector<int> v_h, vector<int> v_g, list<Node> K) {
-    cout<<"star generateReport"<<endl;
-    map<int, int> g;
-    map<int, vector<int> > mapv_f;
-    for (int i = 0; i < v_g.size(); i++) {
-        int a = v_g.at(i);
-        int k = 1;
-        for (int j = 0; j <  v_g.size(); j++) {
-            int b = v_g.at(j);
-            if (i != j) {
-               if (a==b) {
-                  k++;
-               }
-            }
-        }
-        
-        map<int, int>::iterator mIter = g.find(a);
-        if (mIter == g.end()) {
-           g.insert(pair<int, int>(a, k));
-        }
-    }
-    cout<<"end two loops"<<endl;
-    
-    cout<<"g.size() = "<<g.size()<<endl;
-    int r = 0;
-    cout<<"Display."<<endl;
-    vector<int> f_exp;
-    for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++) {
-        int level = iter->first;
-        int q = iter->second;
-
-        vector<Node> vnode;
-        list<Node>::const_iterator pos;
-        for (pos = K.begin(); pos != K.end(); ++pos) {
-            Node elem =   *pos;
-            if (elem.getG() == level) {
-               Node n1(elem.getH(), elem.getG(), elem.getF());
-               vnode.push_back(n1);
-            }
-        }
-        vector<int> v;
-        cout<<"g: "<<level<<endl;
-        for (int i = 0; i < vnode.size(); i++) {
-            Node n2 = vnode.at(i);
-            cout<<"\th = "<<n2.getH()<<", g = "<<n2.getG()<<", f = "<<n2.getF()<<endl;
-            v.push_back(n2.getF());
-            f_exp.push_back(n2.getF());
-        }
-       
-        cout<<"\n\n";
-        mapv_f.insert(pair<int, vector<int> >(level, v));
-    }
-    
-    cout<<"f_exp.size() = "<<f_exp.size()<<endl;
-    map<int, int> dist = getFDistribution(f_exp);
-    cout<<"f(camada)\t#nodes expanded"<<endl;
-    for (map<int, int>::iterator iter =  dist.begin(); iter != dist.end(); iter++) {
-        int f = iter->first;
-        int q = iter->second;
-        cout<<f<<"\t"<<q<<"\n";
-    }
-    cout<<"\n";
-    
-
-    ofstream output;
-    vector<string> vs = readFile();
-    string dominio = vs.at(0);
-    string tarefa = vs.at(1);
-    string heuristica = vs.at(2);
-    cout<<"dominio = "<<dominio<<endl;
-    cout<<"tarefa = "<<tarefa<<endl;
-    cout<<"heuristica = "<<heuristica<<endl;
-
-    string outputFile = "/home/marvin/marvin/testdfs/"+heuristica+"/reportdfs/"+dominio+"/fdist/"+tarefa;
-
-    output.open(outputFile.c_str());
-    output<<"\t\ttitle\n";
-    output<<"totalniveles: 1\n";
-    output<<"threshold: 12\n";
-
-   cout<<"f-dist"<<endl;
-   for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
-       cout<<"g = "<<iter->first<<endl;
-       output<<"g:"<<iter->first<<"\n";
-       vector<int> v = iter->second;
-
-       map<int, int> m = getFDistribution(v);
-       output<<"size: "<<m.size()<<"\n";
-       for (map<int, int>::iterator ite = m.begin(); ite != m.end(); ite++) {
-           cout<<"f: "<<ite->first<<" q: "<<ite->second<<"\n";
-           output<<"\tf: "<<ite->first<<" q: "<<ite->second<<"\n";
-       }
-       cout<<"\n";
-   }  
-
-   output.close();
-   
-}
-
-vector<string> DFSSearch::readFile() {
-        vector<string> vs;
-        string path;
-     
-        char input[] = "/home/marvin/fd/src/translate/arquivos/";  
-        DIR *dir;
-        struct dirent *ent;
-
-        dir = opendir(input);
-        if (dir != NULL) {
-	   while ((ent = readdir(dir)) != NULL) {
-	      string fileName = ent->d_name;
-              cout<<"fileName size () = "<<fileName.size()<<endl;
-              if ((fileName.size() == 1) || (fileName.size() == 2)) {
-	         //TODO 
-	      } else {
-	         path = fileName;			
-	      }
-           }
-           closedir(dir);
-        } else {
-	   cout<<"directory does not exists."<<endl;
-        }
-    
-        cout<<"Path in the ss = "<<path<<endl;
-    
-        string rutaT = "/home/marvin/fd/src/translate/arquivos/"+path; 
-        ifstream fileT(rutaT.c_str());
-
-        string dominio;
-        string tarefa;
-        string heuristica;
-
-        fileT>>dominio;
-        fileT>>tarefa;
-        fileT>>heuristica;
-        
-        vs.push_back(dominio.c_str());
-        vs.push_back(tarefa.c_str());
-        vs.push_back(heuristica.c_str());
-        return vs;
-}
-
-int DFSSearch::getMax_gvalue(vector<int> v_g) {
-	int winner = v_g.at(0);
-	for (int i = 0; i < v_g.size(); i++) {
-	     if (winner < v_g.at(i)) {
-		winner = v_g.at(i);
-	     }
-	}
-	return winner;
-}
 
 pair<SearchNode, bool> DFSSearch::fetch_next_node() {
 	cout<<" ___________________________"<<endl;
