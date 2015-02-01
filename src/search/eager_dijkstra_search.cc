@@ -362,6 +362,27 @@ int EagerDijkstraSearch::step() {
 	   output_problem_results();
         }
         
+        std::vector<int> ne; 		
+        int p = 0;		
+        for (map<int, int>::iterator it = nodes_expanded_by_level.begin(); it != nodes_expanded_by_level.end(); ++it) {		
+             int nodesExpanded = it->second;		
+             ne.insert(ne.begin() + p, nodesExpanded);		
+             p++;		
+ 	}		
+        std::vector<int> ng;		
+        int q = 0;		
+	for (map<int, int>::iterator it = nodes_generated_by_level.begin(); it != nodes_generated_by_level.end(); ++it) {		
+            int nodesGenerated = it->second;		
+           		
+            ng.insert(ng.begin() + q, nodesGenerated);		
+            q++;		
+	}		
+     			
+        for (int r = 0; r < p-1; r++) {		
+	    double m = (double)ng.at(r+1)/(double)ne.at(r);		
+	    cout<<"effectiveBranchingFactor: "<<m<<endl;		
+        }
+        
         cout<<"\nCount the nodes in the last level."<<endl;
 	
 	int last_level = search_progress.return_lastjump_f_value();
