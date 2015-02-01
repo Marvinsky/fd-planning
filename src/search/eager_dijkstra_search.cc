@@ -374,8 +374,8 @@ int EagerDijkstraSearch::step() {
 
     if (first_time) {
        int last_level = search_progress.return_lastjump_f_value();
-       cout<<"nivel = "<<nivel<<endl;
-       cout<<"last_level = "<<last_level<<endl;
+       //cout<<"nivel = "<<nivel<<endl;
+       //cout<<"last_level = "<<last_level<<endl;
        if (nivel == last_level) {
 	  //Add the increment here because in the statistic the last one is added.
           count_last_nodes_gerados = count_last_nodes_gerados + 1;
