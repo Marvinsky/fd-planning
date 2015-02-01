@@ -38,6 +38,9 @@ class EagerDijkstraSearch : public SearchEngine {
     
     map<Node2, int> collector;
     int count_value;
+
+    Timer time_level;
+    vector<double> v_timer;
 protected:
     int step();
     pair<SearchNode, bool> fetch_next_node();

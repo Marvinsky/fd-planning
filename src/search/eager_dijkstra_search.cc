@@ -61,6 +61,7 @@ void EagerDijkstraSearch::initialize() {
     first_time =false;
     count_last_nodes_gerados=0;
     isCompleteExplored=false;
+    time_level.reset();
     cout<<"mpd = "<<use_multi_path_dependence<<endl;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
@@ -335,7 +336,7 @@ int EagerDijkstraSearch::step() {
     }
     SearchNode node = n.first;
     
-    cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
+    //cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
      
       
     Node2 node2(node.get_h() + node.get_real_g(), node.get_real_g());
@@ -361,27 +362,6 @@ int EagerDijkstraSearch::step() {
 	   output_problem_results();
         }
         
-        
-        std::vector<int> ne; 
-        int p = 0;
-	for (map<int, int>::iterator it = nodes_expanded_by_level.begin(); it != nodes_expanded_by_level.end(); ++it) {
-            int nodesExpanded = it->second;
-            ne.insert(ne.begin() + p, nodesExpanded);
-            p++;
-	}
-        std::vector<int> ng;
-        int q = 0;
-	for (map<int, int>::iterator it = nodes_generated_by_level.begin(); it != nodes_generated_by_level.end(); ++it) {
-            int nodesGenerated = it->second;
-           
-            ng.insert(ng.begin() + q, nodesGenerated);
-            q++;
-	}
-     	
-        for (int r = 0; r < p-1; r++) {
-	    double m = (double)ng.at(r+1)/(double)ne.at(r);
-	    cout<<"effectiveBranchingFactor: "<<m<<endl;
-	}
         cout<<"\nCount the nodes in the last level."<<endl;
 	
 	int last_level = search_progress.return_lastjump_f_value();
@@ -404,6 +384,9 @@ int EagerDijkstraSearch::step() {
        } else {
 	  
           cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
+          double level_update_time = time_level();
+          v_timer.push_back(level_update_time);
+         
           generateReport();
 	  return SOLVED;
        }
@@ -495,7 +478,7 @@ int EagerDijkstraSearch::step() {
             // We have not seen this state before.
             // Evaluate and create a new node.
             int succ_h=0;
-            int aux_h=0;
+            //int aux_h=0;
 	    bool dead_end=false;
             for (size_t i = 0; i < heuristics.size(); i++){
                 heuristics[i]->evaluate(succ_state);
@@ -510,7 +493,7 @@ int EagerDijkstraSearch::step() {
 		       succ_h=INT_MAX/2;//need to keep nodes in case we need to sample for one of the heuristics which do not know that the node is a dead end
 		   }
 		}
-                aux_h = max(succ_h,heuristics[i]->get_heuristic());
+                //aux_h = max(succ_h,heuristics[i]->get_heuristic());
 	        succ_h =  0;  //max(succ_h,heuristics[i]->get_heuristic());
                 
 	    } 	
@@ -566,28 +549,9 @@ int EagerDijkstraSearch::step() {
                 }
             }
 	    open_list->insert(succ_node.get_state_buffer());
-	    //if(Current_RIDA_Phase==SOLVING_PHASE){
-	    //cout<<"Node is inserted"<<endl;fflush(stdout);
-	    //}
-            /*if (search_progress.get_generated()%node_time_adjusted_reval==0){//check memory is still within bounds
-		 //if(Current_RIDA_Phase==SOLVING_PHASE){
-		 //  cout<<"Checking if time or memory out"<<endl;fflush(stdout);
-		 //}
-              if(memory_limit<get_peak_memory_in_kb()||g_timer()>time_limit){
-                cout<<"current memory usage:"<<endl; print_peak_memory();
-  
-                //problem_was_solved=false;
-                cout<<"Exiting, total hashed nodes:"<<search_space.size()<<endl;
-                cout<<"Exiting, memory limit is:"<<memory_limit<<" and peak memory is:"<<get_peak_memory_in_kb()<<endl;
-                cout<<"Exiting, time limit is:"<<time_limit<<" and current time is:"<<g_timer()<<endl;
-                delete open_list;
-                delete f_evaluator;
-                return FAILED;
-              }
-            }*/
-	   
+	    
 
-	    cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<aux_h+succ_node.get_real_g()<<endl;
+	    //cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<aux_h+succ_node.get_real_g()<<endl;
             
              
             if (search_progress.check_h_progress(succ_node.get_g())) {
@@ -625,7 +589,7 @@ int EagerDijkstraSearch::step() {
                 succ_node.update_parent(node, op);
             }
 
-	    cout<<"line 696 node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+	    //cout<<"line 696 node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
             
         }
     }
@@ -660,145 +624,19 @@ void EagerDijkstraSearch::generateReport() {
         outputFile<<"\ttotalniveles: "<<collector.size()<<"\n";
  
         outputFile<<"\tf\t\t#Nodes_by_level\t\tRuntime(s)\t#Nodes_to_the_level\n";
+
         int sum = 0;
+        int count_v_timer = 0;
+        cout<<"collector.size() = "<<collector.size()<<endl;
         for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
             Node2 n = iter->first;
   
             sum = sum + iter->second;
-            outputFile<<"\t"<<n.getL()<<"\t\t\t"<<iter->second<<"\t\t1\t\t"<<sum<<"\n";
-            cout<<"\t"<<n.getL()<<"\t\t"<<iter->second<<"\t\t1\t\t"<<sum<<"\n";
+            outputFile<<"\t"<<n.getL()<<"\t\t\t"<<iter->second<<"\t\t"<<v_timer.at(count_v_timer)<<"\t\t"<<sum<<"\n";
+            cout<<"\t"<<n.getL()<<"\t\t"<<iter->second<<"\t\t"<<v_timer.at(count_v_timer)<<"\t\t"<<sum<<"\n";
+            count_v_timer++; 
         }
-        outputFile.close();
-        /*
-        map<int, int> g;
-        map<int, vector<int> > mapv_f;
-        for (int i = 0; i < v_g.size(); i++) {
-            int a = v_g.at(i);
-            int k = 1;
-            for (int j = 0; j < v_g.size(); j++) {
-	        int b  = v_g.at(j);
-                if (i != j) {
-                  if (a==b) {
-                     k++;
-		  }
-                }
-            }
-            map<int, int>::iterator mIter = g.find(a);
-            if (mIter == g.end()) {
-               g.insert(pair<int, int>(a, k));
-            }
-        }
-        cout<<"g.size() = "<<g.size()<<endl;
-        int r = 0;
-        cout<<"Display"<<endl;
-        vector<int> f_exp;
-        for (map<int, int>::iterator iter = g.begin(); iter != g.end(); iter++)  {
-	    int level = iter->first;
-            int q = iter->second;
-
-            cout<<"g = "<<level<<endl;
-            vector<int> v;
-            for (int i = 0; i < q; i++) {
-                int f = v_h.at(r) + v_g.at(r);
-                v.push_back(f);
-                f_exp.push_back(f);
-                r++;
-            }
-            for (int i = 0; i < v.size(); i++) {
-                cout<<v.at(i)<<" ";
-            }
-            cout<<"\n\n";
-            mapv_f.insert(pair<int, vector<int> >(level, v));
-        }
-        cout<<"f_exp.size() = "<<f_exp.size()<<endl;
-        map<int, int> dist = getFDistribution(f_exp);
-        cout<<"f(camada)\t#nodes expanded"<<endl;
-        for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
-            int f = iter->first;
-            int q = iter->second;
-            cout<<f<<"\t"<<q<<"\n";
-        }
-        cout<<"\n";
-        //astar have one heuristic parameter
-        string heur_name = heuristics[0]->get_heur_name();
-        if (heur_name == "dijkstra()") {
-           cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<< (threshold - v_f.at(0)) + 1 <<endl;
-           int amount = 0;
-           for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
-             
-               vector<int> v = iter->second;
-               map<int, int> m = getFDistribution(v);
-               //int mapsize = m.size();
-              
-               for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
-                   int f = iter2->first;
-                   int q = iter2->second;
-                   amount = amount + q;
-                   cout<<"f: "<<f<<" q: "<<q<<endl;
-                   cout<<"\n";
-                   cout<<"fnivel: "<<f<<"\n";
-                   cout<<"nodesGeneratedByLevel: "<<q<<"\n";
-                   cout<<"time0: 1\n";
-                   cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
-                   cout<<"\n";
-               }
-	   }    
-        } else {
-           cout<<"Nodes by camadas."<<endl;
-           cout<<"niveles totales "<<dist.size()<<endl;
-           int amount = 0;
-           for (map<int, int>::iterator iter = dist.begin(); iter != dist.end(); iter++) {
-               int f = iter->first;
-               int q = iter->second;
-               if (f <=  threshold) {
-                  amount = amount + q;
-                  cout<<"\n";
-                  cout<<"fnivel: "<<f<<"\n";
-                  cout<<"nodesGeneratedByLevel: "<<q<<"\n";
-                  cout<<"time0: 1\n";
-                  cout<<"nodesGeneratedToTheLevel: "<<amount<<"\n";
-                  cout<<"\n";
-               }
-           }
-           cout<<"Dijkstra: Nodes by level."<<endl;
-           cout<<"totalniveles: "<<(threshold - v_f.at(0)) + 1<<endl;
-
-           vector<string> vs = readFile();
-           string dominio = vs.at(0);
-           string tarefa = vs.at(1);
-           string heuristica = vs.at(2);
-           cout<<"dominio2 = "<<dominio<<endl;
-           cout<<"tarefa2 = "<<tarefa<<endl;
-           cout<<"heuristica2 = "<<heuristica<<endl;
-     
-           string fdist = "/home/marvin/marvin/testss/"+heuristica+"/report/"+dominio+"/fdist/"+tarefa;
-
-           ofstream outputFile;
-           outputFile.open(fdist.c_str(), ios::out);
-           outputFile<<"\t\ttitle\n";
-           outputFile<<"\ttotalniveles: 1\n";
-           outputFile<<"\tthreshold: 1\n";
-           
-           for (map<int, vector<int> >::iterator iter = mapv_f.begin(); iter != mapv_f.end(); iter++) {
-               cout<<"g = "<<iter->first<<endl;
-               outputFile<<"\tg:"<<iter->first<<"\n";
-               vector<int> v = iter->second;
-               map<int, int> m = getFDistribution(v);
-               int mapsize = m.size();
-               cout<<"size: "<<mapsize<<endl;
-               outputFile<<"\tisize: "<<mapsize<<"\n";
-               for (map<int, int>::iterator iter2 = m.begin(); iter2 != m.end(); iter2++) {
-                   int f = iter2->first;
-                   int q = iter2->second;
-                   cout<<"f: "<<f<<" q: "<<q<<endl; 
-                   outputFile<<"\t\tf: "<<f<<"\tq: "<<q<<"\n";
-               }
-               outputFile<<"\n\n";
-	   }
-           outputFile.close();
-        }
-        */
+        outputFile.close(); 
 }
 
 pair<SearchNode, bool> EagerDijkstraSearch::fetch_next_node() {
@@ -815,6 +653,9 @@ pair<SearchNode, bool> EagerDijkstraSearch::fetch_next_node() {
         if (open_list->empty()) {
             cout << "Completely explored state space -- no solution!" << endl;
             isCompleteExplored=true;
+            double level_update_time = time_level();
+            v_timer.push_back(level_update_time);
+         
             generateReport();
             return make_pair(search_space.get_node(*g_initial_state), false);
         }
@@ -892,8 +733,9 @@ void EagerDijkstraSearch::update_jump_statistic(const SearchNode &node) {
       //cout<<"new_f_value:"<<new_f_value<<endl; 
 
       if(search_progress.updated_lastjump_f_value(new_f_value)){
-
-        vniveles.push_back(new_f_value); 
+        double level_update_time = time_level();
+        v_timer.push_back(level_update_time);
+         
 	search_progress.report_f_value(new_f_value);
        
 	cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(StateProxy)+sizeof(SearchNodeInfo))/1024.0<<",F_boundary_Range:"<<open_list->open_list_get_boundary_range()<<endl;

@@ -89,6 +89,9 @@ int SS2Search::step()
 	        
                 //Insert each node.
                 Node2 node2(out.getH() + g, g);
+                collector.insert(pair<Node2, int>(node2, s.getWeight()));
+                cout<<"Raiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<" w = "<<s.getWeight()<<"\n";
+                /*
                 if (collector.insert(pair<Node2, int>(node2, s.getWeight())).second) {
                    count_value = s.getWeight();
                    cout<<"Raiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<" w = "<<s.getWeight()<<"\n";
@@ -97,9 +100,8 @@ int SS2Search::step()
                    int q = iter->second;
                    cout<<"Duplicate: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<"\n";
                    q++;
-                   cout<<"q++ = "<<q<<endl;
                    iter->second = q;
-                }	
+                }*/	
 
 		int h = -1;
 		double w = (double)s.getWeight();
