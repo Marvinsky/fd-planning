@@ -90,7 +90,7 @@ int SS2Search::step()
                 //Insert each node.
                 Node2 node2(out.getH() + g, g);
                 collector.insert(pair<Node2, int>(node2, s.getWeight()));
-                cout<<"Raiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<" w = "<<s.getWeight()<<"\n";
+                //cout<<"Raiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<" w = "<<s.getWeight()<<"\n";
                 /*
                 if (collector.insert(pair<Node2, int>(node2, s.getWeight())).second) {
                    count_value = s.getWeight();
@@ -133,13 +133,13 @@ int SS2Search::step()
                            child_node.setState(child);
                            child_node.setWeight(w);		   
 
-                           cout<<"\tChild: h = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH()+object.getLevel()<<" w = "<<child_node.getWeight()<<endl;
+                           //cout<<"\tChild: h = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH()+object.getLevel()<<" w = "<<child_node.getWeight()<<endl;
 
                            map<Type, SSNode>::iterator queueIt = queue.find( object );
 			   if( queueIt != queue.end() )
 			   {
 
-                                cout<<"\tis duplicated: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<<queueIt->first.getH()+queueIt->first.getLevel()<<" w = "<<queueIt->second.getWeight()<<"\n";
+                                //cout<<"\tis duplicated: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<<queueIt->first.getH()+queueIt->first.getLevel()<<" w = "<<queueIt->second.getWeight()<<"\n";
 
 
                                 SSNode snode = queueIt->second;
@@ -159,7 +159,7 @@ int SS2Search::step()
                                         
 				        child_node.setWeight( wa + w);
                                         
-                                        cout<<"\t\th = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH()+object.getLevel()<<" w = "<<child_node.getWeight()<<"\n";
+                                        //cout<<"\t\th = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH()+object.getLevel()<<" w = "<<child_node.getWeight()<<"\n";
 
                                         std::pair<std::map<Type, SSNode>::iterator, bool> ret;
                                      	queue.erase(object); 
@@ -169,20 +169,20 @@ int SS2Search::step()
                                         queueIt = ret.first;
                                         queueIt->second.setWeight(child_node.getWeight());
                                         
-					cout <<"\t\tnew w = "<<queue[object].getWeight() << endl;
+					//cout <<"\t\tnew w = "<<queue[object].getWeight() << endl;
 				} else {
-                                        cout<<"\t\tNot added.\n";
+                                        //cout<<"\t\tNot added.\n";
                                 }
 			   } 
 			   else
 			   {
-                                cout<<"\t\tNew node added\n";
-                                cout<<"\t\th = "<<h<<" g = "<<g+1<<" f = "<<h+g+1<<" threshold = "<<threshold<<endl;
+                                //cout<<"\t\tNew node added\n";
+                                //cout<<"\t\th = "<<h<<" g = "<<g+1<<" f = "<<h+g+1<<" threshold = "<<threshold<<endl;
 				queue.insert( pair<Type, SSNode>( object, child_node ) );
                            }
                         } else {
-                                cout<<"\tNode was pruned!"<<endl;
-                                cout<<"\th = "<<h<<" g = "<<g+1<<" f = "<<h+g+1<<" threshold = "<<threshold<<endl;
+                                //cout<<"\tNode was pruned!"<<endl;
+                                //cout<<"\th = "<<h<<" g = "<<g+1<<" f = "<<h+g+1<<" threshold = "<<threshold<<endl;
                         }
 		}
 	}

@@ -66,10 +66,10 @@ void SearchProgress::report_f_value(int f) {
  	   nodes_expanded_by_level.insert(pair<int, int>(f, expanded_by_level));		
 	   nodes_generated_by_level.insert(pair<int, int>(f, generated_by_level));      		
 		
- 	   cout<<"fnivel1: "<<lastjump_f_value2<<endl;		
-    	   cout<<"nodesGeneratedByLevel1: "<<expanded_by_level<<endl;		
- 	   cout<<" time01: "<<g_timer()<<endl;		
-    	   cout<<"nodesGeneratedToTheLevel1: "<<expanded_states<<endl;		
+ 	   cout<<"fnivel: "<<lastjump_f_value2<<endl;		
+    	   cout<<"nodesGeneratedByLevel: "<<expanded_by_level<<endl;		
+ 	   cout<<" time0: "<<g_timer()<<endl;		
+    	   cout<<"nodesGeneratedToTheLevel: "<<expanded_states<<endl;		
 		
 	}
 	
