@@ -79,7 +79,7 @@ public:
 	virtual ~SS2Search();
         void printQueue();
         void generateReport();
-        double getProbingResult();
+        long double getProbingResult();
 };
 
 #endif /*MRW_H_*/

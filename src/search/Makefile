@@ -25,6 +25,7 @@ HEADERS = \
           combining_evaluator.h \
           domain_transition_graph.h \
           dfs_search.h \
+          speed_progress.h \
           eager_search.h \
 	  eager_search_kre.h \
           eager_dijkstra_search.h \
@@ -191,7 +192,7 @@ OBJECTS_PROFILE = $(SOURCES:%.cc=.obj/%$(OBJECT_SUFFIX_PROFILE).o)
 TARGET_PROFILE  = $(TARGET)$(TARGET_SUFFIX_PROFILE)
 
 CC     = g++ -g -o0
-DEPEND = g++ -MM
+DEPEND = g++ -g -MM
 
 ## CCOPT, LINKOPT, POSTLINKOPT are options for compiler and linker
 ## that are used for all three targets (release, debug, and profile).

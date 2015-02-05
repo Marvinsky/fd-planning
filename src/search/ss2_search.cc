@@ -357,8 +357,8 @@ void SS2Search::generateReport() {
         output.close();
 }
 
-double SS2Search::getProbingResult() {
-        double expansions = 0;
+long double SS2Search::getProbingResult() {
+        long double expansions = 0;
         
         for (int i = 0; i < vweight.size(); i++) {
              SSNode n = vweight.at(i);
