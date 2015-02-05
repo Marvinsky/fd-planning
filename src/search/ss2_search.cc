@@ -89,7 +89,7 @@ int SS2Search::step()
 	        
                 //Insert each node.
                 Node2 node2(out.getH() + g, g);
-                collector.insert(pair<Node2, int>(node2, s.getWeight()));
+                collector.insert(pair<Node2, unsigned long long>(node2, s.getWeight()));
                 //cout<<"Raiz: h = "<<out.getH()<<" g = "<<g<<" f = "<<out.getH() + g<<" w = "<<s.getWeight()<<"\n";
                 /*
                 if (collector.insert(pair<Node2, int>(node2, s.getWeight())).second) {
@@ -333,8 +333,8 @@ void SS2Search::generateReport() {
         for (int i = 0; i <= threshold; i++) {
             int k = 0;
             vector<long> f;
-            vector<long> q;
-            for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
+            vector<unsigned long long> q;
+            for (map<Node2, unsigned long long>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
                  Node2 n = iter->first;
                  if (i == n.getL()) {
                     k++;

@@ -49,7 +49,7 @@ private:
 	map<Type, SSNode> queue;
         map<Type, double> S; 
         vector<SSNode> vweight;
-        std::map<Node2, int> collector;
+        std::map<Node2, unsigned long long> collector;
 	std::vector<Heuristic*> heuristics; 
 	Heuristic* heuristic;
 	State current_state;
