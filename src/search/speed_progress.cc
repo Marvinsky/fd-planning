@@ -92,6 +92,144 @@ void SpeedProgress::initialize() {
 }
 
 int SpeedProgress::step() {
+	
+
+    pair<SearchNode, bool> n = fetch_next_node();
+    if (!n.second) {
+        return FAILED;
+    }
+    SearchNode node = n.first;
+
+    GlobalState s = node.get_state();
+    if (check_goal_and_set_plan(s))
+        return SOLVED;
+
+    vector<const GlobalOperator *> applicable_ops;
+    set<const GlobalOperator *> preferred_ops;
+
+    g_successor_generator->generate_applicable_ops(s, applicable_ops);
+    // This evaluates the expanded state (again) to get preferred ops
+    for (size_t i = 0; i < preferred_operator_heuristics.size(); ++i) {
+        Heuristic *h = preferred_operator_heuristics[i];
+        h->evaluate(s);
+        if (!h->is_dead_end()) {
+            // In an alternation search with unreliable heuristics, it is
+            // possible that this heuristic considers the state a dead end.
+            vector<const GlobalOperator *> preferred;
+            h->get_preferred_operators(preferred);
+            preferred_ops.insert(preferred.begin(), preferred.end());
+        }
+    }
+    search_progress.inc_evaluations(preferred_operator_heuristics.size());
+
+    for (size_t i = 0; i < applicable_ops.size(); ++i) {
+        const GlobalOperator *op = applicable_ops[i];
+
+        if ((node.get_real_g() + op->get_cost()) >= bound)
+            continue;
+
+        GlobalState succ_state = g_state_registry->get_successor_state(s, *op);
+        search_progress.inc_generated();
+        bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
+
+        SearchNode succ_node = search_space.get_node(succ_state);
+
+        // Previously encountered dead end. Don't re-evaluate.
+        if (succ_node.is_dead_end())
+            continue;
+
+        // update new path
+        if (use_multi_path_dependence || succ_node.is_new()) {
+            bool h_is_dirty = false;
+            for (size_t j = 0; j < heuristics.size(); ++j) {
+                /*
+                  Note that we can't break out of the loop when
+                  h_is_dirty is set to true or use short-circuit
+                  evaluation here. We must call reach_state for each
+                  heuristic for its side effects.
+                */
+                if (heuristics[j]->reach_state(s, *op, succ_state))
+                    h_is_dirty = true;
+            }
+            if (h_is_dirty && use_multi_path_dependence)
+                succ_node.set_h_dirty();
+        }
+
+        if (succ_node.is_new()) {
+            // We have not seen this state before.
+            // Evaluate and create a new node.
+            for (size_t j = 0; j < heuristics.size(); ++j)
+                heuristics[j]->evaluate(succ_state);
+            succ_node.clear_h_dirty();
+            search_progress.inc_evaluated_states();
+            search_progress.inc_evaluations(heuristics.size());
+
+            // Note that we cannot use succ_node.get_g() here as the
+            // node is not yet open. Furthermore, we cannot open it
+            // before having checked that we're not in a dead end. The
+            // division of responsibilities is a bit tricky here -- we
+            // may want to refactor this later.
+            open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
+            bool dead_end = open_list->is_dead_end();
+            if (dead_end) {
+                succ_node.mark_as_dead_end();
+                search_progress.inc_dead_ends();
+                continue;
+            }
+
+            //TODO:CR - add an ID to each state, and then we can use a vector to save per-state information
+            int succ_h = heuristics[0]->get_heuristic();
+            if (do_pathmax) {
+                if ((node.get_h() - get_adjusted_cost(*op)) > succ_h) {
+                    //cout << "Pathmax correction: " << succ_h << " -> " << node.get_h() - get_adjusted_cost(*op) << endl;
+                    succ_h = node.get_h() - get_adjusted_cost(*op);
+                    heuristics[0]->set_evaluator_value(succ_h);
+                    open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
+                    search_progress.inc_pathmax_corrections();
+                }
+            }
+            succ_node.open(succ_h, node, op);
+
+            open_list->insert(succ_state.get_id());
+            if (search_progress.check_h_progress(succ_node.get_g())) {
+                reward_progress();
+            }
+        } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
+            // We found a new cheapest path to an open or closed state.
+            if (reopen_closed_nodes) {
+                //TODO:CR - test if we should add a reevaluate flag and if it helps
+                // if we reopen closed nodes, do that
+                if (succ_node.is_closed()) {
+                    /* TODO: Verify that the heuristic is inconsistent.
+                     * Otherwise, this is a bug. This is a serious
+                     * assertion because it can show that a heuristic that
+                     * was thought to be consistent isn't. Therefore, it
+                     * should be present also in release builds, so don't
+                     * use a plain assert. */
+                    //TODO:CR - add a consistent flag to heuristics, and add an assert here based on it
+                    search_progress.inc_reopened();
+                }
+                succ_node.reopen(node, op);
+                heuristics[0]->set_evaluator_value(succ_node.get_h());
+                // TODO: this appears fishy to me. Why is here only heuristic[0]
+                // involved? Is this still feasible in the current version?
+                open_list->evaluate(succ_node.get_g(), is_preferred);
+
+                open_list->insert(succ_state.get_id());
+            } else {
+                // if we do not reopen closed nodes, we just update the parent pointers
+                // Note that this could cause an incompatibility between
+                // the g-value and the actual path that is traced back
+                succ_node.update_parent(node, op);
+            }
+        }
+    }
+
+    return IN_PROGRESS;	
+	
+	
+	
+    /*	
     pair<SearchNode, bool> n = fetch_next_node();
     cout<<"number sixty two."<<endl;           
 
@@ -215,6 +353,8 @@ int SpeedProgress::step() {
     }
 
     return IN_PROGRESS;
+    */
+     
 }
 
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
