@@ -52,7 +52,10 @@ protected:
     virtual void initialize();
        
 public:
-    SpeedProgress(const Options &opts); 
+    SpeedProgress(const Options &opts);
+    int returnMaxF(vector<int> levels);
+    int returnMinF(vector<int> levels); 
+    void generateReport(); 
 };
 
 #endif

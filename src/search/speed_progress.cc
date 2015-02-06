@@ -103,8 +103,10 @@ int SpeedProgress::step() {
     cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
  
     State s = node.get_state();
-    if (check_goal_and_set_plan(s))
+    if (check_goal_and_set_plan(s)) {
+        generateReport();
         return SOLVED;
+    }
 
     vector<const Operator *> applicable_ops;
     set<const Operator *> preferred_ops;
@@ -373,7 +375,7 @@ int SpeedProgress::step() {
      
 }
 
-void EagerSearch::generateReport() {
+void SpeedProgress::generateReport() {
       cout<<"collector.size() = "<<collector.size()<<endl;
       vector<int> levels;
       map<int, int> mlevels;
