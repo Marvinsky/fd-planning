@@ -373,6 +373,86 @@ int SpeedProgress::step() {
      
 }
 
+void EagerSearch::generateReport() {
+      cout<<"collector.size() = "<<collector.size()<<endl;
+      vector<int> levels;
+      map<int, int> mlevels;
+      int count_level = 0;
+      for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
+          Node2 n = iter->first;
+          levels.push_back(n.getF());
+          
+          map<int, int>::iterator iter2 = mlevels.find(n.getF());
+          if ((iter2 == mlevels.end()) && n.getF() <= nivel) {
+             mlevels.insert(pair<int, int>(n.getF(), count_level));
+             count_level++;
+          }
+      }
+
+      int depth = returnMaxF(levels);
+      //int minDepth = returnMinF(levels);
+      cout<<"mlevels.size() = "<<mlevels.size()<<endl;
+      cout<<"count_level = "<<count_level<<endl;
+      map<int, int> m;
+
+      string dominio = domain_name;
+      string tarefa = problem_name2;
+      string heuristica = heuristic_name2;
+      cout<<"dominio = "<<dominio<<endl;
+      cout<<"tarefa = "<<tarefa<<endl;
+      cout<<"heuristica = "<<heuristica<<endl;
+
+      string directoryDomain = "mkdir /home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio;
+      if (system(directoryDomain.c_str())) {
+         cout<<"Directory created successfully."<<endl;
+      }
+      
+      string nBL = "/home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio+"/"+tarefa; 
+
+      ofstream outputFile;
+      outputFile.open(nBL.c_str(), ios::out);
+      outputFile<<"\t\t"<<nBL.c_str()<<"\n";
+      outputFile<<"\ttotalniveles: "<<mlevels.size()<<"\n";
+       
+      outputFile<<"\tf-value\t\t#nodesByLevel\t\ttime\t\t#nodesExpanded\n";
+
+      for (int i = 0; i <= depth; i++) {
+          int k = 0;
+          for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
+              Node2 n = iter->first;
+              if (i == n.getF()) {
+                  k = k + iter->second;
+              }
+          }
+          map<int, int>::iterator iter = m.find(i);
+          if (iter == m.end()) {
+             m.insert(pair<int, int>(i, k));
+          }
+      }
+      cout<<"print v_timer"<<endl;
+      for (int i = 0; i < v_timer.size(); i++) {
+          cout<<v_timer.at(i)<<endl;
+      }     
+
+      int sum = 0;
+      int count_v_timer = 0;
+      for (map<int, int>::iterator iter = m.begin(); iter != m.end(); iter++) {
+          int f = iter->first;
+          int q = iter->second;
+          
+          if ((f <= nivel) && (q != 0) ) {
+             cout<<"f = "<<f<<"\tq = "<<q<<endl;
+             sum = sum + q;
+             outputFile<<"\t"<<f<<"\t\t"<<q<<"\t\t\t"<<v_timer.at(count_v_timer)<<"\t\t\t"<<sum<<"\n";
+             count_v_timer++;
+          }
+      }
+
+      outputFile.close();
+}
+
+
+
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
    
     while (true) {
