@@ -375,7 +375,29 @@ int SpeedProgress::step() {
      
 }
 
-void SpeedProgress::generateReport() {
+
+int SpeedSearch::returnMaxF(vector<int> levels) {
+      int max = levels.at(0);
+      for (int i = 0; i < levels.size(); i++) {
+          if (max < levels.at(i)) {
+             max = levels.at(i);
+          }
+      }
+      return max;
+}
+
+int SpeedSearch::returnMinF(vector<int> levels) {
+      int min = levels.at(0);
+      for (int i = 0; i < levels.size(); i++) {
+          if (min > levels.at(i)) {
+             min = levels.at(i);
+          }
+      }
+      return min;
+}
+
+
+void EagerSearch::generateReport() {
       cout<<"collector.size() = "<<collector.size()<<endl;
       vector<int> levels;
       map<int, int> mlevels;
@@ -452,8 +474,6 @@ void SpeedProgress::generateReport() {
 
       outputFile.close();
 }
-
-
 
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
    
