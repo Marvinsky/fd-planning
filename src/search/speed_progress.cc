@@ -100,12 +100,14 @@ int SpeedProgress::step() {
     }
     SearchNode node = n.first;
 
-    GlobalState s = node.get_state();
+    cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
+ 
+    State s = node.get_state();
     if (check_goal_and_set_plan(s))
         return SOLVED;
 
-    vector<const GlobalOperator *> applicable_ops;
-    set<const GlobalOperator *> preferred_ops;
+    vector<const Operator *> applicable_ops;
+    set<const Operator *> preferred_ops;
 
     g_successor_generator->generate_applicable_ops(s, applicable_ops);
     // This evaluates the expanded state (again) to get preferred ops
@@ -115,7 +117,7 @@ int SpeedProgress::step() {
         if (!h->is_dead_end()) {
             // In an alternation search with unreliable heuristics, it is
             // possible that this heuristic considers the state a dead end.
-            vector<const GlobalOperator *> preferred;
+            vector<const Operator *> preferred;
             h->get_preferred_operators(preferred);
             preferred_ops.insert(preferred.begin(), preferred.end());
         }
@@ -123,12 +125,13 @@ int SpeedProgress::step() {
     search_progress.inc_evaluations(preferred_operator_heuristics.size());
 
     for (size_t i = 0; i < applicable_ops.size(); ++i) {
-        const GlobalOperator *op = applicable_ops[i];
+        const Operator *op = applicable_ops[i];
 
         if ((node.get_real_g() + op->get_cost()) >= bound)
             continue;
 
-        GlobalState succ_state = g_state_registry->get_successor_state(s, *op);
+
+        State succ_state(s, *op);
         search_progress.inc_generated();
         bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
 
@@ -190,7 +193,20 @@ int SpeedProgress::step() {
             }
             succ_node.open(succ_h, node, op);
 
-            open_list->insert(succ_state.get_id());
+            open_list->insert(succ_node.get_state_buffer());
+
+            cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<succ_node.get_h()+succ_node.get_real_g()<<endl;
+                           
+            Node2 node2(succ_node.get_h() + succ_node.get_real_g(), succ_node.get_real_g());
+            if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+                count_value = 1;
+            } else {
+                map<Node2, int>::iterator iter = collector.find(node2);
+                int q = iter->second;
+                q++;
+                iter->second = q;
+            }
+
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
             }
@@ -215,7 +231,7 @@ int SpeedProgress::step() {
                 // involved? Is this still feasible in the current version?
                 open_list->evaluate(succ_node.get_g(), is_preferred);
 
-                open_list->insert(succ_state.get_id());
+                open_list->insert(succ_node.get_state_buffer());
             } else {
                 // if we do not reopen closed nodes, we just update the parent pointers
                 // Note that this could cause an incompatibility between
