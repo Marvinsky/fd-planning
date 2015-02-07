@@ -21,7 +21,6 @@
 
 using namespace std;
 
-
 SpeedProgress::SpeedProgress(
     const Options &opts)
     : SearchEngine(opts),
@@ -37,132 +36,305 @@ SpeedProgress::SpeedProgress(
     }
 }
 
+
 void SpeedProgress::initialize() {
+    //TODO children classes should output which kind of search
     cout << "Conducting best first search"
          << (reopen_closed_nodes ? " with" : " without")
          << " reopening closed nodes, (real) bound = " << bound
          << endl;
+    cout<<"first_sample set to true"<<endl;
+    first_sample=true;
+    cout<<"first_time set to false and count_last_nodes_gerados to zero."<<endl;
+    first_time =false;
+    count_last_nodes_gerados=0;
+    isCompleteExplored=false;
+    time_level.reset();
+    cout<<"mpd = "<<use_multi_path_dependence<<endl;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
     if (use_multi_path_dependence)
         cout << "Using multi-path dependence (LM-A*)" << endl;
     assert(open_list != NULL);
-
+    int i;
+    for (i = 0; i < argc_copy; ++i) {
+      puts(argv_copy[i]);
+      //cout<<"i:"<<i<<","<<argv_copy[i]<<endl;
+    }
+    cout<<"Initial state:";g_initial_state->inline_dump();
+    //cout<<"Goal state:"<<g_goal<<endl;
+    
     set<Heuristic *> hset;
+    cout<<"calling get_involved heuristics"<<endl;fflush(stdout);
     open_list->get_involved_heuristics(hset);
+    cout<<"got involved heuristics"<<endl;fflush(stdout);
+    total_sampling_timer=0;
 
-    for (set<Heuristic *>::iterator it = hset.begin(); it != hset.end(); ++it) {
+    for (set<Heuristic *>::iterator it = hset.begin(); it != hset.end(); it++) {
         estimate_heuristics.push_back(*it);
-        search_progress.add_heuristic(*it); 
+        search_progress.add_heuristic(*it);
     }
 
+    // add heuristics that are used for preferred operators (in case they are
+    // not also used in the open list)
     hset.insert(preferred_operator_heuristics.begin(),
                 preferred_operator_heuristics.end());
 
+    // add heuristics that are used in the f_evaluator. They are usually also
+    // used in the open list and hence already be included, but we want to be
+    // sure.
     if (f_evaluator) {
-       f_evaluator->get_involved_heuristics(hset);
+        f_evaluator->get_involved_heuristics(hset);
     }
+    cout<<"f_evaluator populated"<<endl;fflush(stdout);
 
-    for (set<Heuristic *>::iterator it = hset.begin(); it != hset.end(); ++it) {
+    for (set<Heuristic *>::iterator it = hset.begin(); it != hset.end(); it++) {
         heuristics.push_back(*it);
     }
-
-    const State &initial_state = *g_initial_state;
-    for (int i = 0; i < heuristics.size(); ++i) {
-         heuristics[i]->evaluate(initial_state);
+    orig_heuristics=heuristics;
+    cout<<"# heuristics:"<<heuristics.size()<<endl;fflush(stdout);
+    
+    //If conditional effects (IPC 2014) then we are left with just either hmax or blind
+    bool conditional_effects_present=false;
+    for (int i = 0; i < g_operators.size(); ++i) {
+        const vector<PrePost> &pre_post = g_operators[i].get_pre_post();
+        for (int j = 0; j < pre_post.size(); ++j) {
+            const vector<Prevail> &cond = pre_post[j].cond;
+            if (cond.empty())
+                continue;
+            // Accept conditions that are redundant, but nothing else.
+            // In a better world, these would never be included in the
+            // input in the first place.
+            int var = pre_post[j].var;
+            int pre = pre_post[j].pre;
+            int post = pre_post[j].post;
+            if (pre == -1 && cond.size() == 1 &&
+                cond[0].var == var && cond[0].prev != post &&
+                g_variable_domain[var] == 2)
+                continue;
+            cout << "Conditional effects present"<< endl;fflush(stdout);
+	    conditional_effects_present=true;
+	    break;
+        }
+	if(conditional_effects_present){
+	  break;
+	}
     }
-    open_list->evaluate(0, false);
+    if(conditional_effects_present){
+      orig_heuristics=heuristics;
+      heuristics.clear();
+      for (size_t i = 0; i < orig_heuristics.size(); i++){
+	string heur_name=heuristics[i]->get_heur_name();
+	if(heur_name.find("hmax")!=string::npos){
+	  heuristics.push_back(orig_heuristics[i]);
+	  cout<<"hmax can handle conditional effects, so keeping"<<endl;
+	}
+	else if(heur_name.find("blind")!=string::npos){
+	  heuristics.push_back(orig_heuristics[i]);
+	  cout<<"blind can handle conditional effects, so keeping"<<endl;
+	  continue;
+	}
+	else{
+	  cout<<"skipping because of conditional effects heuristic"<<orig_heuristics[i]->get_heur_name()<<endl;
+	}
+      }
+      cout<<"# heuristics after eliminating those not supporting conditional effects:"<<heuristics.size()<<endl;
+  }
+    cout<<"starting timings"<<endl;fflush(stdout);
+    
+    //Timing node generation time
+    Timer heur_timings;
+    double node_counter=0;
+    State s(*g_initial_state);
+    vector<const Operator *> applicable_ops;
+    const Operator *op;
+    while(heur_timings()<1.0){//in situ measure node generation costs
+      node_counter++;
+      g_successor_generator->generate_applicable_ops(s, applicable_ops);
+      op = applicable_ops[rand()%applicable_ops.size()];//choose operator at random
+      State succ_state(s, *op);
+      s=succ_state;
+      }
+    node_gen_and_exp_cost=heur_timings.stop()/node_counter;
+    cout<<"node gen_and_exp_cost:"<<node_gen_and_exp_cost<<endl;
+    node_time_adjusted_reval=0.5/node_gen_and_exp_cost;
+
+    assert(!heuristics.empty());
+    cout<<"active heuristics size:"<<heuristics.size()<<endl;
+            
+    int max_h=0;
+
+
+    bool dead_end=false;
+    count_value = 1;
+    for (size_t i = 0; i < heuristics.size(); i++){
+	heuristics[i]->evaluate(*g_initial_state);
+       
+        cout<<"Setting initial h: "<<heuristics[i]->get_value()<<endl;
+      
+        SearchNode initialNode = search_space.get_node(*g_initial_state);
+        initialNode.open_initial(heuristics[i]->get_value());
+       
+        Node2 node2(initialNode.get_h() + initialNode.get_real_g(), initialNode.get_real_g()) ; 
+        collector.insert(pair<Node2, int>(node2, count_value));
+  
+        dead_end=heuristics[i]->is_dead_end();
+	if(dead_end){
+	  break;
+	}
+	max_h = max(max_h,heuristics[i]->get_heuristic());
+    }
+    open_list->evaluate2(0, max_h);
     search_progress.inc_evaluated_states();
     search_progress.inc_evaluations(heuristics.size());
 
-    if (open_list->is_dead_end()) {
-       cout<<"Initial state is a dead end."<<endl;
+    if (dead_end) {
+        cout << "Initial state is a dead end." << endl;
+                search_progress.inc_dead_ends();
     } else {
-       search_progress.get_initial_h_values();
-       if (f_evaluator) {
-          f_evaluator->evaluate(0, false);
-          search_progress.report_f_value(f_evaluator->get_value());
-       }
-       search_progress.check_h_progress(0);
-       SearchNode node = search_space.get_node(*g_initial_state);
-       node.open_initial(heuristics[0]->get_value());
+        search_progress.get_initial_h_values();
+        if (f_evaluator) {
+            f_evaluator->evaluate(0, false);
+            search_progress.report_f_value(f_evaluator->get_value());
+        }
+        search_progress.check_h_progress(0);
+        SearchNode node = search_space.get_node(*g_initial_state);
+        node.open_initial(heuristics[0]->get_value());
 
-       open_list->insert(node.get_state_buffer());
-    }
+        open_list->insert(node.get_state_buffer());
+    } 
+}
+
+
+void SpeedProgress::statistics() const {
+    search_progress.print_statistics();
+    search_space.statistics();
 }
 
 int SpeedProgress::step() {
-	
     pair<SearchNode, bool> n = fetch_next_node();
+           
+
     if (!n.second) {
+      problem_was_solved=false;
+      cout<<"failed to get n!"<<endl;
         return FAILED;
     }
     SearchNode node = n.first;
     
-    cout<<"\nRaiz node h = "<<node.get_h()<<" g = "<<node.get_real_g()<<" f = "<<node.get_h() + node.get_real_g()<<endl;
-
+    cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
+    
     State s = node.get_state();
-    if (check_goal_and_set_plan(s)) {
-    	generateReport();
-        return SOLVED;
+    
+
+    if (check_goal_and_set_plan(s)){
+        
+        cout<<"overall generated nodes to last iter:,"<<search_progress.get_generated()<<",search_time:,"<<search_timer()<<",overall time:,"<<g_timer()<<endl;
+        problem_was_solved=true;
+
+        cout<<"\nCount the nodes in the last level."<<endl;
+	
+	int last_level = search_progress.return_lastjump_f_value();
+	nivel = last_level;
+	first_time = true;
+          
+	return IN_PROGRESS;
     }
+
+
+    if (first_time) {
+       int last_level = search_progress.return_lastjump_f_value();
+       cout<<"nivel = "<<nivel<<endl;
+       cout<<"last_level = "<<last_level<<endl;
+       if (nivel == last_level) {
+	  //Add the increment here because in the statistic the last one is added.
+          count_last_nodes_gerados = count_last_nodes_gerados + 1;
+           
+          return IN_PROGRESS;
+       } else {
+	  
+          cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
+          generateReport();
+	  return SOLVED;
+       }
+    }
+
 
     vector<const Operator *> applicable_ops;
     set<const Operator *> preferred_ops;
 
     g_successor_generator->generate_applicable_ops(s, applicable_ops);
+   
     // This evaluates the expanded state (again) to get preferred ops
-    for (size_t i = 0; i < preferred_operator_heuristics.size(); ++i) {
-        Heuristic *h = preferred_operator_heuristics[i];
-        h->evaluate(s);
-        if (!h->is_dead_end()) {
-            // In an alternation search with unreliable heuristics, it is
-            // possible that this heuristic considers the state a dead end.
-            vector<const Operator *> preferred;
-            h->get_preferred_operators(preferred);
-            preferred_ops.insert(preferred.begin(), preferred.end());
-        }
+    for (int i = 0; i < preferred_operator_heuristics.size(); i++) { 
+         Heuristic *h = preferred_operator_heuristics[i];
+         h->evaluate(s);
+       
+         if (!h->is_dead_end()) {
+             // In an alternation search with unreliable heuristics, it is
+             // possible that this heuristic considers the state a dead end.
+             vector<const Operator *> preferred;
+             h->get_preferred_operators(preferred);
+             preferred_ops.insert(preferred.begin(), preferred.end());
+         }
     }
     search_progress.inc_evaluations(preferred_operator_heuristics.size());
 
-    for (size_t i = 0; i < applicable_ops.size(); ++i) {
-        const Operator *op = applicable_ops[i];
+    for (int i = 0; i < applicable_ops.size(); i++) {
+        
+         if(incremental_memory_limit){  
+	    for(int j = 0; j < heuristics.size(); j++) {
+	         Heuristic *h = heuristics[j];
+	         h->free_up_memory(search_space); 
+	    }
+	 }
+         const Operator *op = applicable_ops[i];
+         //Jump to the next iteration
+         if((node.get_real_g() + op->get_cost()) >= bound)
+             continue;
 
-        if ((node.get_real_g() + op->get_cost()) >= bound)
-            continue;
+         State succ_state(s, *op);
+      
+         search_progress.inc_generated();
 
-        State succ_state = g_state_registry->get_successor_state(s, *op);
-        search_progress.inc_generated();
-        bool is_preferred = (preferred_ops.find(op) != preferred_ops.end());
+         SearchNode succ_node = search_space.get_node(succ_state);
+	
+         
+         if (succ_node.is_dead_end()){ 
+             continue;
+ 	 }
 
-        SearchNode succ_node = search_space.get_node(succ_state);
-
-        // Previously encountered dead end. Don't re-evaluate.
-        if (succ_node.is_dead_end())
-            continue;
-
-        // update new path
-        if (use_multi_path_dependence || succ_node.is_new()) {
-            bool h_is_dirty = false;
-            for (size_t j = 0; j < heuristics.size(); ++j) {
-                /*
-                  Note that we can't break out of the loop when
-                  h_is_dirty is set to true or use short-circuit
-                  evaluation here. We must call reach_state for each
-                  heuristic for its side effects.
-                */
-                if (heuristics[j]->reach_state(s, *op, succ_state))
+         // update new path
+         if (use_multi_path_dependence || succ_node.is_new()) {
+             bool h_is_dirty = false;
+             for(size_t i = 0; i < heuristics.size(); ++i) { 
+                 if(heuristics[i]->reach_state(s, *op, succ_node.get_state()))
                     h_is_dirty = true;
-            }
-            if (h_is_dirty && use_multi_path_dependence)
+             }
+             if(h_is_dirty && use_multi_path_dependence)
                 succ_node.set_h_dirty();
-        }
+         }
 
-        if (succ_node.is_new()) {
+         if (succ_node.is_new()) {
             // We have not seen this state before.
             // Evaluate and create a new node.
-            for (size_t j = 0; j < heuristics.size(); ++j)
-                heuristics[j]->evaluate(succ_state);
+            int succ_h=0;
+	    bool dead_end=false;
+            for (size_t i = 0; i < heuristics.size(); i++){
+                heuristics[i]->evaluate(succ_state);
+                
+		dead_end=heuristics[i]->is_dead_end();
+		if (dead_end){
+		   
+		   if (Current_RIDA_Phase==SOLVING_PHASE){
+		       break;
+		   } else {
+		       succ_h=INT_MAX/2;//need to keep nodes in case we need to sample for one of the heuristics which do not know that the node is a dead end
+		   }
+		} 
+	        succ_h =  max(succ_h,heuristics[i]->get_heuristic());
+	    } 	
+
             succ_node.clear_h_dirty();
             search_progress.inc_evaluated_states();
             search_progress.inc_evaluations(heuristics.size());
@@ -172,30 +344,41 @@ int SpeedProgress::step() {
             // before having checked that we're not in a dead end. The
             // division of responsibilities is a bit tricky here -- we
             // may want to refactor this later.
-            open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
-            bool dead_end = open_list->is_dead_end();
+            //open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
+            open_list->evaluate2(node.get_g() + get_adjusted_cost(*op),succ_h);
+	    
             if (dead_end) {
                 succ_node.mark_as_dead_end();
                 search_progress.inc_dead_ends();
+		//if(Current_RIDA_Phase==SOLVING_PHASE){
+		//  cout<<"Node is dead end"<<endl;fflush(stdout);
+ 		//}
                 continue;
             }
 
             //TODO:CR - add an ID to each state, and then we can use a vector to save per-state information
-            int succ_h = heuristics[0]->get_heuristic();
+            //int succ_h = heuristics[0]->get_heuristic();
             if (do_pathmax) {
                 if ((node.get_h() - get_adjusted_cost(*op)) > succ_h) {
-                    //cout << "Pathmax correction: " << succ_h << " -> " << node.get_h() - get_adjusted_cost(*op) << endl;
                     succ_h = node.get_h() - get_adjusted_cost(*op);
-                    heuristics[0]->set_evaluator_value(succ_h);
-                    open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
+                    //heuristics[0]->set_evaluator_value(succ_h);
+                    //open_list->evaluate(node.get_g() + get_adjusted_cost(*op), is_preferred);
+                    open_list->evaluate2(node.get_g() + get_adjusted_cost(*op), succ_h);
                     search_progress.inc_pathmax_corrections();
                 }
             }
             succ_node.open(succ_h, node, op);
+	    // HACK try to maintain only met information for boundary nodes
+            // only useful for incremental lmcut atm
+            if (mark_children_as_finished) {
+                for (size_t i = 0; i < heuristics.size(); i++) {
+                    heuristics[i]->finished_state(succ_node.get_state(), succ_node.get_real_g() + succ_node.get_h(), true);
+                }
+            }
+	    open_list->insert(succ_node.get_state_buffer());
+	  
 
-            open_list->insert(succ_node.get_state_buffer());
-            
-            cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<succ_node.get_h()+succ_node.get_real_g()<<endl;
+	    cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<succ_node.get_h()+succ_node.get_real_g()<<endl;
                            
             Node2 node2(succ_node.get_h() + succ_node.get_real_g(), succ_node.get_real_g());
             if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
@@ -206,39 +389,35 @@ int SpeedProgress::step() {
                 q++;
                 iter->second = q;
             }
-            
+ 
             if (search_progress.check_h_progress(succ_node.get_g())) {
                 reward_progress();
             }
-        } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
+         } else if (succ_node.get_g() > node.get_g() + get_adjusted_cost(*op)) {
             // We found a new cheapest path to an open or closed state.
+	    //if(Current_RIDA_Phase==SOLVING_PHASE){
+	    //  cout<<"Need to reopen node"<<endl;fflush(stdout);
+	    //}
             if (reopen_closed_nodes) {
                 //TODO:CR - test if we should add a reevaluate flag and if it helps
                 // if we reopen closed nodes, do that
                 if (succ_node.is_closed()) {
-                    /* TODO: Verify that the heuristic is inconsistent.
-                     * Otherwise, this is a bug. This is a serious
-                     * assertion because it can show that a heuristic that
-                     * was thought to be consistent isn't. Therefore, it
-                     * should be present also in release builds, so don't
-                     * use a plain assert. */
-                    //TODO:CR - add a consistent flag to heuristics, and add an assert here based on it
-                    search_progress.inc_reopened();
+                   search_progress.inc_reopened();
                 }
                 succ_node.reopen(node, op);
-                heuristics[0]->set_evaluator_value(succ_node.get_h());
-                // TODO: this appears fishy to me. Why is here only heuristic[0]
-                // involved? Is this still feasible in the current version?
-                open_list->evaluate(succ_node.get_g(), is_preferred);
-
-                open_list->insert(succ_node.get_state_buffer();
-            } else {
-                // if we do not reopen closed nodes, we just update the parent pointers
-                // Note that this could cause an incompatibility between
-                // the g-value and the actual path that is traced back
+                open_list->evaluate2(succ_node.get_g(), succ_node.get_h());
+                open_list->insert(succ_node.get_state_buffer());
+	    } else {
                 succ_node.update_parent(node, op);
             }
+
+	    cout<<"line 696 node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<endl;
+            
         }
+    }
+    for (size_t i = 0; i < heuristics.size(); i++) {
+
+        heuristics[i]->finished_state(s, node.get_real_g() + node.get_h(), true);
     }
 
     return IN_PROGRESS;
@@ -263,6 +442,7 @@ int SpeedProgress::returnMinF(vector<int> levels) {
       }
       return min;
 }
+
 
 void SpeedProgress::generateReport() {
       cout<<"collector.size() = "<<collector.size()<<endl;
@@ -340,15 +520,25 @@ void SpeedProgress::generateReport() {
       }
 
       outputFile.close();
+
+
 }
 
-
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
-   
+    /* TODO: The bulk of this code deals with multi-path dependence,
+       which is a bit unfortunate since that is a special case that
+       makes the common case look more complicated than it would need
+       to be. We could refactor this by implementing multi-path
+       dependence as a separate search algorithm that wraps the "usual"
+       search algorithm and adds the extra processing in the desired
+       places. I think this would lead to much cleaner code. */
+
+  //cout<<"fetching next node"<<endl;fflush(stdout);
     while (true) {
         if (open_list->empty()) {
             cout << "Completely explored state space -- no solution!" << endl;
-              
+            isCompleteExplored=true;
+            generateReport();
             return make_pair(search_space.get_node(*g_initial_state), false);
         }
         vector<int> last_key_removed;
@@ -395,7 +585,7 @@ pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
         node.close();
         assert(!node.is_dead_end());
         update_jump_statistic(node);
-        
+
         search_progress.inc_expanded();
         return make_pair(node, true);
     }
@@ -407,6 +597,9 @@ void SpeedProgress::reward_progress() {
     open_list->boost_preferred();
 }
 
+void SpeedProgress::dump_search_space() {
+    search_space.dump();
+}
 
 void SpeedProgress::update_jump_statistic(const SearchNode &node) {
   //vector<int> heuristics_to_drop;
@@ -425,10 +618,20 @@ void SpeedProgress::update_jump_statistic(const SearchNode &node) {
         v_timer.push_back(level_update_time);
 
 	search_progress.report_f_value(new_f_value);
+ 
+	cout<<"F_bound:"<<new_f_value<<",Peak memory="<<get_peak_memory_in_kb()/1024.0<<",nodes:"<<search_space.size()<<",Nodes mem_space:"<<search_space.size()*(sizeof(StateProxy)+sizeof(SearchNodeInfo))/1024.0<<",F_boundary_Range:"<<open_list->open_list_get_boundary_range()<<endl;
+
       }
     }
 }
 
+void SpeedProgress::print_heuristic_values(const vector<int> &values) const {
+    for (int i = 0; i < values.size(); i++) {
+        cout << values[i];
+        if (i != values.size() - 1)
+            cout << "/";
+    }
+}
 
 static SearchEngine *_parse(OptionParser &parser) {
     //open lists are currently registered with the parser on demand,

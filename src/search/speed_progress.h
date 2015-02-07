@@ -26,6 +26,7 @@ class SpeedProgress : public SearchEngine {
     bool use_multi_path_dependence;
     bool mark_children_as_finished;
 
+    Timer IDA_iter_sampling_timer;
     double total_sampling_timer;
     OpenList<state_var_t *> *open_list;
     ScalarEvaluator *f_evaluator;
@@ -33,6 +34,7 @@ class SpeedProgress : public SearchEngine {
     bool first_time;
     int nivel;
     int count_last_nodes_gerados;
+    bool isCompleteExplored;
     
     map<Node2, int> collector;
     int count_value;
@@ -41,21 +43,31 @@ class SpeedProgress : public SearchEngine {
 protected:
     int step();
     pair<SearchNode, bool> fetch_next_node();
+    bool check_goal(const SearchNode &node);
     void update_jump_statistic(const SearchNode &node);
+    void print_heuristic_values(const vector<int> &values) const;
     void reward_progress();
 
     vector<Heuristic *> heuristics;
     vector<Heuristic *> orig_heuristics;
     vector<Heuristic *> preferred_operator_heuristics;
     vector<Heuristic *> estimate_heuristics;
+    // TODO: in the long term this
+    // should disappear into the open list
 
     virtual void initialize();
-       
+    void sample_frontier_now(int next_f_boundary);
+
 public:
     SpeedProgress(const Options &opts);
+    void statistics() const;
+
+    void dump_search_space();
+    double get_total_sampling_time(){return total_sampling_timer;}
+
+    void generateReport();
     int returnMaxF(vector<int> levels);
-    int returnMinF(vector<int> levels); 
-    void generateReport(); 
+    int returnMinF(vector<int> levels);
 };
 
 #endif
