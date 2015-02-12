@@ -48,7 +48,7 @@ void SpeedProgress::initialize() {
     cout<<"first_time set to false and count_last_nodes_gerados to zero."<<endl;
     first_time =false;
     count_last_nodes_gerados=0;
-    isCompleteExplored=false;
+    
     time_level.reset();
     cout<<"mpd = "<<use_multi_path_dependence<<endl;
     if (do_pathmax)
@@ -177,7 +177,12 @@ void SpeedProgress::initialize() {
        
         Node2 node2(initialNode.get_h() + initialNode.get_real_g(), initialNode.get_real_g()) ; 
         collector.insert(pair<Node2, int>(node2, count_value));
-  
+        
+        initial_value = heuristics[i]->get_value();
+        total_min = initial_value;
+        cout<<"total_min = "<<total_min<<endl;
+
+ 
         dead_end=heuristics[i]->is_dead_end();
 	if(dead_end){
 	  break;
@@ -334,6 +339,15 @@ int SpeedProgress::step() {
 		} 
 	        succ_h =  max(succ_h,heuristics[i]->get_heuristic());
 	    } 	
+            
+            if (succ_h < total_min) {
+               total_min = succ_h;
+               //cout<<"last_exp = "<<nodes_generated_by_level.at(nodes_generated_by_level.size()-1)<<endl;
+               //cout<<"last_gen = "<<nodes_expanded_by_level.at(nodes_expanded_by_level.size()-1)<<endl;
+               V = (initial_value - total_min);
+               progress = true;
+               reportProgress();         
+            }
 
             succ_node.clear_h_dirty();
             search_progress.inc_evaluated_states();
@@ -524,6 +538,11 @@ void SpeedProgress::generateReport() {
 
 }
 
+void SpeedProgress::reportProgress() {
+       cout<<"h_min = "<<total_min<<endl;
+}
+
+
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
     /* TODO: The bulk of this code deals with multi-path dependence,
        which is a bit unfortunate since that is a special case that
@@ -537,7 +556,7 @@ pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
     while (true) {
         if (open_list->empty()) {
             cout << "Completely explored state space -- no solution!" << endl;
-            isCompleteExplored=true;
+            
             generateReport();
             return make_pair(search_space.get_node(*g_initial_state), false);
         }

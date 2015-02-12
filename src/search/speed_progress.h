@@ -34,12 +34,21 @@ class SpeedProgress : public SearchEngine {
     bool first_time;
     int nivel;
     int count_last_nodes_gerados;
-    bool isCompleteExplored;
+   
     
     map<Node2, int> collector;
     int count_value;
     Timer time_level;
     vector<double> v_timer;
+
+    //speed progress
+    double V;
+    int initial_value;
+    int total_min;
+    
+    Timer search_time;
+    Timer level_time; //time required to expand an entire level
+    bool progress;
 protected:
     int step();
     pair<SearchNode, bool> fetch_next_node();
@@ -68,6 +77,7 @@ public:
     void generateReport();
     int returnMaxF(vector<int> levels);
     int returnMinF(vector<int> levels);
+    void reportProgress();
 };
 
 #endif

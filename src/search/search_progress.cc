@@ -39,15 +39,18 @@ void SearchProgress::report_f_value(int f) {
     lastjump_f_value2 = lastjump_f_value;
     if (f > lastjump_f_value) {
         lastjump_f_value = f;
-		if (fetch_first_node) {		
+        if (fetch_first_node) {		
 	   cout<<"generated states = "<<generated_states<<endl;		
   	   cout<<"evaluated states = "<<evaluated_states<<endl;		
 	   cout<<"expanded states = "<<expanded_states<<endl;		
 	   cout<<"reopened states = "<<reopened_states<<endl;		
            int expanded_by_level = (expanded_states == 0)?evaluated_states:expanded_states;		
- 	   nodes_expanded_by_level.insert(pair<int, int>(f,   expanded_by_level));		
-	   nodes_generated_by_level.insert(pair<int, int>(f, generated_states));		
-		
+ 	   nodes_expanded_by_level.insert(pair<int, int>(f,   expanded_by_level));	
+	   nodes_generated_by_level.insert(pair<int, int>(f, generated_states));
+
+           cout<<"generated_by_level = "<<generated_states<<endl;
+	   cout<<"expanded_by_level = "<<expanded_by_level<<endl;
+	
            fetch_first_node = false;		
 	} else {		
 	   cout<<"generated states = "<<generated_states<<endl;		
@@ -59,13 +62,13 @@ void SearchProgress::report_f_value(int f) {
 	   cout<<"lastjump expanded states = "<<lastjump_expanded_states<<endl;		
 	   cout<<"lastjump reopened states = "<<lastjump_reopened_states<<endl;		
            int generated_by_level = generated_states - lastjump_generated_states;		
-	   cout<<"generated_states - lastjump_generated_states = "<<generated_by_level<<endl;		
+	   cout<<"generated_by_level = "<<generated_by_level<<endl;		
            int expanded_by_level = expanded_states - lastjump_expanded_states;		
-	   cout<<"expanded_states - lastjump_expanded_states = "<<expanded_by_level<<endl;		
+	   cout<<"expanded_by_level = "<<expanded_by_level<<endl;		
 		
- 	   nodes_expanded_by_level.insert(pair<int, int>(f, expanded_by_level));		
-	   nodes_generated_by_level.insert(pair<int, int>(f, generated_by_level));      		
-		
+ 	   nodes_expanded_by_level.insert(pair<int, int>(f, expanded_by_level));	
+	   nodes_generated_by_level.insert(pair<int, int>(f, generated_by_level));
+
  	   cout<<"fnivel: "<<lastjump_f_value2<<endl;		
     	   cout<<"nodesGeneratedByLevel: "<<expanded_by_level<<endl;		
  	   cout<<" time0: "<<g_timer()<<endl;		
