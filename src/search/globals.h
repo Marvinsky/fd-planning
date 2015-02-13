@@ -114,6 +114,7 @@ extern double sampling_thresshold;
 extern double sampling_time_limit;//with respect to previous F-boundary
 extern double gen_to_eval_ratio;
 extern double gen_to_exp_ratio;
+extern int count_ss_report;
 extern map<int,int> nodes_expanded_by_level;
 extern map<int,int> nodes_generated_by_level;
 extern map<int, vector<long> > mapv_f;

@@ -63,7 +63,7 @@ private:
 	map<Type, SSNode> queue;
         map<Type, double> S; 
         vector<SSNode> vweight;
-        std::map<Node2, int> collector;
+        std::map<Node2, unsigned long long> collector;
 	std::vector<Heuristic*> heuristics; 
 	Heuristic* heuristic;
 	State current_state;
@@ -97,8 +97,8 @@ public:
 	SSSearch(const Options &opts);
 	virtual ~SSSearch();
         void printQueue();
-        void generateReport();
-        double getProbingResult();
+        void generateReport(int id);
+        unsigned long long getProbingResult();
         void probe();
         void predict(int probes);
 };

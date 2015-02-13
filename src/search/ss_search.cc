@@ -39,11 +39,11 @@ int SSSearch::step() {
 }
 
 void SSSearch::predict(int probes) {
-        double totalPrediction = 0;
+        unsigned long long totalPrediction = 0;
         for (int i = 0; i < probes; i++) {
             vweight.clear();
             probe();
-            double p = getProbingResult();
+            unsigned long long p = getProbingResult();
             totalPrediction = totalPrediction + (p - totalPrediction)/(i + 1);
             cout<<"**********"<<endl;
             cout<<"p = "<<p<<endl;
@@ -71,7 +71,7 @@ void SSSearch::probe()
 	initial_value = heuristic->get_value();
 
         //for the open domains the heuristic is set to six
-        threshold = 2*initial_value;
+        threshold = 6;//2*initial_value;
 
 	// adding the initial state to open
 	//SSNode node(*g_initial_state, 1.0);
@@ -93,6 +93,7 @@ void SSSearch::probe()
         count_value = 1;
         //count_level_value = 0;
 
+        count_ss_report++;
 
         int count1 = 1;
         int count2 = 1;
@@ -106,33 +107,35 @@ void SSSearch::probe()
 		SSNode s = queue.begin()->second;
                	int g = (int)out.getLevel();
 
-                printQueue();
+                //printQueue();
 
                 std::map<Type, SSNode>::iterator ret0;
                 ret0 = queue.find(out);
 
 
 		queue.erase( ret0 );
-                cout<<nraiz<<": Raiz: h = "<<out.getH()<<" g = "<<out.getLevel()<<" f = "<<out.getH() + out.getLevel()<<" w  = "<<s.getWeight()<<endl;   
+                //cout<<nraiz<<": Raiz: h = "<<out.getH()<<" g = "<<out.getLevel()<<" f = "<<out.getH() + out.getLevel()<<" w  = "<<s.getWeight()<<endl;   
                 nraiz++;                
                 
 		vweight.push_back(s);
 		
-	              /* 
+	        
                 //Insert each node.
                 Node2 node2(out.getH() + g, g);
-                if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+                //collector.insert(pair<Node2, int>(node2, s.getWeight()));
+
+                if (collector.insert(pair<Node2, unsigned long long>(node2, s.getWeight())).second) {
                    count_value = 1;
                 } else {
-                   map<Node2, int>::iterator iter = collector.find(node2);
-                   int q = iter->second;
+                   map<Node2, unsigned long long>::iterator iter = collector.find(node2);
+                   unsigned long long q = iter->second;
                    q++;
                    iter->second = q;
                 }	
-*/
+                
 		int h = -1;
 		double w = (double)s.getWeight();
-		cout<<"w = "<<w<<endl;  
+		//cout<<"w = "<<w<<endl;  
                 std::vector<const Operator*> applicable_ops;
 		g_successor_generator->generate_applicable_ops(s.getState(), applicable_ops);
 		for (int i = 0; i < applicable_ops.size(); ++i)
@@ -149,7 +152,7 @@ void SSSearch::probe()
 
 			}	
 
-			cout<<"\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<" w = "<<w<<endl; 
+			//cout<<"\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<" w = "<<w<<endl; 
 
                         if (h + g + 1 <= threshold) {
 			   Type object = sampler->getType(child, h,  lookahead);
@@ -168,7 +171,7 @@ void SSSearch::probe()
 			   if( queueIt != queue.end() )
 			   {
 
-                                cout<<"\tis duplicate: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<< queueIt->first.getH()   +  queueIt->first.getLevel()<<"\n";
+                                //cout<<"\tis duplicate: h = "<<queueIt->first.getH()<<" g = "<<queueIt->first.getLevel()<<" f = "<< queueIt->first.getH()   +  queueIt->first.getLevel()<<"\n";
                                 SSNode snode = queueIt->second;
 				double wa = (double)snode.getWeight();
 				//snode.setWeight( wa + w);
@@ -184,18 +187,18 @@ void SSSearch::probe()
 				int rand_100 = RanGen->IRandom(0, 99);  //(int)g_rng.next(100);
                           	 
                                 double a = (( double )rand_100) / 100;
-                                cout<<"a = "<<a<<" prob = "<<prob<<endl;
+                                //cout<<"a = "<<a<<" prob = "<<prob<<endl;
                                 bool b = a < prob;
-                                cout<<"b = "<<b<<endl;
+                                //cout<<"b = "<<b<<endl;
                                 vbool.insert(vbool.begin() + bcount, b);
                                 bcount++;
 				if (a < prob) 
 				{
-                                        cout<<"\t\tAdded even though is duplicate.\n";
+                                        //cout<<"\t\tAdded even though is duplicate.\n";
                                         
 				        child_node.setWeight( wa + w);
                                         
-                                        cout<<"\t\tw = "<<child_node.getWeight()<<endl;
+                                        //cout<<"\t\tw = "<<child_node.getWeight()<<endl;
                                         /*cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
 				        cout<<"\t\tbefore insert."<<endl;
                                         printQueue();
@@ -209,7 +212,7 @@ void SSSearch::probe()
                                         queueIt = ret.first;
                                         queueIt->second.setWeight(child_node.getWeight());
                                         
-					cout << queue[object].getWeight() << endl;
+					//cout << queue[object].getWeight() << endl;
 
 					/*
                                         cout<<"\t\tbegin for."<<endl;
@@ -232,37 +235,39 @@ void SSSearch::probe()
                                         */
                                       	count1++;
 				} else {
-                                        cout<<"\t\tNot added.\n";
+                                        //cout<<"\t\tNot added.\n";
                                 }
 			   } 
 			   else
 			   {
-                                cout<<"\t\tNew node added\n";
+                                //cout<<"\t\tNew node added\n";
 				queue.insert( pair<Type, SSNode>( object, child_node ) );
-                                cout<<"\t\tchild_node.getWeight() = "<<child_node.getWeight()<<"\n";
+                                //cout<<"\t\tchild_node.getWeight() = "<<child_node.getWeight()<<"\n";
                                 //S.insert( pair<Type, double>( object,12.44 ) );
                                 count2++;
-                                cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 << " threshold: " << threshold <<" w = "<<child_node.getWeight()<<endl;
+                                //cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 << " threshold: " << threshold <<" w = "<<child_node.getWeight()<<endl;
                            }
                         }
 			else 
 			{
-				cout << "\tNode was pruned!" << endl;
-				cout<<"\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 << " threshold: " << threshold <<"\n";
+				//cout << "\tNode was pruned!" << endl;
+				//cout<<"\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 << " threshold: " << threshold <<"\n";
 			}
 		}
 	}
 
-        cout<<"count1 = "<<count1<<endl;
-        cout<<"count2 = "<<count2<<endl;
-        cout<<"print boolean: "<<endl;
-        cout<<"bount = "<<bcount<<endl;
-        for (int i = 0; i <vbool.size(); i++) {
+        
+        //cout<<"count1 = "<<count1<<endl;
+        //cout<<"count2 = "<<count2<<endl;
+        //cout<<"print boolean: "<<endl;
+        //cout<<"bount = "<<bcount<<endl;
+        generateReport(count_ss_report);
+        /*for (int i = 0; i <vbool.size(); i++) {
             cout<<vbool.at(i)<<" ";
         }
         cout<<"\n";
 
-        /*
+        
         double sumS = 0.0;
         for (map<Type, SSNode>::iterator it = S.begin(); it != S.end(); ++it) {
             SSNode n = it->second;
@@ -380,19 +385,26 @@ int SSSearch::step()
 }
 */
 
-void SSSearch::generateReport() {
+void SSSearch::generateReport(int id) {
+        stringstream Resultado;
+        string arquivo;
+        arquivo += problem_name2;
+        Resultado<<id;
+        arquivo += Resultado.str();
+	cout<<"arquivo = "<<arquivo<<endl;
+
         string dominio = domain_name;
-        string tarefa = problem_name2;
+        string tarefa =  problem_name2;
         string heuristica = heuristic_name2;
 
         cout<<"dominio = "<<dominio<<endl;
         cout<<"tarefa = "<<tarefa<<endl;
         cout<<"heuristica = "<<heuristica<<endl;
 
-        string dirDomain = "mkdir /home/levi/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio;
-        string dirfDist = "mkdir /home/levi/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist";
+        string dirDomain = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio;
+        string dirfDist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist";
        
-        string outputFile = "/home/levi/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist/"+tarefa;
+        string outputFile = "/home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist/"+tarefa;
 
         ofstream output;
 
@@ -413,8 +425,8 @@ void SSSearch::generateReport() {
         for (int i = 0; i <= threshold; i++) {
             int k = 0;
             vector<long> f;
-            vector<long> q;
-            for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
+            vector<unsigned long long> q;
+            for (map<Node2, unsigned long long>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
                  Node2 n = iter->first;
                  if (i == n.getL()) {
                     k++;
@@ -435,16 +447,15 @@ void SSSearch::generateReport() {
             output<<"\n";
         }
         output.close();
+        collector.clear();
 }
 
-double SSSearch::getProbingResult() {
-        double expansions = 0;
+unsigned long long SSSearch::getProbingResult() {
+        unsigned long long expansions = 0;
         
         for (int i = 0; i < vweight.size(); i++) {
              SSNode n = vweight.at(i);
              expansions += n.getWeight();
-
-		cout << n.getWeight() << " ";
         }
 	cout << endl;
         cout<<"expansions = "<<expansions<<endl;
