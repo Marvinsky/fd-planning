@@ -14,6 +14,9 @@
 #include "Tree.h"
 #include "node2.h"
 
+#include <iostream>
+#include <fstream>
+
 class Heuristic;
 class Operator;
 class ScalarEvaluator;
@@ -41,15 +44,26 @@ class SpeedProgress : public SearchEngine {
     Timer time_level;
     vector<double> v_timer;
 
-    //speed progress
-    double V;
+    //Velocity-Based Search Speed Estimator
+    
     int initial_value;
     int total_min;
-    
+    map<Node2, int> collector2;
     Timer search_time;
     Timer level_time; //time required to expand an entire level
-    bool progress;
-protected:
+    double target_search_velocity;
+    double V; // Search velocity - it is calcultated based the number of nodes generated
+    double search_speed; // Search velocity - it is calculated based the number of nodes expanded
+    double SEv;  //Future search effort or search effort estimation
+    double VeSP; //Velocity Search Progress Estimator
+
+    ofstream outputFile2;
+    
+    //Vacillation-Based Search Speed Estimator   
+
+
+ 
+protected: 
     int step();
     pair<SearchNode, bool> fetch_next_node();
     bool check_goal(const SearchNode &node);
@@ -78,6 +92,8 @@ public:
     int returnMaxF(vector<int> levels);
     int returnMinF(vector<int> levels);
     void reportProgress();
+    int generatedSoFar();
+    int expandedSoFar();
 };
 
 #endif

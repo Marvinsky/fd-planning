@@ -18,6 +18,8 @@
 #include <fstream>
 
 #include <dirent.h>
+#include <iomanip>
+
 
 using namespace std;
 
@@ -46,10 +48,14 @@ void SpeedProgress::initialize() {
     cout<<"first_sample set to true"<<endl;
     first_sample=true;
     cout<<"first_time set to false and count_last_nodes_gerados to zero."<<endl;
+
     first_time =false;
     count_last_nodes_gerados=0;
+    search_time.reset();  //Time for speed_progress
+    level_time.reset();
     
-    time_level.reset();
+    time_level.reset();  //It is used to calculate time in each level
+    
     cout<<"mpd = "<<use_multi_path_dependence<<endl;
     if (do_pathmax)
         cout << "Using pathmax correction" << endl;
@@ -154,7 +160,7 @@ void SpeedProgress::initialize() {
       op = applicable_ops[rand()%applicable_ops.size()];//choose operator at random
       State succ_state(s, *op);
       s=succ_state;
-      }
+    }
     node_gen_and_exp_cost=heur_timings.stop()/node_counter;
     cout<<"node gen_and_exp_cost:"<<node_gen_and_exp_cost<<endl;
     node_time_adjusted_reval=0.5/node_gen_and_exp_cost;
@@ -177,12 +183,16 @@ void SpeedProgress::initialize() {
        
         Node2 node2(initialNode.get_h() + initialNode.get_real_g(), initialNode.get_real_g()) ; 
         collector.insert(pair<Node2, int>(node2, count_value));
-        
+        //Nodes expanded
+        collector2.insert(pair<Node2, int>(node2, count_value));
+         
         initial_value = heuristics[i]->get_value();
         total_min = initial_value;
-        cout<<"total_min = "<<total_min<<endl;
+        cout<<"total_min_initialize = "<<total_min<<endl;
+        cout<<"search_time() = "<<(double)search_time()<<endl;
+        target_search_velocity = (double)total_min/(double)search_time();
+        cout<<"target_search_velocity = "<<target_search_velocity<<endl; 
 
- 
         dead_end=heuristics[i]->is_dead_end();
 	if(dead_end){
 	  break;
@@ -207,7 +217,30 @@ void SpeedProgress::initialize() {
         node.open_initial(heuristics[0]->get_value());
 
         open_list->insert(node.get_state_buffer());
-    } 
+    }
+
+    //********************speed progress************************
+      string dominio = domain_name;
+      string tarefa = problem_name2;
+      string heuristica = heuristic_name2;
+      cout<<"dominio = "<<dominio<<endl;
+      cout<<"tarefa = "<<tarefa<<endl;
+      cout<<"heuristica = "<<heuristica<<endl;
+
+      string directoryDomain = "mkdir /home/marvin/marvin/speed/"+heuristica+"/krereport/"+dominio+"/speed";
+      if (system(directoryDomain.c_str())) {
+         cout<<"Directory created successfully."<<endl;
+      }
+      
+      string nBL = "/home/marvin/marvin/speed/"+heuristica+"/krereport/"+dominio+"/speed/"+tarefa; 
+
+      //ofstream outputFile;
+      outputFile2.open(nBL.c_str(), ios::out);
+      outputFile2<<"\t\t"<<nBL.c_str()<<"\n";
+      outputFile2<<"\tinitial_value: "<<initial_value<<"\n";
+       
+      outputFile2<<"\th_min\tgen\texp\t\tV\t\tSEv\t\tVeSP\n";
+    //************************************************************ 
 }
 
 
@@ -228,7 +261,19 @@ int SpeedProgress::step() {
     SearchNode node = n.first;
     
     cout<<"\nRaiz node h = "<<node.get_h()<<",g = "<<node.get_real_g()<<", f = "<<node.get_h() + node.get_real_g()<<endl;
-    
+   
+    //Nodes expanded
+    Node2 node_2(node.get_h() + node.get_real_g(), node.get_real_g());
+    if (collector2.insert(pair<Node2, int>(node_2, count_value)).second) {
+       count_value = 1;
+    } else {
+       map<Node2, int>::iterator iter = collector2.find(node_2);
+       int q = iter->second;
+       q++;
+       iter->second = q;
+    }
+    //end Nodes expanded
+
     State s = node.get_state();
     
 
@@ -260,6 +305,7 @@ int SpeedProgress::step() {
 	  
           cout<<"count_last_nodes_gerados: "<<count_last_nodes_gerados<<endl;
           generateReport();
+          outputFile2.close();
 	  return SOLVED;
        }
     }
@@ -344,9 +390,17 @@ int SpeedProgress::step() {
                total_min = succ_h;
                //cout<<"last_exp = "<<nodes_generated_by_level.at(nodes_generated_by_level.size()-1)<<endl;
                //cout<<"last_gen = "<<nodes_expanded_by_level.at(nodes_expanded_by_level.size()-1)<<endl;
-               V = (initial_value - total_min);
-               progress = true;
-               reportProgress();         
+               int diff = initial_value - total_min;
+               cout<<"initial_value = "<<initial_value<<endl;
+               cout<<"total_min = "<<total_min<<endl;
+               cout<<"diff = "<<initial_value - total_min<<endl;
+               cout<<"generatedSoFar() = "<<generatedSoFar()<<endl;
+               cout<<"expandedSoFar() = "<<expandedSoFar()<<endl;
+               V = (double)diff/(double)generatedSoFar();
+               search_speed = (double)diff/(double)expandedSoFar();
+               SEv = (double)total_min/V;
+               VeSP = (double)generatedSoFar()/(double)(generatedSoFar() + SEv);
+               reportProgress();
             }
 
             succ_node.clear_h_dirty();
@@ -458,6 +512,25 @@ int SpeedProgress::returnMinF(vector<int> levels) {
 }
 
 
+int SpeedProgress::generatedSoFar() {
+     
+      int count_nodes = 0;
+      for (map<Node2, int>::iterator iter = collector.begin(); iter !=  collector.end(); iter++) {
+          int k = iter->second;
+          count_nodes += k;
+      }
+      return count_nodes;
+}
+
+int SpeedProgress::expandedSoFar() {
+      int count_nodes = 0;
+      for (map<Node2, int>::iterator iter = collector2.begin(); iter !=  collector2.end(); iter++) {
+          int k = iter->second;
+          count_nodes += k;
+      }
+      return count_nodes;
+}
+
 void SpeedProgress::generateReport() {
       cout<<"collector.size() = "<<collector.size()<<endl;
       vector<int> levels;
@@ -487,12 +560,12 @@ void SpeedProgress::generateReport() {
       cout<<"tarefa = "<<tarefa<<endl;
       cout<<"heuristica = "<<heuristica<<endl;
 
-      string directoryDomain = "mkdir /home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio;
+      string directoryDomain = "mkdir /home/marvin/marvin/speed/"+heuristica+"/krereport/"+dominio;
       if (system(directoryDomain.c_str())) {
          cout<<"Directory created successfully."<<endl;
       }
       
-      string nBL = "/home/marvin/marvin/test/"+heuristica+"/krereport/"+dominio+"/"+tarefa; 
+      string nBL = "/home/marvin/marvin/speed/"+heuristica+"/krereport/"+dominio+"/"+tarefa; 
 
       ofstream outputFile;
       outputFile.open(nBL.c_str(), ios::out);
@@ -539,9 +612,15 @@ void SpeedProgress::generateReport() {
 }
 
 void SpeedProgress::reportProgress() {
-       cout<<"h_min = "<<total_min<<endl;
-}
+       
+       cout<<"V = "<<V<<endl;
+       cout<<"search_speed = "<<search_speed<<endl;
+       cout<<"SEv = "<<SEv<<endl;
+       cout<<"VeSP = "<<VeSP<<endl;
 
+      outputFile2<<"\t"<<total_min<<"\t"<<generatedSoFar()<<"\t"<<expandedSoFar()<<"\t\t"<<std::setprecision(2)<<V<<"\t\t"<<SEv<<"\t\t"<<VeSP<<"\n";
+      //outputFile2.close();
+}
 
 pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
     /* TODO: The bulk of this code deals with multi-path dependence,
@@ -558,6 +637,7 @@ pair<SearchNode, bool> SpeedProgress::fetch_next_node() {
             cout << "Completely explored state space -- no solution!" << endl;
             
             generateReport();
+            outputFile2.close();
             return make_pair(search_space.get_node(*g_initial_state), false);
         }
         vector<int> last_key_removed;
