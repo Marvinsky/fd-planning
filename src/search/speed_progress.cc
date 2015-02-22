@@ -239,7 +239,7 @@ void SpeedProgress::initialize() {
       outputFile2<<"\t\t"<<nBL.c_str()<<"\n";
       outputFile2<<"\tinitial_value: "<<initial_value<<"\n";
        
-      outputFile2<<"\th_min\tgen\texp\t\tV\t\tSEv\t\tVeSP\n";
+      outputFile2<<"\th_min\tgen\texp\t\tV\t\tSEv\t\tVeSP\t\tNPBP\n";
     //************************************************************ 
 }
 
@@ -386,10 +386,9 @@ int SpeedProgress::step() {
 	        succ_h =  max(succ_h,heuristics[i]->get_heuristic());
 	    } 	
             
-            if (succ_h < total_min) {
+            /*if (succ_h < total_min) {
                total_min = succ_h;
-               //cout<<"last_exp = "<<nodes_generated_by_level.at(nodes_generated_by_level.size()-1)<<endl;
-               //cout<<"last_gen = "<<nodes_expanded_by_level.at(nodes_expanded_by_level.size()-1)<<endl;
+               
                int diff = initial_value - total_min;
                cout<<"initial_value = "<<initial_value<<endl;
                cout<<"total_min = "<<total_min<<endl;
@@ -400,8 +399,16 @@ int SpeedProgress::step() {
                search_speed = (double)diff/(double)expandedSoFar();
                SEv = (double)total_min/V;
                VeSP = (double)generatedSoFar()/(double)(generatedSoFar() + SEv);
+               
+
+               //Unit-cost domains
+               cout<<"succ_node.get_real_g() = "<<succ_node.get_real_g()<<endl;
+               cout<<"succ_node.get_h() = "<<succ_node.get_h()<<endl;
+               cout<<"f = "<<succ_node.get_real_g() + succ_node.get_h()<<endl;
+               NPBP = (double)succ_node.get_real_g()/(double)(succ_node.get_real_g() + succ_node.get_h());
+               cout<<"NPBP = "<<NPBP<<endl;
                reportProgress();
-            }
+            }*/
 
             succ_node.clear_h_dirty();
             search_progress.inc_evaluated_states();
@@ -447,7 +454,31 @@ int SpeedProgress::step() {
 	  
 
 	    cout<<"\tChild node h = "<<succ_node.get_h()<<",g = "<<succ_node.get_real_g()<<", f = "<<succ_node.get_h() + succ_node.get_real_g()<<" m&s h+g = "<<succ_node.get_h()+succ_node.get_real_g()<<endl;
-                           
+              
+            if (succ_h < total_min) {
+               total_min = succ_h;
+               
+               int diff = initial_value - total_min;
+               cout<<"initial_value = "<<initial_value<<endl;
+               cout<<"total_min = "<<total_min<<endl;
+               cout<<"diff = "<<initial_value - total_min<<endl;
+               cout<<"generatedSoFar() = "<<generatedSoFar()<<endl;
+               cout<<"expandedSoFar() = "<<expandedSoFar()<<endl;
+               V = (double)diff/(double)generatedSoFar();
+               search_speed = (double)diff/(double)expandedSoFar();
+               SEv = (double)total_min/V;
+               VeSP = (double)generatedSoFar()/(double)(generatedSoFar() + SEv);
+               
+
+               //Unit-cost domains
+               cout<<"succ_node.get_real_g() = "<<succ_node.get_real_g()<<endl;
+               cout<<"succ_node.get_h() = "<<succ_node.get_h()<<endl;
+               cout<<"f = "<<succ_node.get_real_g() + succ_node.get_h()<<endl;
+               NPBP = (double)succ_node.get_real_g()/(double)(succ_node.get_real_g() + succ_node.get_h());
+               cout<<"NPBP = "<<NPBP<<endl;
+               reportProgress();
+            }
+
             Node2 node2(succ_node.get_h() + succ_node.get_real_g(), succ_node.get_real_g());
             if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
                 count_value = 1;
@@ -618,7 +649,7 @@ void SpeedProgress::reportProgress() {
        cout<<"SEv = "<<SEv<<endl;
        cout<<"VeSP = "<<VeSP<<endl;
 
-      outputFile2<<"\t"<<total_min<<"\t"<<generatedSoFar()<<"\t"<<expandedSoFar()<<"\t\t"<<std::setprecision(2)<<V<<"\t\t"<<SEv<<"\t\t"<<VeSP<<"\n";
+      outputFile2<<"\t"<<total_min<<"\t"<<generatedSoFar()<<"\t"<<expandedSoFar()<<"\t\t"<<std::setprecision(2)<<V<<"\t\t"<<SEv<<"\t\t"<<VeSP<<"\t\t"<<NPBP<<"\n";
       //outputFile2.close();
 }
 

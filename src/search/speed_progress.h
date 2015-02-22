@@ -60,7 +60,11 @@ class SpeedProgress : public SearchEngine {
     ofstream outputFile2;
     
     //Vacillation-Based Search Speed Estimator   
-
+    //TODO: There is no enough information about DAS
+    
+    //Path-Based Progress Estimator
+    //Unit-cost Domains
+    double NPBP; //Naive path-based progress estimator
 
  
 protected: 
