@@ -649,13 +649,24 @@ void EagerDijkstraSearch::generateReport() {
         int sum = 0;
         int count_v_timer = 0;
         cout<<"collector.size() = "<<collector.size()<<endl;
+        int index_count = 0;
         for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
             Node2 n = iter->first;
   
             sum = sum + iter->second;
             outputFile<<"\t"<<n.getL()<<"\t\t\t"<<iter->second<<"\t\t"<<v_timer.at(count_v_timer)<<"\t\t"<<sum<<"\n";
             cout<<"\t"<<n.getL()<<"\t\t"<<iter->second<<"\t\t"<<v_timer.at(count_v_timer)<<"\t\t"<<sum<<"\n";
-            count_v_timer++; 
+            if ((collector.size()-1) == index_count) {
+                //What about printing here.
+                cout<<"fnivel: "<<n.getL()<<endl;
+                cout<<"nodesGeneratedByLevel: "<<iter->second<<endl;
+                cout<<" time0: "<<v_timer.at(count_v_timer)<<endl;
+                cout<<"nodesGeneratedToTheLevel: "<<sum<<endl;
+                //end what about printing here
+            }
+
+            index_count++;
+            count_v_timer++;
         }
         outputFile.close(); 
 }
