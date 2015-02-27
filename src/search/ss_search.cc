@@ -39,11 +39,12 @@ int SSSearch::step() {
 }
 
 void SSSearch::predict(int probes) {
-        unsigned long long totalPrediction = 0;
+        totalPrediction = 0;
+
         for (int i = 0; i < probes; i++) {
             vweight.clear();
             probe();
-            unsigned long long p = getProbingResult();
+            double p = getProbingResult();
             totalPrediction = totalPrediction + (p - totalPrediction)/(i + 1);
             cout<<"**********"<<endl;
             cout<<"p = "<<p<<endl;
@@ -51,6 +52,7 @@ void SSSearch::predict(int probes) {
             cout<<"**********"<<endl;
         }
         cout<<"totalPrediction = "<<totalPrediction<<endl;
+        generateAverageReport();
 }
 
 void SSSearch::probe()
@@ -71,7 +73,7 @@ void SSSearch::probe()
 	initial_value = heuristic->get_value();
 
         //for the open domains the heuristic is set to six
-        threshold = 6;//2*initial_value;
+        threshold = 2*initial_value;
 
 	// adding the initial state to open
 	//SSNode node(*g_initial_state, 1.0);
@@ -123,16 +125,36 @@ void SSSearch::probe()
                 //Insert each node.
                 Node2 node2(out.getH() + g, g);
                 //collector.insert(pair<Node2, int>(node2, s.getWeight()));
-
+                /*
                 if (collector.insert(pair<Node2, unsigned long long>(node2, s.getWeight())).second) {
-                   count_value = 1;
+                   //count_value = 1;
                 } else {
+                   cout<<"ss_search.cc:131"<<endl;
                    map<Node2, unsigned long long>::iterator iter = collector.find(node2);
                    unsigned long long q = iter->second;
-                   q++;
-                   iter->second = q;
+                   unsigned long long neww = s.getWeight() + q;
+                   iter->second = neww;
                 }	
-                
+                */               
+                //average information
+                if (average.insert(pair<Node2, unsigned long long>(node2, s.getWeight())).second) {
+                   //count_average_report = 1;
+                } else {
+                   
+                   map<Node2, unsigned long long>::iterator iter = average.find(node2);
+                   if (iter != average.end()) {
+                      unsigned long long q2 = iter->second;
+                      unsigned long long neww = s.getWeight() + q2;
+                                         
+                      average.erase(node2); 
+
+                      iter->second = neww;
+                    
+                      average.insert(pair<Node2, unsigned long long>(iter->first, neww));                                }
+                }
+
+                //end average information
+ 
 		int h = -1;
 		double w = (double)s.getWeight();
 		//cout<<"w = "<<w<<endl;  
@@ -198,12 +220,6 @@ void SSSearch::probe()
                                         
 				        child_node.setWeight( wa + w);
                                         
-                                        //cout<<"\t\tw = "<<child_node.getWeight()<<endl;
-                                        /*cout<<"\t\tChild: h = "<< h <<" g = "<< g + 1 <<" f = "<< h + g + 1 <<"\n";	
-				        cout<<"\t\tbefore insert."<<endl;
-                                        printQueue();
-                                        cout<<"\t\t190: child_node.getWeigt() = "<<child_node.getWeight()<<endl;
-                                        */ 
                                         std::pair<std::map<Type, SSNode>::iterator, bool> ret;
                                      	queue.erase(object); 
 
@@ -212,27 +228,6 @@ void SSSearch::probe()
                                         queueIt = ret.first;
                                         queueIt->second.setWeight(child_node.getWeight());
                                         
-					//cout << queue[object].getWeight() << endl;
-
-					/*
-                                        cout<<"\t\tbegin for."<<endl;
-                                        for (; queueIt !=  queue.end(); queueIt++) {
-						Type t3 = queueIt->first;
-						SSNode t4 = queueIt->second;
-                                                cout<<"\t\th = "<<t3.getH()<<" g = "<<t3.getLevel()<<" f = "<<t3.getH() + t3.getLevel()<<" w = "<<t4.getWeight()<<endl;
-					}
-                                        cout<<"\t\tend for"<<endl;
-                                         
-                                        cout<<"\t\t192: child_node.getWeight() = "<<child_node.getWeight()<<endl;
- 
-                                        cout<<"\t\tafter insert."<<endl;
-                                        printQueue();
-                                        //queueIt->second.setWeight(wa + w);
-                                        map<Type, SSNode>::iterator it2 = queue.find(object);
-                                        Type t1 = it2->first;
-                                        SSNode t2 = it2->second; 
-                                        cout<<"\t\th = "<<t1.getH()<<" g = "<<t1.getLevel()<<" f = "<<t1.getH() + t1.getLevel()<<" w = "<<t2.getWeight()<<endl;
-                                        */
                                       	count1++;
 				} else {
                                         //cout<<"\t\tNot added.\n";
@@ -255,135 +250,8 @@ void SSSearch::probe()
 			}
 		}
 	}
-
-        
-        //cout<<"count1 = "<<count1<<endl;
-        //cout<<"count2 = "<<count2<<endl;
-        //cout<<"print boolean: "<<endl;
-        //cout<<"bount = "<<bcount<<endl;
-        generateReport(count_ss_report);
-        /*for (int i = 0; i <vbool.size(); i++) {
-            cout<<vbool.at(i)<<" ";
-        }
-        cout<<"\n";
-
-        
-        double sumS = 0.0;
-        for (map<Type, SSNode>::iterator it = S.begin(); it != S.end(); ++it) {
-            SSNode n = it->second;
-            sumS = sumS + n.getWeight();
-        }
-        cout<<"sumS = "<<sumS<<endl;
-        */
+        //generateReport(count_ss_report);
 }
-
-
-/*
-
-int SSSearch::step()
-{
-	
-        // Probing is done based on the types of the children of the root state
-	 
-	int last_level = 0;
-	int expansions_level = 0;
-	//int number_levels_without_progress = 0;
-        count_value = 1;
-        count_level_value = 1;
-	while( !queue.empty() )
-	{
-		Type out = queue.begin()->first;
-		SSNode s = queue.begin()->second;
-		queue.erase( out );
-                //Insert SSNode to count w
-                mweight.insert(pair<int, SSNode>(count_level_value, s));
-                count_level_value++; 
-		//output.insert( pair<SemiLosslessObject, PKState> ( out, s ) );
-		int g = out.getLevel();
-               
-                //Insert each node.
-                Node2 node2(out.getH() + g, g);
-                if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
-                   count_value = 1;
-                } else {
-                   map<Node2, int>::iterator iter = collector.find(node2);
-                   int q = iter->second;
-                   q++;
-                   iter->second = q;
-                }
-
-		//negative beam sizes equal to an allowance of infinity number of nodes expansions
-		if(beamsize > 0 && g == last_level && expansions_level > beamsize)
-		{
-			continue;
-		}
-
-		expansions_level++;
-
-		int w = s.weight;
-		std::vector<const Operator*> applicable_ops;
-		g_successor_generator->generate_applicable_ops(s.state, applicable_ops);
-		for (int i = 0; i < applicable_ops.size(); ++i)
-		{
-			State child(s.state, *applicable_ops[i]);
-
-			heuristic->evaluate(child);
-
-			int h = -1;
-
-			if(!heuristic->is_dead_end())
-			{
-				h = heuristic->get_heuristic();
-
-				if(h < total_min)
-				{
-					current_state = child;
-					total_min = h;
-					progress = true;
-					report_progress();
-				}
-			}
-			else
-			{
-				continue;
-			}	
-
-                        if (g <= threshold) {
-			   Type object = sampler->getType(child, h,  lookahead);
-			   object.setLevel( g + 1 );
-
-			   SSNode child_node(child, w);
-                           //cout<<"\tChild: h = "<<object.getH()<<" g = "<<object.getLevel()<<" f = "<<object.getH() + object.getLevel()<<"\n"; 
-			   std::map<Type, SSNode>::iterator queueIt = queue.find( object );
-			   if( queueIt != queue.end() )
-			   {
-				int wa = queueIt->second.weight;
-				queueIt->second.weight =  wa + w;
-
-				double prob = ( double )w / ( wa + w );
-				int rand_100 = g_rng.next(100);
-				double a = ( double )rand_100 / 100;
-
-				if(a < prob)
-				{
-                                        //cout<<"Added even though is duplicate.\n";
-					child_node.weight = wa + w;
-					queue.insert( pair<Type, SSNode>( object, child_node ) );
-				}
-			   }  
-			   else
-			   {
-                                //cout<<"new added\n";
-				queue.insert( pair<Type, SSNode>( object, child_node ) );
-			   }
-                        }
-		}
-	}
-        generateReport();
-
-	return SOLVED;
-}
-*/
 
 void SSSearch::generateReport(int id) {
         stringstream Resultado;
@@ -394,7 +262,7 @@ void SSSearch::generateReport(int id) {
 	cout<<"arquivo = "<<arquivo<<endl;
 
         string dominio = domain_name;
-        string tarefa =  problem_name2;
+        string tarefa = arquivo; //problem_name2
         string heuristica = heuristic_name2;
 
         cout<<"dominio = "<<dominio<<endl;
@@ -450,8 +318,74 @@ void SSSearch::generateReport(int id) {
         collector.clear();
 }
 
-unsigned long long SSSearch::getProbingResult() {
-        unsigned long long expansions = 0;
+void SSSearch::generateAverageReport() {
+       
+        string dominio = domain_name;
+        string tarefa = problem_name2;
+        string heuristica = heuristic_name2;
+
+        cout<<"dominio = "<<dominio<<endl;
+        cout<<"tarefa = "<<tarefa<<endl;
+        cout<<"heuristica = "<<heuristica<<endl;
+
+        string dirDomain = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio;
+        string dirfDist = "mkdir /home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist";
+       
+        string outputFile = "/home/marvin/marvin/testss/"+heuristica+"/reportss/"+dominio+"/fdist/"+tarefa;
+
+        ofstream output;
+
+        output.open(outputFile.c_str());
+        output<<"\t"<<outputFile.c_str()<<"\n" ;
+        output<<"predictionSS: "<<totalPrediction<<"\n";
+        output<<"threshold: "<<threshold<<"\n";
+        
+
+        if (system(dirDomain.c_str())) {
+           cout<<"Directory: "<<heuristica<<" created."<<endl;
+        }
+
+        if (system(dirfDist.c_str())) {
+           cout<<"Directory: fdist created."<<endl;
+        }
+        cout<<"print."<<endl;
+        for (int i = 0; i <= threshold; i++) {
+            int k = 0;
+            vector<long> f;
+            vector<unsigned long long> q;
+            for (map<Node2, unsigned long long>::iterator iter = average.begin(); iter != average.end(); iter++) {
+                 Node2 n = iter->first;
+                
+                 if (i == n.getL()) {
+                    k++;
+                    f.push_back(n.getF());
+                    q.push_back((iter->second)/ss_probes);
+
+                    //cout<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<endl;
+                    //output<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<"\n";
+                 }
+            }
+            
+            cout<<"g:"<<i<<"\n";
+            output<<"g:"<<i<<"\n";
+
+            cout<<"size: "<<k<<"\n";            
+            output<<"size: "<<k<<"\n"; 
+            for (int j = 0; j < f.size(); j++) {
+                 cout<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+                 output<<"\tf: "<<f.at(j)<<"\tq: "<<q.at(j)<<"\n";
+            }
+            cout<<"\n";
+            output<<"\n";
+            
+        }
+        output.close();
+        average.clear();
+}
+
+
+double SSSearch::getProbingResult() {
+        double expansions = 0;
         
         for (int i = 0; i < vweight.size(); i++) {
              SSNode n = vweight.at(i);

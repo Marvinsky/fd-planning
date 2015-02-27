@@ -64,6 +64,10 @@ private:
         map<Type, double> S; 
         vector<SSNode> vweight;
         std::map<Node2, unsigned long long> collector;
+
+        std::map<Node2, unsigned long long> average;
+        double totalPrediction;         
+
 	std::vector<Heuristic*> heuristics; 
 	Heuristic* heuristic;
 	State current_state;
@@ -98,7 +102,8 @@ public:
 	virtual ~SSSearch();
         void printQueue();
         void generateReport(int id);
-        unsigned long long getProbingResult();
+        void generateAverageReport();
+        double getProbingResult();
         void probe();
         void predict(int probes);
 };
