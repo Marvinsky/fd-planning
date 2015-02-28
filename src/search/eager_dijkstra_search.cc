@@ -343,10 +343,23 @@ int EagerDijkstraSearch::step() {
     if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
        count_value = 1;
     } else {
+       
        map<Node2, int>::iterator iter = collector.find(node2);
-       int q = iter->second;
+       if (iter != collector.end()) {
+          int q = iter->second;
+          int neww = count_value + q;
+      
+          collector.erase(node2);
+          iter->second = neww;
+    
+          collector.insert(pair<Node2, int>(iter->first, neww));
+
+       }
+       /*int q = iter->second;
+       cout<<"iter->second = "<<q<<endl;
        q++;
-       iter->second = q;
+       cout<<"q++ = "<<q<<endl;
+       iter->second = q;*/
     }
    
     State s = node.get_state();

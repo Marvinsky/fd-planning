@@ -352,14 +352,14 @@ void SSSearch::generateAverageReport() {
         for (int i = 0; i <= threshold; i++) {
             int k = 0;
             vector<long> f;
-            vector<unsigned long long> q;
+            vector<double> q;
             for (map<Node2, unsigned long long>::iterator iter = average.begin(); iter != average.end(); iter++) {
                  Node2 n = iter->first;
                 
                  if (i == n.getL()) {
                     k++;
                     f.push_back(n.getF());
-                    q.push_back((iter->second)/ss_probes);
+                    q.push_back((double)((iter->second)/ss_probes));
 
                     //cout<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<endl;
                     //output<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<"\n";
