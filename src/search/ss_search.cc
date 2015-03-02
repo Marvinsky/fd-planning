@@ -359,7 +359,7 @@ void SSSearch::generateAverageReport() {
                  if (i == n.getL()) {
                     k++;
                     f.push_back(n.getF());
-                    q.push_back((double)((iter->second)/ss_probes));
+                    q.push_back(((double)iter->second)/(double)ss_probes);
 
                     //cout<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<endl;
                     //output<<"l = "<<n.getL()<<" f = "<<n.getF()<<" q = "<<(iter->second)/ss_probes<<"\n";

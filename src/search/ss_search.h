@@ -66,7 +66,7 @@ private:
         std::map<Node2, unsigned long long> collector;
 
         std::map<Node2, unsigned long long> average;
-        long totalPrediction;         
+        double totalPrediction;         
 
 	std::vector<Heuristic*> heuristics; 
 	Heuristic* heuristic;
