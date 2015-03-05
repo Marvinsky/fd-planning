@@ -26,6 +26,7 @@ HEADERS = \
           domain_transition_graph.h \
           dfs_search.h \
           speed_progress.h \
+          eager_culprits.h \
           eager_search.h \
 	  eager_search_kre.h \
           eager_dijkstra_search.h \
