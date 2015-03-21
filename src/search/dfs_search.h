@@ -44,8 +44,8 @@ public:
 	State state;
         int h_value;
         int g_value;
-        int level;
-        SSNode(State s, int h, int g, int l) : state(s), h_value(h), g_value(g), level(l) {}
+        
+        SSNode(State s, int h, int g) : state(s), h_value(h), g_value(g) {}
 };
 
 class DFSSearch : public SearchEngine {

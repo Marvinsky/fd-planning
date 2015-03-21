@@ -370,9 +370,9 @@ int DFSSearch::step() {
     heuristics[0]->evaluate(*g_initial_state);	
     int h_initial = heuristics[0]->get_value();
     cout<<"h_initial = "<<h_initial<<endl;
-    SSNode node(*g_initial_state, h_initial, 0, 0);
+    SSNode node(*g_initial_state, h_initial, 0);
     //For some domains the heuristic is constant equual to six 
-    depth = 2*h_initial;
+    depth = 6;//2*h_initial;
     cout<<"depth = "<<depth<<endl;
     queue.push(node); 
 
@@ -384,7 +384,7 @@ int DFSSearch::step() {
         //printStack(queue); 
      
        SSNode nodecp = queue.top();
-       int g = nodecp.level;
+       int g = nodecp.g_value;
        cout<<nraiz<<": Raiz h = "<<nodecp.h_value<<", g = "<<nodecp.g_value<<", f = "<<nodecp.h_value + nodecp.g_value<<endl;
        
        nraiz++;
@@ -395,14 +395,14 @@ int DFSSearch::step() {
        Node2 node2(nodecp.h_value + nodecp.g_value, g);
     
        
-       if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
+       /*if (collector.insert(pair<Node2, int>(node2, count_value)).second) {
           count_value = 1;
        } else {
           map<Node2, int>::iterator iter = collector.find(node2);
           int q = iter->second;
           q++;
           iter->second = q;
-       }
+       }*/
        count_total++;
        vector<const Operator *> applicable_ops;
        set<const Operator *> preferred_ops;
@@ -419,7 +419,9 @@ int DFSSearch::step() {
        }
 
        search_progress.inc_evaluations(preferred_operator_heuristics.size());
-       
+               
+      
+
        for (int i = 0; i < applicable_ops.size(); i++) {
           
            const Operator *op = applicable_ops[i];
@@ -430,9 +432,9 @@ int DFSSearch::step() {
            heuristics[0]->evaluate(child);
            int succ_h = heuristics[0]->get_heuristic();
               
-           
-           SSNode succ_node(child, succ_h, nodecp.g_value + 1, g + 1);
-           cout<<"\tNodes generated:  h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
+           search_progress.inc_generated();
+           SSNode succ_node(child, succ_h, g + get_adjusted_cost(*op));
+           cout<<"S : "; child.inline_dump(); cout<<"_ h = "<<succ_h<<", g = "<<succ_node.g_value<<", f = "<<succ_node.h_value + succ_node.g_value<<endl;
 
               
               if (succ_h + succ_node.g_value <= depth) {
@@ -445,6 +447,14 @@ int DFSSearch::step() {
     } // end while
     cout<<"end expansion of nodes finished."<<endl;
     cout<<"Total of nodes expanded: "<<count_total<<endl;
+    int nodes_total = 0;
+    for (map<Node2, int>::iterator iter = collector.begin(); iter != collector.end(); iter++) {
+           Node2 n = iter->first;
+  	   int q = iter->second;
+           nodes_total += q;  
+    }
+    cout<<"nodes_total = "<<nodes_total<<endl;
+
     cout<<"collector.size() = "<<collector.size()<<endl;
 
 
